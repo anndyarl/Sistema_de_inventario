@@ -6,7 +6,7 @@ import { refreshTokenAction } from "../redux/actions/auth/authActions";
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_CSRF_API_URL,
   headers: {
-    'Content-Type': 'application/json', // AGREGAR ESTO POR DEFECTO
+    'Content-Type': 'application/json', 
   },
 });
 
@@ -47,23 +47,23 @@ try {
     const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
     
-    console.log("==========================================");
-    console.log("🔐 INFORMACIÓN DEL TOKEN:");
-  console.log(`📅 Fecha actual: ${now.toLocaleString()}`);
-    console.log(`📅 Fecha de expiración (exp): ${expDate.toLocaleString()}`);  
+    
+    console.log("INFORMACIÓN DEL TOKEN:");
+    console.log(`Fecha actual: ${now.toLocaleString()}`);
+    console.log(`Fecha de expiración (exp): ${expDate.toLocaleString()}`);  
     console.log("------------------------------------------");
     
     // Mostrar según el tiempo restante
     if (diffTime < 0) {
-      console.log("❌ TOKEN EXPIRADO");
+      console.log("TOKEN EXPIRADO");
     // store.dispatch({ type: "LOGOUT" });
     } else if (diffDays > 0) {
-      console.log(`✅ Token válido por: ${diffDays} día(s)`);
-      console.log(`   Expira el: ${expDate.toLocaleDateString()}`);
+      console.log(`Token válido por: ${diffDays} día(s)`);
+      console.log(`Expira el: ${expDate.toLocaleDateString()}`);
     } else if (diffHours > 0) {
-      console.log(`✅ Token válido por: ${diffHours} hora(s) y ${diffMinutes} minuto(s)`);
+      console.log(`Token válido por: ${diffHours} hora(s) y ${diffMinutes} minuto(s)`);
     } else {
-      console.log(`✅ Token válido por: ${diffMinutes} minuto(s)`);
+      console.log(`Token válido por: ${diffMinutes} minuto(s)`);
     }
     console.log("==========================================");
   }

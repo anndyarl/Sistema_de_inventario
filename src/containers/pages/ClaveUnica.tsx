@@ -59,6 +59,8 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
     return <Navigate to="/Inicio" />
   }
 
+  const hoy = new Date();
+  const anio = hoy.getFullYear();
   return (
     <div className="min-vh-100 d-flex flex-column flex-md-row">
       {/* Left Section - Login Form */}
@@ -150,7 +152,7 @@ const ClaveUnica: React.FC<Props> = ({ isAuthenticated }) => {
 
           {/* Footer */}
           <footer className="text-white text-center mt-4" style={{ fontSize: "12px" }}>
-            <p className="mb-0">Departamento de Informática | Unidad de Desarrollo 2025</p>
+            <p className="mb-0">Departamento de Informática | Unidad de Desarrollo {anio}</p>
             <p className="mb-0">Servicio de Salud Metropolitano Sur Oriente</p>
           </footer>
         </div>

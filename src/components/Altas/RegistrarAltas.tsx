@@ -48,7 +48,7 @@ export interface ListaSalidaAltas {
 interface DatosAltas {
   listaAltas: ListaAltas[];
   listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
-  listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => Promise<boolean>;
   registrarAltasActions: (activos: { AF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -77,6 +77,31 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
     fHasta: "",
     af_codigo_generico: afCodigoGenerico
   });
+
+  const validate = () => {
+    let tempErrors: Partial<any> & {} = {};
+
+    // Validar que si hay fecha de inicio, debe haber fecha de término
+    if (Inventario.fDesde && !Inventario.fHasta) {
+      tempErrors.fDesde = "Debe ingresar una fecha de término.";
+    }
+
+    // Validar que si hay fecha de término, debe haber fecha de inicio
+    if (!Inventario.fDesde && Inventario.fHasta) {
+      tempErrors.fDesde = "Debe ingresar una fecha de inicio.";
+    }
+
+    // Si ambas fechas están presentes, validar el rango
+    if (Inventario.fDesde && Inventario.fHasta) {
+      if (Inventario.fDesde > Inventario.fHasta) {
+        tempErrors.fDesde = "La fecha de inicio no puede ser mayor a la fecha de término.";
+        tempErrors.fHasta = "La fecha de término no puede ser menor a la fecha de inicio.";
+      }
+    }
+
+    setError(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
 
   useEffect(() => {
     listaAuto();
@@ -110,17 +135,16 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
   const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault();
-    let resultado = false;
     setLoading(true);
 
-    if (Inventario.fDesde != "" || Inventario.fHasta != "") {
-      if (validate()) {
-        resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, 0, objeto.Roles[0].codigoEstablecimiento);
-      }
+    let resultado = false;
+    // Si ambas fechas están ingresadas, validar    
+    if (!validate()) {
+      setLoading(false);
+      return;
     }
-    else {
-      resultado = await listaAltasActions("", "", Inventario.af_codigo_generico, 0, objeto.Roles[0].codigoEstablecimiento);
-    }
+    resultado = await listaAltasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, 0, objeto.Roles[0].codigoEstablecimiento);
+
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -135,14 +159,6 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
       paginar(1);
       setLoading(false); //Finaliza estado de carga
     }
-  };
-
-  const validate = () => {
-    let tempErrors: Partial<any> & {} = {};
-    if (Inventario.fDesde > Inventario.fHasta) tempErrors.fDesde = "La fecha de inicio es mayor a la fecha de término";
-
-    setError(tempErrors);
-    return Object.keys(tempErrors).length === 0;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -310,7 +326,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   };
 
   const HandleFirmarAltas = () => {
-    listaAltasRegistradasActions("", "", "", listaSalidaAltas[0].altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
+    listaAltasRegistradasActions("", "", "", 0, listaSalidaAltas[0].altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
     navigate("/Altas/FirmarAltas", {
       state: { prop_altaS_CORR: listaSalidaAltas[0].altaS_CORR }
     });

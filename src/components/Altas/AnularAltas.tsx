@@ -37,7 +37,7 @@ export interface ListaAltas {
 
 interface DatosAltas {
   listaAltasRegistradas: ListaAltas[];
-  listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, establ_corr: number) => Promise<boolean>;
+  listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => Promise<boolean>;
   anularAltasActions: (activos: { aF_CLAVE: number }[]) => Promise<boolean>;
   token: string | null;
   isDarkMode: boolean;
@@ -67,7 +67,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     if (token) {
       if (listaAltasRegistradas.length === 0) {
         setLoading(true);
-        const resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+        const resultado = await listaAltasRegistradasActions("", "", "", 0, 0, objeto.Roles[0].codigoEstablecimiento);
         if (!resultado) {
           Swal.fire({
             icon: "warning",
@@ -121,17 +121,18 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
     }));
   };
 
-  const handleBuscar = async () => {
-    let resultado = false;
+  const handleBuscar = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLElement>) => {
+    e.preventDefault();
     setLoading(true);
-    if (Inventario.fDesde != "" || Inventario.fHasta != "") {
-      if (validate()) {
-        resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
-      }
+
+    let resultado = false;
+    // Si ambas fechas están ingresadas, validar    
+    if (!validate()) {
+      setLoading(false);
+      return;
     }
-    else {
-      resultado = await listaAltasRegistradasActions("", "", Inventario.af_codigo_generico, Inventario.altaS_CORR, objeto.Roles[0].codigoEstablecimiento);
-    }
+
+    resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, 0, objeto.Roles[0].codigoEstablecimiento);
 
     if (!resultado) {
       Swal.fire({
@@ -146,7 +147,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
           popup: "custom-border", // Clase personalizada para el borde
         }
       });
-      resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+      resultado = await listaAltasRegistradasActions("", "", "", 0, 0, objeto.Roles[0].codigoEstablecimiento);
       setLoading(false); //Finaliza estado de carga
       return;
     } else {
@@ -158,7 +159,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
 
   const handleRefrescar = async () => {
     setLoadingRefresh(true); //Finaliza estado de carga
-    const resultado = await listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+    const resultado = await listaAltasRegistradasActions("", "", "", 0, 0, objeto.Roles[0].codigoEstablecimiento);
     if (!resultado) {
       setLoadingRefresh(false);
     } else {
@@ -255,7 +256,7 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
         });
 
         setLoadingAnular(false);
-        listaAltasRegistradasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+        listaAltasRegistradasActions("", "", "", 0, 0, objeto.Roles[0].codigoEstablecimiento);
         setFilasSeleccionadas([]);
       } else {
         Swal.fire({
@@ -370,6 +371,11 @@ const AnularAltas: React.FC<DatosAltas> = ({ listaAltasRegistradasActions, anula
               <div className="d-md-flex justify-content-md-start alig-items-center mt-4">
                 <Button
                   onClick={handleBuscar}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleBuscar(e);
+                    }
+                  }}
                   variant={isDarkMode ? "secondary" : "primary"}
                   className="mx-1 mb-1 w-100"
                   disabled={loading}

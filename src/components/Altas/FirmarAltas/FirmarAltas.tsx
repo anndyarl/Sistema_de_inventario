@@ -12,7 +12,7 @@ import DocumentoPDF from './DocumentoPDF';
 import { BlobProvider, /*PDFDownloadLink*/ } from '@react-pdf/renderer';
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { Eraser, FiletypePdf, Paperclip, Search, Trash, XCircle } from "react-bootstrap-icons";
+import { Eraser, FiletypePdf, InfoCircle, Paperclip, Search, Trash, XCircle } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
@@ -1763,6 +1763,22 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <div className="d-flex flex-column flex-md-row align-items-start 
+                                           bg-light border-start border-4 border-info shadow-sm rounded p-3 gap-2 mb-2">
+
+                        <span className="fw-semibold text-info me-2">
+                            <InfoCircle className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
+                        </span>
+                        <div className="small text-dark">
+                            <strong>Validación de documento</strong><br />
+                            Una vez enviada la solicitud, ingrese al sistema <b>ERP</b>:
+                            <a href="https://www.ssmso.cl/GestorSSMSO/" target="_blank" rel="noopener noreferrer">
+                                https://www.ssmso.cl/GestorSSMSO/
+                            </a>.
+                            <br />
+                            Luego diríjase al módulo <b>Gestor Documental</b> y acceda a la sección <b>“Validar”</b>.
+                        </div>
+                    </div>
                     <form >
                         <Row>
                             <Col md={2}>

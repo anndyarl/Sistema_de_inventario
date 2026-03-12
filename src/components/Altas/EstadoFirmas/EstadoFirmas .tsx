@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, Paperclip, Pencil, PencilFill, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Check2Circle, CheckCircle, Clock, Eraser, Exclamation, Eye, EyeFill, EyeSlash, FiletypePdf, Info, InfoCircle, Paperclip, Pencil, PencilFill, PencilSquare, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { pdf } from "@react-pdf/renderer";
@@ -45,7 +45,7 @@ export interface ListaEstadoFirmas {
 }
 
 export interface ListaEstadoVisadores {
-    id: number;
+    idocumento: number;
     idcargo: number;
     nombrecargo: string;
     jerarquia: number;
@@ -127,11 +127,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [______, setLoadingEnvio] = useState(false);
     const [loadingModificar, setLoadingModificar] = useState(false);
 
-    const [mostrarModal, setMostrarModal] = useState(false);
+    const [modalPdf, setModalPDF] = useState(false);
     const [mostrarModalEstado, setMostrarModalEstado] = useState(false);
-    const [mostrarModalVisadores, setMostrarModalVisadores] = useState(false);
-    const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
-
+    const [modalVisadores, setModalSolicitarVisadores] = useState(false);
+    const [modalVisadoresClasico, setModalSolicitarVisadoresClasico] = useState(false);
+    const [modalModificar, setModalModificar] = useState(false);
     const [paginaActualModificar, setPaginaActualModificar] = useState(1);
     const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
     const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
@@ -189,6 +189,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         CuerpoDocumento: ""
     });
 
+    //Estados de los firmantes
     const [AltaInventario, setAltaInventario] = useState({
         ajustarFirma: false,//General
         chkFinanzas: false,//Opcional
@@ -225,6 +226,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         visadoAbastecimiento: ""
     });
 
+    //Estado de la especie
     const [_______, setEspecies] = useState({
         estableEspecie: 0,
         codigoEspecie: "",
@@ -466,9 +468,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
 
         // Solo copia cuando el modal está abierto y hay datos nuevos
-
-
-        if (mostrarModalModificar && listaAltasRegistradas.length > 0) {
+        if (modalModificar && listaAltasRegistradas.length > 0) {
             setInventarioModificar(
                 listaAltasRegistradas.map(item => ({ ...item }))
             );
@@ -485,7 +485,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setCuerpoDocumentoPDF(visadoBase64);
 
     }, [
-        mostrarModalModificar,
+        modalModificar,
         documentoByte64,
         listaEstado.length,
         listaEstadoVisadores.length,
@@ -554,8 +554,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         return "png"; // fallback
     };
 
-    const handleObtenerVisado = useCallback((idocumento: number) => {
-        setMostrarModal(true);
+    const handleObtieneVisado = useCallback((idocumento: number) => {
+        setModalPDF(true);
         setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== idocumento));
         obtieneVisadoCompletoActions(idocumento);
     }, []);
@@ -572,7 +572,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 Swal.fire({
                     icon: "info",
                     title: "No disponible",
-                    text: "El detalle de los visadores no está disponible, ya que esta alta fue gestionada desde el sistema anterior.",
+                    text: "El detalle de los visadores no está disponible, ya que esta alta fue gestionada desde el sistema de inventario anterior.",
                     background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
                     color: `${isDarkMode ? "#ffffff" : "000000"}`,
                     confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -1007,8 +1007,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setAltaInventario(updatedState);
     }, [AltaInventario, datosFirmas, objeto]);
 
-    const handleAbrirModalModificar = async (altaS_CORR: number, idocumento: number) => {
-        setMostrarModalModificar(true); //Abre modal modificar
+    const handleModalModificar = async (altaS_CORR: number, idocumento: number) => {
+        setModalModificar(true); //Abre modal modificar
         setLoadingModificar(true); //Carga skeletor tabla
         setHabilitarModificar(true); //deshabilita boton modificar
         setHabilitarVisado(true); //deshabilita boton visado
@@ -1019,10 +1019,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     };
 
     const handleCerrarModalModificar = () => {
-        setMostrarModalModificar(false);
+        setModalModificar(false);
         setFilasSeleccionadas([]);
     };
-
 
     const handleModificarSubmit = async () => {
         let mensajeHtml = "";
@@ -1085,7 +1084,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             }
 
             setHabilitarVisado(false); //habilita boton de visado
-            limpiarDataActions(); //limpia datos desde el storage de redux
         }
     };
 
@@ -1324,7 +1322,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
             if (result.isConfirmed) {
                 setLoadingEnvio(true);
-                setMostrarModalVisadores(false);
+                setModalSolicitarVisadores(false);
                 const resultado = await registrarDocumentoAltaActions(documento);
 
                 if (!resultado) {
@@ -1337,10 +1335,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: { popup: "custom-border" }
                     });
-                    setMostrarModalModificar(false);
+                    setModalModificar(false);
                     setLoadingEnvio(false);
                     setFilasSeleccionadas([]);
-                    setMostrarModal(false);
+                    setModalPDF(false);
                     setLoadingSolicitarVisado(false);
                     setAnexos([]);
 
@@ -1355,19 +1353,18 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
                         customClass: { popup: "custom-border" }
                     });
-                    setMostrarModalModificar(false);
+                    setModalModificar(false);
                     setLoadingEnvio(false);
                     // listaEstadoFirmasActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
                     // setFilasSeleccionadas([]);      
-                    setMostrarModalVisadores(false);
+                    setModalSolicitarVisadores(false);
                     setLoadingSolicitarVisado(false);
                     // setAnexos([]);
                 }
             }
         }
     };
-
-    const handleAbrirModalVisado = () => {
+    const handleModalSolicitarVisadores = () => {
 
         setAltaInventario((prev) => ({
             ...prev,
@@ -1392,8 +1389,38 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             subroganteRFisico: false,
 
         }))
-        setMostrarModalVisadores(true);
+        setModalSolicitarVisadores(true);
     };
+
+    const handleModalSolicitarVisadoresClasico = () => {
+
+        setAltaInventario((prev) => ({
+            ...prev,
+            ajustarFirma: false,//General
+            chkFinanzas: false,//Opcional
+            chkAbastecimiento: false,//Opcional
+            chkUnidad: false,//Opcional
+            titularInventario: false,
+            subroganteInventario: false,
+            titularFinanzas: false,
+            subroganteFinanzas: false,
+            unidad: 0, //Combo Unidad
+            titularAbastecimiento: false,
+            subroganteAbastecimiento: false,
+            titularInformatica: false,
+            subroganteInformatica: false,
+            titularCompra: false,
+            subroganteCompra: false,
+            titularConvenio: false,
+            subroganteConvenio: false,
+            titularRFisico: false,
+            subroganteRFisico: false,
+
+        }))
+        setModalSolicitarVisadoresClasico(true);
+    };
+
+
     {/*---------------------- Logica Especies--------------------*/ }
 
     const especieOptions = comboEspecies.map((item) => ({
@@ -1680,7 +1707,31 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             key: 'idocumento' as keyof ListaEstadoFirmas,
             header: 'N° DOCUMENTO',
             className: 'text-center',
-            cellClassName: 'text-nowrap text-center'
+            cellClassName: 'text-nowrap text-center',
+            render: (value: number, item: ListaEstadoFirmas) => (
+                <>
+                    <span>{value}</span> {/* Texto adicional para verificar */}
+                    {item.idocumento === 441154 && (
+                        <>
+                            <OverlayTrigger
+                                placement="right"
+                                overlay={
+                                    <Tooltip id="tooltip-limpiar" className="tooltip-info">
+                                        Registrado desde el Sistema de Inventario anterior
+                                    </Tooltip>
+                                }
+                            >
+
+                                <span className="fw-semibold text-info me-2">
+                                    <InfoCircle className="flex-shrink-0" width={15} height={15} aria-hidden="true" />
+                                </span>
+                            </OverlayTrigger>
+                        </>
+                    )
+                    }
+                </>
+            )
+
         },
         {
             key: 'altaS_CORR' as keyof ListaEstadoFirmas,
@@ -1693,22 +1744,40 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             header: 'Estado Solicitud',
             className: 'text-center',
             cellClassName: 'text-center w-30',
-            render: (value: number, item: ListaEstadoFirmas) => (
-                <Button
-                    onClick={() => handleObtenerEstadoVisadores(item.idocumento)}
-                    variant="light"
-                    size="sm"
-                    className={`rounded border-0 fw-semibold  
-                    ${value === 0 ? "bg-warning text-white" :
-                            value === 1 ? "bg-success text-white" :
-                                value === 2 ? "bg-danger text-white" : "bg-secondary text-white"}`}
-                >
-                    {value === 0 && "Enviada"}
-                    {value === 1 && "Firmada"}
-                    {value === 2 && "Rechazada"}
-                    <Eye className="mx-2" width={18} height={18} />
-                </Button>
-            )
+            render: (value: number, item: ListaEstadoFirmas) => {
+
+                const esSistemaAntiguo = item.idocumento === 441154;
+
+                const estadoTexto =
+                    value === 0 ? "Enviada" :
+                        value === 1 ? "Firmada" :
+                            value === 2 ? "Rechazada" :
+                                "Desconocido";
+
+                const estadoColor =
+                    value === 0 ? "bg-warning text-white" :
+                        value === 1 ? "bg-success text-white" :
+                            value === 2 ? "bg-danger text-white" :
+                                "bg-secondary text-white";
+
+                return (
+                    <Button
+                        onClick={() => handleObtenerEstadoVisadores(item.idocumento)}
+                        variant="light"
+                        size="sm"
+                        className={`rounded border-0 fw-semibold col-12 col-lg-6 ${estadoColor}`}
+                    >
+                        {estadoTexto}
+
+                        {esSistemaAntiguo ? (
+                            <EyeSlash className="ms-2" width={18} height={18} />
+                        ) : (
+                            <Eye className="ms-2" width={18} height={18} />
+                        )}
+
+                    </Button>
+                );
+            }
         },
         {
             key: 'fecha' as keyof ListaEstadoFirmas,
@@ -1727,40 +1796,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             disableSort: true,
             render: (_: any, item: ListaEstadoFirmas) => (
                 <>
-                    {item.estado === 1 ? (
-                        <OverlayTrigger
-                            placement="right"
-                            overlay={<Tooltip id="tooltip-estado">Documento Firmado</Tooltip>}
-                        >
-                            <Button
-                                type="button"
-                                className="fw-semibold mx-1"
-                                onClick={() => handleObtenerVisado(item.idocumento)}
-                            >
-                                Ver
-                                <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                            </Button>
-                        </OverlayTrigger>
-                    ) : (
-                        <Button
-                            type="button"
-                            className="fw-semibold mx-1"
-                            disabled
-                        >
-                            Ver
-                            <Eye className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                        </Button>
-                    )}
 
                     <Button
                         type="button"
                         variant="secondary"
                         className="fw-semibold mx-1"
-                        onClick={() => handleAbrirModalModificar(item.altaS_CORR, item.idocumento)}
+                        onClick={() => handleModalModificar(item.altaS_CORR, item.idocumento)}
                     >
                         Modificar
-                        <PencilFill className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                        <PencilSquare className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                     </Button>
+
                 </>
             )
         }
@@ -1972,7 +2018,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             </div>
 
             {/*Modal PDF */}
-            <Modal show={mostrarModal} onHide={() => setMostrarModal(false)} dialogClassName="modal-right" size="xl">
+            <Modal show={modalPdf} onHide={() => setModalPDF(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={`modal-header text-white bg-success`} closeButton>
                     <Modal.Title className="fw-semibold">
                         <CheckCircle className={"flex-shrink-0 h-5 w-5 mx-2 mb-1"} aria-hidden="true" />Documento firmado
@@ -2016,6 +2062,22 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                       </Button>
                     </div> */}
                 <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <Col xs={12} lg="auto">
+                        <div className="d-flex justify-content-center justify-content-lg-end">
+                            {listaEstadoVisadores.length > 0 &&
+                                listaEstadoVisadores.every(v => v.firmado === 1) && (
+                                    <Button
+                                        type="button"
+                                        variant="success"
+                                        className="fw-semibold p-2"
+                                        onClick={() => handleObtieneVisado(listaEstadoVisadores[0].idocumento)}
+                                    >
+                                        Visado Disponible
+                                        <FiletypePdf className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                    </Button>
+                                )}
+                        </div>
+                    </Col>
                     <div className="table-responsive">
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead>
@@ -2060,7 +2122,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             </Modal>
 
             {/*Modal Modificar */}
-            <Modal show={mostrarModalModificar} onHide={(handleCerrarModalModificar)}
+            <Modal show={modalModificar} onHide={(handleCerrarModalModificar)}
                 backdrop="static"
                 keyboard={false}
                 fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}
@@ -2081,10 +2143,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <SkeletonLoader rowCount={elementosPorPaginaModificar} />
                     ) : (
                         <>
-                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-end">
+                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-lg-end">
                                 <Col xs={12} lg="auto">
                                     {listaAltasRegistradas.length > 10 && (
-                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-end">
                                             <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
                                                 Tamaño de página:
                                             </label>
@@ -2104,13 +2166,13 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         </div>
                                     )}
                                 </Col>
-                                <Col xs={12} lg={2}>
-                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
+                                <Col xs={12} lg="auto">
+                                    <div className="d-flex justify-content-center justify-content-lg-end">
                                         {filasSeleccionadas.length > 0 ? (
                                             <Button
-                                                variant={`danger`}
-                                                onClick={(handleAnular)}
-                                                className="p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                                                variant="danger"
+                                                onClick={handleAnular}
+                                                className="p-2 d-flex align-items-center justify-content-center"
                                                 disabled={loading}
                                             >
                                                 {loading ? (
@@ -2128,61 +2190,71 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                 ) : (
                                                     <>
                                                         Quitar
-                                                        <span className="badge bg-light text-dark">
+                                                        <span className="badge bg-light text-dark ms-1">
                                                             {filasSeleccionadas.length}
                                                         </span>
                                                     </>
                                                 )}
                                             </Button>
                                         ) : (
-
-                                            <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                                <strong className="alert alert-dark border p-2 mb-2 mb-sm-0 mx-sm-0 w-100 w-lg-auto text-center">
-                                                    No hay filas seleccionadas
-                                                </strong>
-                                            </div>
-
+                                            <strong className="alert alert-dark border p-2 mb-0 text-center">
+                                                No hay filas seleccionadas
+                                            </strong>
                                         )}
                                     </div>
                                 </Col>
-                                <Col xs={12} lg={4}>
-                                    <div className="d-flex justify-content-center justify-content-lg-end w-100">
-                                        <Button
-                                            variant="secondary"
-                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
-                                            onClick={handleModificarSubmit}
-                                            disabled={habilitarModificar}
-                                        >
-                                            {loadingModificar ? (
-                                                <>
-                                                    Modificar
-                                                    <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        role="status"
-                                                        aria-hidden="true"
-                                                        className="ms-2"
-                                                    />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Modificar
-                                                    <span className="badge bg-light text-dark mx-1 mt-1">
-                                                        {ModificarInventario.length}
-                                                    </span>
-                                                </>
-                                            )}
-                                        </Button>
-
-                                        <Button
-                                            onClick={(handleAbrirModalVisado)}
-                                            disabled={habilitarVisado}
-                                            variant={isDarkMode ? "secondary" : "primary"}
-                                            className="p-2 mb-2 mb-sm-0 mx-sm-1 w-100 w-sm-auto"
-                                        >
-                                            Solicitar Visado
-                                        </Button>
+                                <Col xs={12} lg="auto">
+                                    <div className="d-flex justify-content-center justify-content-lg-end gap-2">
+                                        {listaAltasRegistradas[0]?.idocumento !== 441154 ? (
+                                            <>
+                                                <Button
+                                                    variant="secondary"
+                                                    className="p-2"
+                                                    onClick={handleModificarSubmit}
+                                                    disabled={habilitarModificar}
+                                                >
+                                                    {loadingModificar ? (
+                                                        <>
+                                                            Un Momento...
+                                                            <Spinner
+                                                                as="span"
+                                                                animation="border"
+                                                                size="sm"
+                                                                role="status"
+                                                                aria-hidden="true"
+                                                                className="ms-2"
+                                                            />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            Confirmar Cambios
+                                                            <span className="badge bg-light text-dark mx-1">
+                                                                {ModificarInventario.length}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    onClick={handleModalSolicitarVisadores}
+                                                    variant={isDarkMode ? "secondary" : "primary"}
+                                                    className="p-2"
+                                                    disabled={habilitarVisado}
+                                                >
+                                                    Solicitar Nuevo Visado
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <Button
+                                                onClick={handleModalSolicitarVisadoresClasico}
+                                                variant={isDarkMode ? "secondary" : "primary"}
+                                                className="p-2"
+                                            >
+                                                Visar documento
+                                                <span className="fw-semibold mx-1 badge bg-warning bg-opacity-75">
+                                                    Clásico
+                                                </span>
+                                            </Button>
+                                        )}
                                     </div>
                                 </Col>
 
@@ -2194,11 +2266,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         <small className="text-muted d-block mb-1">Nº Documento</small>
                                         <h5 className="mb-0 fw-bold d-flex align-items-center">
                                             {listaAltasRegistradas[0]?.idocumento ?? "-"}
-                                            {listaAltasRegistradas[0]?.idocumento === 441154 && (
-                                                <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.65rem' }}>
-                                                    Registrado desde Sistema antiguo
-                                                </span>
-                                            )}
                                         </h5>
                                     </div>
                                 </Col>
@@ -2519,12 +2586,28 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 </Modal.Body>
             </Modal >
 
-            {/*Modal Firma Visadores */}
-            <Modal show={mostrarModalVisadores} onHide={() => setMostrarModalVisadores(false)} dialogClassName="modal-right" size="xl">
+            {/*Modal Firma Visadores(Nuevo) */}
+            <Modal show={modalVisadores} onHide={() => setModalSolicitarVisadores(false)} dialogClassName="modal-right" size="xl">
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
-                    <Modal.Title className="fw-semibold">Firmar Alta</Modal.Title>
+                    <Modal.Title className="fw-semibold">Visar Documento</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <div className="d-flex flex-column flex-md-row align-items-start 
+                       bg-light border-start border-4 border-info shadow-sm rounded p-3 gap-2 mb-2">
+
+                        <span className="fw-semibold text-info me-2">
+                            <InfoCircle className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
+                        </span>
+                        <div className="small text-dark">
+                            <strong>Validación de documento</strong><br />
+                            Una vez enviada la solicitud, ingrese al sistema <b>ERP</b>:
+                            <a href="https://www.ssmso.cl/GestorSSMSO/" target="_blank" className="mx-1" rel="noopener noreferrer">
+                                https://www.ssmso.cl/GestorSSMSO/
+                            </a>
+                            <br />
+                            Luego diríjase al módulo <b>Gestor Documental</b> y acceda a la sección <b>“Validar”</b>.
+                        </div>
+                    </div>
                     <form >
                         <Row>
                             <Col md={2}>
@@ -2538,6 +2621,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                     checked={AltaInventario.ajustarFirma}
                                 /></Col>
                         </Row>
+
 
                         <div className="d-flex justify-content-end">
                             <Button
@@ -3074,6 +3158,545 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     </form>
                 </Modal.Body>
             </Modal >
+            {/*Modal Firma Visadores(Clásico) */}
+            <Modal show={modalVisadoresClasico} onHide={() => setModalSolicitarVisadoresClasico(false)} dialogClassName="modal-right" size="xl">
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                    <Modal.Title className="fw-semibold">Visar Documento</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <div className="d-flex flex-column flex-md-row align-items-start 
+                       bg-light border-start border-4 border-info shadow-sm rounded p-3 gap-2 mb-2">
+
+                        <span className="fw-semibold text-info me-2">
+                            <InfoCircle className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
+                        </span>
+                        <div className="small text-dark">
+                            <strong>Validación de documento:</strong><br />
+                            EL visado se mostrará inmediatamente una vez seleccionado el/los firmante(s). Luego puede utilizar las herramientas para imprimir.
+                        </div>
+                    </div>
+                    <Row>
+                        <Col md={2}>
+                            <Form.Check
+                                onChange={handleCheck}
+                                name="ajustarFirma"
+                                type="checkbox"
+                                label="Ajustar firma"
+                                style={{ transform: 'scale(1)' }}
+                                className="form-switch mx-2 "
+                                checked={AltaInventario.ajustarFirma}
+                            /></Col>
+                    </Row>
+                    <div className="d-flex justify-content-end">
+                        {(objeto.Roles[0].codigoEstablecimiento == 2) &&
+                            <OverlayTrigger
+                                placement="top"
+                                overlay={<Tooltip id="tooltip-adjuntar">Puede adjuntar hasta 2 documentos</Tooltip>}
+                            >
+                                <span>
+                                    <Button
+                                        variant={isDarkMode ? "secondary" : "primary"}
+                                        className="mx-1 mb-1 d-flex align-items-center gap-2"
+                                        onClick={handleFileInput}
+                                        disabled={anexos.length >= 2}
+                                    >
+                                        <Paperclip width={18} height={18} aria-hidden="true" />
+                                        <span>Adjuntar documento</span>
+                                    </Button>
+                                </span>
+                            </OverlayTrigger>
+
+
+                        }
+                        <input
+                            aria-label="file"
+                            ref={inputRef}
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,.jpg,.png"
+                            style={{ display: "none" }}
+                            className={anexos.length > 2 ? "disabled" : ""}
+                            disabled={anexos.length > 2}
+                            onChange={handleChangeFiles}
+                        />
+
+                    </div>
+                    {/*Seleccion de visadores */}
+                    <Collapse in={isExpanded} dimension="height">
+                        <Row className="m-1 p-3 rounded rounded-4 border">
+                            <p className="border-bottom mb-2">Seleccione quienes firmarán el alta</p>
+
+                            {/* Unidad Inventario */}
+                            <Col md={4}>
+                                <p className="border-bottom fw-semibold text-center">Unidad Inventario</p>
+                                <div className="d-flex">
+                                    <Form.Check
+                                        onChange={handleCheck}
+                                        disabled={!AltaInventario.ajustarFirma}
+                                        name="titularInventario"
+                                        type="radio"
+                                        checked={AltaInventario.titularInventario}
+                                    />
+                                    {nombreTitularInventario ? (
+                                        <OverlayTrigger
+                                            placement="right"
+                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularInventario || ""}</Tooltip>}
+                                        >
+                                            <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                        </OverlayTrigger>
+                                    ) : (
+                                        <label htmlFor="titularInventario" className="ms-2">Titular Inventario</label>
+                                    )}
+
+                                </div>
+                                <div className="d-flex">
+                                    <Form.Check
+                                        onChange={handleCheck}
+                                        disabled={!AltaInventario.ajustarFirma}
+                                        name="subroganteInventario"
+                                        type="radio"
+                                        checked={AltaInventario.subroganteInventario}
+                                    />
+                                    {nombreSubInventario ? (
+                                        <OverlayTrigger
+                                            placement="right"
+                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubInventario}</Tooltip>}
+                                        >
+                                            <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                        </OverlayTrigger>
+                                    ) : (
+                                        <label htmlFor="subroganteInventario" className="ms-2">Subrogante Inventario</label>
+                                    )}
+                                </div>
+                            </Col>
+
+                            {/* Finanzas */}
+                            <Col md={4}>
+                                <p className="border-bottom fw-semibold text-center">Departamento de Finanzas</p>
+                                <div className="d-flex">
+                                    <label htmlFor="chkFinanzas" className="me-2">Opcional</label>
+                                    <Form.Check
+                                        onChange={handleCheck}
+                                        disabled={!AltaInventario.ajustarFirma}
+                                        name="chkFinanzas"
+                                        type="checkbox"
+                                        className="form-switch"
+                                        checked={AltaInventario.chkFinanzas}
+                                    />
+                                </div>
+                                <div className="d-flex">
+                                    <Form.Check
+                                        onChange={handleCheck}
+                                        disabled={!AltaInventario.chkFinanzas}
+                                        name="titularFinanzas"
+                                        type="radio"
+                                        checked={AltaInventario.titularFinanzas}
+                                    />
+                                    {nombreTitularfinanzas ? (
+                                        <OverlayTrigger
+                                            placement="right"
+                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularfinanzas}</Tooltip>}
+                                        >
+                                            <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                        </OverlayTrigger>
+                                    ) : (
+                                        <label htmlFor="titularFinanzas" className="ms-2">Titular Finanzas</label>
+                                    )}
+                                </div>
+                                <div className="d-flex">
+                                    <Form.Check
+                                        onChange={handleCheck}
+                                        disabled={!AltaInventario.chkFinanzas}
+                                        name="subroganteFinanzas"
+                                        type="radio"
+                                        checked={AltaInventario.subroganteFinanzas}
+                                    />
+                                    {nombreSubFinanzas ? (
+                                        <OverlayTrigger
+                                            placement="right"
+                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubFinanzas}</Tooltip>}
+                                        >
+                                            <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                        </OverlayTrigger>
+                                    ) : (
+                                        <label htmlFor="subroganteFinanzas" className="ms-2">Subrogante Finanzas</label>
+                                    )}
+                                </div>
+                            </Col>
+
+                            {/* Unidades específicas */}
+                            <Col md={4}>
+                                {objeto.Roles[0].codigoEstablecimiento == 1 ? (
+                                    <>
+                                        <p className="border-bottom fw-semibold text-center">Seleccione una Unidad</p>
+
+                                        <div className="d-flex">
+                                            <label htmlFor="chkUnidad" className="me-2">Opcional</label>
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.ajustarFirma}
+                                                name="chkUnidad"
+                                                type="checkbox"
+                                                className="form-switch"
+                                                checked={AltaInventario.chkUnidad}
+                                            />
+                                        </div>
+
+                                        <select
+                                            aria-label="unidad"
+                                            className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                            name="unidad"
+                                            onChange={handleChange}
+                                            disabled={!AltaInventario.chkUnidad}
+                                        >
+                                            <option value="">Seleccionar</option>
+                                            {comboUnidades.map((traeUnidades) => (
+                                                <option key={traeUnidades.iD_UNIDAD} value={traeUnidades.iD_UNIDAD}>
+                                                    {traeUnidades.nombre}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                        {/* Firmas según unidad */}
+                                        {Unidad === 3 && (
+                                            <>
+                                                <div className="d-flex mt-2">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="titularAbastecimiento"
+                                                        type="radio"
+                                                        checked={AltaInventario.titularAbastecimiento}
+                                                    />
+                                                    {nombreTitularAbastecimiento ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularAbastecimiento}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                    )}
+                                                </div>
+                                                <div className="d-flex">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="subroganteAbastecimiento"
+                                                        type="radio"
+                                                        checked={AltaInventario.subroganteAbastecimiento}
+                                                    />
+                                                    {nombreSubAbastecimiento ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubAbastecimiento}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {Unidad === 4 && (
+                                            <>
+                                                <div className="d-flex mt-2">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="titularInformatica"
+                                                        type="radio"
+                                                        checked={AltaInventario.titularInformatica}
+                                                    />
+                                                    {nombreTitularInformatica ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularInformatica}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="titularInformatica" className="ms-2">Titular Informática</label>
+                                                    )}
+
+                                                </div>
+                                                <div className="d-flex">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="subroganteInformatica"
+                                                        type="radio"
+                                                        checked={AltaInventario.subroganteInformatica}
+                                                    />
+                                                    {nombreSubInformatica ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubInformatica}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="subroganteInformatica" className="ms-2">Subrogante Informática</label>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                        {Unidad === 5 && (
+                                            <>
+                                                <div className="d-flex mt-2">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="titularCompra"
+                                                        type="radio"
+                                                        checked={AltaInventario.titularCompra}
+                                                    />
+                                                    {nombreTitularCompra ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularCompra}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="titularCompra" className="ms-2">Titular Compra</label>
+                                                    )}
+
+                                                </div>
+                                                <div className="d-flex">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="subroganteCompra"
+                                                        type="radio"
+                                                        checked={AltaInventario.subroganteCompra}
+                                                    />
+                                                    {nombreSubCompra ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubCompra}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="subroganteCompra" className="ms-2">Subrogante Compra</label>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                        {Unidad === 6 && (
+                                            <>
+                                                <div className="d-flex mt-2">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="titularConvenio"
+                                                        type="radio"
+                                                        checked={AltaInventario.titularConvenio}
+                                                    />
+                                                    {nombreTitularConvenio ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularConvenio}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="titularConvenio" className="ms-2">Titular Convenio</label>
+                                                    )}
+                                                </div>
+                                                <div className="d-flex">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="subroganteConvenio"
+                                                        type="radio"
+                                                        checked={AltaInventario.subroganteConvenio}
+                                                    />
+                                                    {nombreSubConvenio ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubConvenio}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="subroganteConvenio" className="ms-2">Subrogante Convenio</label>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                        {Unidad === 7 && (
+                                            <>
+                                                <div className="d-flex mt-2">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="titularRFisico"
+                                                        type="radio"
+                                                        checked={AltaInventario.titularRFisico}
+                                                    />
+                                                    {nombreTitularRFisico ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreTitularRFisico}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="titularRFisico" className="ms-2">Titular Recursos Fisicos</label>
+                                                    )}
+                                                </div>
+                                                <div className="d-flex">
+                                                    <Form.Check
+                                                        onChange={handleCheck}
+                                                        disabled={!AltaInventario.chkUnidad}
+                                                        name="subroganteRFisico"
+                                                        type="radio"
+                                                        checked={AltaInventario.subroganteRFisico}
+                                                    />
+                                                    {nombreSubRFisico ? (
+                                                        <OverlayTrigger
+                                                            placement="right"
+                                                            overlay={<Tooltip id="tooltip-limpiar">{nombreSubRFisico}</Tooltip>}
+                                                        >
+                                                            <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                        </OverlayTrigger>
+                                                    ) : (
+                                                        <label htmlFor="subroganteRFisico" className="ms-2">Subrogante Recursos Fisicos</label>
+                                                    )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Vista para usuarios sin privilegios especiales */}
+                                        <p className="border-bottom fw-semibold text-center">Unidad de Abastecimiento</p>
+                                        <div className="d-flex">
+                                            <label htmlFor="chkAbastecimiento" className="me-2">Opcional</label>
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.ajustarFirma}
+                                                name="chkAbastecimiento"
+                                                type="checkbox"
+                                                className="form-switch"
+                                                checked={AltaInventario.chkAbastecimiento}
+                                            />
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.chkAbastecimiento}
+                                                name="titularAbastecimiento"
+                                                type="radio"
+                                                checked={AltaInventario.titularAbastecimiento}
+                                            />
+                                            {nombreTitularAbastecimiento ? (
+                                                <OverlayTrigger
+                                                    placement="right"
+                                                    overlay={<Tooltip id="tooltip-limpiar">{nombreTitularAbastecimiento}</Tooltip>}
+                                                >
+                                                    <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                                </OverlayTrigger>
+                                            ) : (
+                                                <label htmlFor="titularAbastecimiento" className="ms-2">Titular Abastecimiento</label>
+                                            )}
+                                        </div>
+                                        <div className="d-flex">
+                                            <Form.Check
+                                                onChange={handleCheck}
+                                                disabled={!AltaInventario.chkAbastecimiento}
+                                                name="subroganteAbastecimiento"
+                                                type="radio"
+                                                checked={AltaInventario.subroganteAbastecimiento}
+                                            />
+                                            {nombreSubAbastecimiento ? (
+                                                <OverlayTrigger
+                                                    placement="right"
+                                                    overlay={<Tooltip id="tooltip-limpiar">{nombreSubAbastecimiento}</Tooltip>}
+                                                >
+                                                    <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                                </OverlayTrigger>
+                                            ) : (
+                                                <label htmlFor="subroganteAbastecimiento" className="ms-2">Subrogante Abastecimiento</label>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </Col>
+                        </Row>
+                    </Collapse>
+                    <h6 className="fw-semibold p-2">Documentos Adjuntos:</h6>
+
+                    {anexos.length > 2 && (
+                        <div className="w-100 text-end">
+                            <span className="badge bg-danger p-2">
+                                Elimine algunos archivos.
+                            </span>
+                        </div>
+                    )}
+
+                    {anexos.length > 0 && (
+                        <div className='table-responsive'>
+                            <table className={`table ${isDarkMode ? "table-dark" : "table-hover"}`}>
+                                <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark "}`}>
+                                    <tr>
+                                        <th scope="col">Documento</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {anexos.map((file, index) => (
+                                        <tr key={index} >
+                                            <td> {file.name}</td>
+                                            <td className="text-end">
+                                                <Button
+                                                    size="sm"
+                                                    variant="danger"
+                                                    className="p-2  mx-2 rounded"
+                                                    onClick={() => { setAnexos(prev => prev.filter((_, i) => i !== index)); }}
+                                                >
+                                                    {" Eliminar "}
+                                                    <Trash className={"flex-shrink-0 h-5 w-5  "} aria-hidden="true" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {/*Aqui se renderiza las propiedades de la tabla en el pdf */}
+                    <BlobProvider document={
+                        <DocumentoPDF
+                            row={filasSeleccionadasPDF}
+                            totalSum={totalSum}
+                        />
+                    }>
+                        {({ url, loading }) =>
+                            loading ? (
+                                <p>Generando vista previa...</p>
+                            ) : (
+                                <iframe
+                                    src={url ? `${url}` : ""}
+                                    title="Vista Previa del PDF"
+                                    style={{
+                                        width: "100%",
+                                        height: "900px",
+                                        border: "none"
+                                    }}
+                                ></iframe>
+                            )
+                        }
+                    </BlobProvider>
+
+                </Modal.Body>
+            </Modal>
 
             {/* Modal Especies*/}
             <Modal

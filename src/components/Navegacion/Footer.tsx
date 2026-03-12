@@ -20,13 +20,15 @@ const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode, activo = "Ve
 
     const version = listaVersionamiento[0]?.numerO_VERSION || "";
 
+    const hoy = new Date();
+    const anio = hoy.getFullYear();
     return (
         <>
             <footer className={`p-3 ${isDarkMode ? "bg-color-dark" : "bg-light"} border-top`}>
                 <div className="d-flex align-items-center">
                     <p className='fs-09em'>
                         <Info width={22} height={22} aria-hidden="true" />
-                        Copyright © 2025 Todos los derechos reservados SSMSO.
+                        Copyright © {anio} Todos los derechos reservados SSMSO.
                         <b className='text-warning'>{Ambiente}</b>
                         <a
                             onClick={() => setMostrarModal(true)}
