@@ -1023,7 +1023,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
     }
   };
 
-  const fechaCorte = new Date("2025-06-02");
+  const fechaCorte = new Date("2025-06-02");//Fecha puesta en producción el nuevo sistema de inventario
   const fechaIngreso = new Date(Inventario.AF_FINGRESO);
 
   const puedeValidar =
@@ -1118,6 +1118,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           )}
                         </Button>
                       </OverlayTrigger>
+
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-limpiar">Limpiar Busqueda</Tooltip>}
@@ -1842,7 +1843,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </Row>
               <div className="d-flex justify-content-end align-items-center gap-2 m-2 p-2 rounded">
 
-
                 {/* Validación / Estado */}
                 {/* // permitira modificar los activo igresados antes del 2 de junio de 2025(fecha de paso a producción) y los ingresados despues de esa fecha que esten en estado no visado */}
                 {
@@ -1878,8 +1878,6 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 }
 
               </div>
-
-
             </div>
           </form>
         </div>

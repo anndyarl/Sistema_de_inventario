@@ -29,7 +29,7 @@ const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode, activo = "Ve
                     <p className='fs-09em'>
                         <Info width={22} height={22} aria-hidden="true" />
                         Copyright © {anio} Todos los derechos reservados SSMSO.
-                        <b className='text-warning'>{Ambiente}</b>
+                        <b className='text-warning mx-1'>{Ambiente}</b>
                         <a
                             onClick={() => setMostrarModal(true)}
                             className={`fw-normal mx-1 text-decoration-none`}

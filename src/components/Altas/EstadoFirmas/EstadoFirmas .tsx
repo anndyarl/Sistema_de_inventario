@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Check2Circle, CheckCircle, Clock, Eraser, Exclamation, Eye, EyeFill, EyeSlash, FiletypePdf, Info, InfoCircle, Paperclip, Pencil, PencilFill, PencilSquare, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, EyeSlash, FiletypePdf, InfoCircle, Paperclip, Pencil, PencilSquare, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { pdf } from "@react-pdf/renderer";
@@ -20,12 +20,11 @@ import { BIEN, CUENTA, DETALLE, ListaEspecie } from "../../Inventario/RegistrarI
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoVisadoresActions, setSeguimientoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
-import { listaAltasRegistradasActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasRegistradasActions";
+import { listaAltasModificarActions } from "../../../redux/actions/Altas/AnularAltas/listaAltasModificarActions";
 import { obtenerfirmasAltasActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerfirmasAltasActions";
 import { registrarDocumentoAltaActions } from "../../../redux/actions/Altas/FirmarAltas/registrarDocumentoAltaActions";
 import { modificarFormInventarioActions } from "../../../redux/actions/Inventario/ModificarInventario/modificarFormInventarioActions";
 import { rechazarAltaActions } from "../../../redux/actions/Altas/EstadoFirmas/rechazarAltaAcions";
-import { limpiarDataActions } from "../../../redux/actions/Configuracion/preferenciasActions";
 import { obtenerUnidadesActions } from "../../../redux/actions/Altas/FirmarAltas/obtenerUnidadesActions";
 import { listadoDeEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/listadoDeEspeciesBienActions";
 import { comboEspeciesBienActions } from "../../../redux/actions/Inventario/Combos/comboEspeciesBienActions";
@@ -79,28 +78,22 @@ interface ListaAltas {
 }
 interface DatosBajas {
     listaEstado: ListaEstadoFirmas[];
-    listaAltasRegistradas: ListaAltas[];
+    listaAltasModificar: ListaAltas[];
     listaEspecie: ListaEspecie[];
     comboBien: BIEN[];
     comboDetalle: DETALLE[];
     comboEspecies: ListaEspecie[];
     comboCuenta: CUENTA[];
     comboSerDep: SERVICIO_DEPENDENCIA[];
-    listaAltasRegistradasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => Promise<boolean>;
+    listaAltasModificarActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altasCorr: number, idocumento: number, establ_corr: number) => Promise<boolean>;
     listadoDeEspeciesBienActions: (establ_corr: number, IDBIEN: number, esP_CODIGO: string, esp_NOMBRE: string) => Promise<boolean>;
-    listaEstadoActions: (
-        altasCorr: number,
-        idocumento: number,
-        establ_corr: number,
-        onSuccess?: (data: any[]) => void
-    ) => Promise<boolean>;
+    listaEstadoActions: (altasCorr: number, idocumento: number, establ_corr: number, onSuccess?: (data: any[]) => void) => Promise<boolean>;
     listaEstadoVisadoresActions: (idocumento: number) => Promise<Array<ListaEstadoVisadores> | null>;
     consultaFirmaVisadoresActions: (idocumento: number) => Promise<Array<ListaEstadoVisadores> | null>;
     obtieneVisadoCompletoActions: (idocumento: number) => Promise<boolean>;
     registrarDocumentoAltaActions: (documento: any) => Promise<number | null>;
     modificarFormInventarioActions: (Inventario: InventarioCompleto[]) => Promise<{ success: boolean; error?: string }>;
     rechazarAltaActions: (documento: number) => Promise<boolean>;
-    limpiarDataActions: () => Promise<boolean>;
     obtenerUnidadesActions: () => Promise<boolean>;
     obtenerfirmasAltasActions: () => Promise<boolean>;
     comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
@@ -118,7 +111,7 @@ interface DatosBajas {
     dataSeguimientoEstadoFirma: any;
 }
 
-const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasRegistradasActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, limpiarDataActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, anularInventarioActions, consultaFirmaVisadoresActions, listaAltasRegistradas, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas, dataSeguimientoEstadoFirma }) => {
+const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoCompletoActions, listaEstadoVisadoresActions, listaAltasModificarActions, registrarDocumentoAltaActions, modificarFormInventarioActions, rechazarAltaActions, obtenerUnidadesActions, obtenerfirmasAltasActions, listadoDeEspeciesBienActions, comboEspeciesBienActions, comboDetalleActions, comboCuentaModificarActions, comboSerDepActions, anularInventarioActions, consultaFirmaVisadoresActions, listaAltasModificar, listaEstadoVisadores, listaEstado, listaEspecie, comboBien, comboDetalle, comboEspecies, comboUnidades, comboCuenta, comboSerDep, token, isDarkMode, documentoByte64, objeto, datosFirmas, dataSeguimientoEstadoFirma }) => {
 
     const dispatch = useDispatch<AppDispatch>();
     const [loading, setLoading] = useState(false);
@@ -140,7 +133,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [PaginacionEspecies, setPaginacionEspecies] = useState({ nPaginacionEspecies: 10 });
     const elementosPorPaginaEspecies = PaginacionEspecies.nPaginacionEspecies;
 
-    const [elementoSeleccionadoVisado, setElementoSeleccionadoVisado] = useState<ListaEstadoFirmas[]>([]);
+    // const [elementoSeleccionadoVisado, setElementoSeleccionadoVisado] = useState<ListaEstadoFirmas[]>([]);
     const [___, setEditarCampo] = useState<string | null>(null);
 
     const [CuerpoDocumentoPDF, setCuerpoDocumentoPDF] = useState("");
@@ -151,7 +144,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [habilitarModificar, setHabilitarModificar] = useState(true); //Hasbilita botón modificar en modal
     const [isExpanded, setIsExpanded] = useState(false); //expande el los visadores(ajustar visado)
     const [Unidad, setUnidad] = useState<number>(0);
-    const [_____, setUnidadNombre] = useState<string>("");
+    const [UnidadNombre, setUnidadNombre] = useState<string>("");
     const filasSeleccionadasPDF = InventarioModificar;
     const [anexos, setAnexos] = useState<File[]>([]);
     const [estadoRechazado, setEstadoRechazado] = useState(true);
@@ -223,7 +216,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
         visadoInventario: "",
         visadoFinanzas: "",
-        visadoAbastecimiento: ""
+        visadoAbastecimiento: "",
+        visadoCompra: "",
+        visadoInformatica: "",
+        visadoConvenio: "",
+        visadoRFisico: ""
     });
 
     //Estado de la especie
@@ -396,7 +393,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     popup: "custom-border", // Clase personalizada para el borde
                 }
             });
-            resultado = await listaEstadoActions(0, 0, objeto.Roles[0].codigoEstablecimiento);
             setLoading(false); //Finaliza estado de carga
         } else {
             setLoading(false); //Finaliza estado de carga
@@ -438,7 +434,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             }
         }
     };
-
+    //actualzia a pagina actual
+    useEffect(() => {
+        setPaginaActual(1);
+    }, [listaEstado]);
     // Efecto para cargar datos inciales combos en modificar inventario
     useEffect(() => {
         if (comboBien.length === 0) {
@@ -468,9 +467,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
 
         // Solo copia cuando el modal está abierto y hay datos nuevos
-        if (modalModificar && listaAltasRegistradas.length > 0) {
+        if (modalModificar && listaAltasModificar.length > 0) {
             setInventarioModificar(
-                listaAltasRegistradas.map(item => ({ ...item }))
+                listaAltasModificar.map(item => ({ ...item }))
             );
             setLoadingModificar(false);
         }
@@ -489,7 +488,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         documentoByte64,
         listaEstado.length,
         listaEstadoVisadores.length,
-        listaAltasRegistradas // <-- solo escucha cambios en estos
+        listaAltasModificar // <-- solo escucha cambios en estos
     ]);
 
     // Efecto para el seguimiento automático del estado de firmas una vez se ha enviado a visar el documento
@@ -556,7 +555,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     const handleObtieneVisado = useCallback((idocumento: number) => {
         setModalPDF(true);
-        setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== idocumento));
+        // setElementoSeleccionadoVisado((prev) => prev.filter((_, i) => i !== idocumento));
         obtieneVisadoCompletoActions(idocumento);
     }, []);
 
@@ -749,7 +748,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     // Imágenes
                     visadoInventario: "",
                     visadoFinanzas: "",
-                    visadoAbastecimiento: ""
+                    visadoAbastecimiento: "",
+                    visadoInformatica: "",
+                    visadoCompra: "",
+                    visadoConvenio: "",
+                    visadoRFisico: ""
                 };
                 setIsDisabled(true);
                 setIsExpanded(false);
@@ -855,6 +858,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
         let visadoAbastecimiento = prev.visadoAbastecimiento || "";
+        let visadoCompra = prev.visadoCompra || "";
+        let visadoInformatica = prev.visadoInformatica || "";
+        let visadoConvenio = prev.visadoConvenio || "";
+        let visadoRFisico = prev.visadoRFisico || "";
+
 
         for (const firma of datosFirmas) {
 
@@ -896,14 +904,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 }
             }
             if (firma.iD_UNIDAD === 3) {
-                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
+                if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.subroganteAbastecimiento = false;
                     setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                     setNombreSubAbastecimiento("");
                 }
-                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
+                if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                     firmanteAbastecimiento = nombreCompleto;
                     visadoAbastecimiento = FIRMA;
                     updatedState.titularAbastecimiento = false;
@@ -915,14 +923,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 //Unidad de Abastecimiento
                 if (firma.iD_UNIDAD === 3) {
 
-                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteAbastecimiento = nombreCompleto;
+                        visadoAbastecimiento = FIRMA;
                         updatedState.subroganteAbastecimiento = false;
                         setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubAbastecimiento("");
                     }
-                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteAbastecimiento = nombreCompleto;
+                        visadoAbastecimiento = FIRMA;
                         updatedState.titularAbastecimiento = false;
                         setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularAbastecimiento("");
@@ -930,14 +940,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 }
                 //Departamento de Informática
                 if (firma.iD_UNIDAD === 4) {
-                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteInformatica = nombreCompleto;
+                        visadoInformatica = FIRMA;
                         updatedState.subroganteInformatica = false;
                         setNombreTitularInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubInformatica("");
                     }
-                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteInformatica = nombreCompleto;
+                        visadoInformatica = FIRMA;
                         updatedState.titularInformatica = false;
                         setNombreSubInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularInformatica("");
@@ -945,14 +957,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 }
                 //Departamento de Compra
                 if (firma.iD_UNIDAD === 5) {
-                    if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularCompra" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteCompra = nombreCompleto;
+                        visadoCompra = FIRMA;
                         updatedState.subroganteCompra = false;
                         setNombreTitularCompra(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubCompra("");
                     }
-                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteCompra = nombreCompleto;
+                        visadoCompra = FIRMA;
                         updatedState.titularCompra = false;
                         setNombreSubCompra(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularCompra("");
@@ -962,12 +976,14 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 if (firma.iD_UNIDAD === 6) {
                     if (name === "titularConvenio" && checked && firma.rol === "TITULAR") {
                         firmanteConvenio = nombreCompleto;
+                        visadoConvenio = FIRMA;
                         updatedState.subroganteConvenio = false;
                         setNombreTitularConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubConvenio("");
                     }
                     if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE") {
                         firmanteConvenio = nombreCompleto;
+                        visadoConvenio = FIRMA;
                         updatedState.titularConvenio = false;
                         setNombreSubConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularConvenio("");
@@ -975,14 +991,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 }
                 //Departamento de Recursos Fisicos
                 if (firma.iD_UNIDAD === 7) {
-                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteRFisico = nombreCompleto;
+                        visadoRFisico = FIRMA;
                         updatedState.subroganteRFisico = false;
                         setNombreTitularRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubRFisico("");
                     }
-                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteRFisico = nombreCompleto;
+                        visadoRFisico = FIRMA;
                         updatedState.titularRFisico = false;
                         setNombreSubRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularRFisico("");
@@ -1002,6 +1020,11 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         updatedState.visadoInventario = visadoInventario;
         updatedState.visadoFinanzas = visadoFinanzas;
         updatedState.visadoAbastecimiento = visadoAbastecimiento;
+        updatedState.visadoInformatica = visadoInformatica;
+        updatedState.visadoCompra = visadoCompra;
+        updatedState.visadoConvenio = visadoConvenio;
+        updatedState.visadoRFisico = visadoRFisico;
+
         setIsDisabled(false);
         setIsExpanded(true);
         setAltaInventario(updatedState);
@@ -1013,7 +1036,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setHabilitarModificar(true); //deshabilita boton modificar
         setHabilitarVisado(true); //deshabilita boton visado
         setEstadoRechazado(false); //quita mensaje de rechazo idocumento
-        await listaAltasRegistradasActions("", "", "", altaS_CORR, idocumento, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
+        await listaAltasModificarActions("", "", "", altaS_CORR, idocumento, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
         paginarModificar(1); //muestra la primera pagina
         setLoadingModificar(false); //para la carga de Skeletor
     };
@@ -1021,6 +1044,46 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const handleCerrarModalModificar = () => {
         setModalModificar(false);
         setFilasSeleccionadas([]);
+        setAltaInventario((prevInventario) => ({
+            ...prevInventario,
+            ajustarFirma: false,//General
+            chkFinanzas: false,//Opcional
+            chkAbastecimiento: false,//Opcional
+            chkUnidad: false,//Opcional        
+
+            titularInventario: false,
+            subroganteInventario: false,
+            titularFinanzas: false,
+            subroganteFinanzas: false,
+
+            unidad: 0, //Combo Unidad
+            titularAbastecimiento: false,
+            subroganteAbastecimiento: false,
+            titularInformatica: false,
+            subroganteInformatica: false,
+            titularCompra: false,
+            subroganteCompra: false,
+            titularConvenio: false,
+            subroganteConvenio: false,
+            titularRFisico: false,
+            subroganteRFisico: false,
+
+            firmanteInventario: "",
+            firmanteFinanzas: "",
+            firmanteAbastecimiento: "",
+            firmanteInformatica: "",
+            firmanteCompra: "",
+            firmanteConvenio: "",
+            firmanteRFisico: "",
+
+            visadoInventario: "",
+            visadoFinanzas: "",
+            visadoAbastecimiento: "",
+            visadoCompra: "",
+            visadoInformatica: "",
+            visadoConvenio: "",
+            visadoRFisico: ""
+        }));
     };
 
     const handleModificarSubmit = async () => {
@@ -1142,10 +1205,20 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     <DocumentoPDF
                         row={filasSeleccionadasPDF}
                         totalSum={totalSum}
-                    // AltaInventario={AltaInventario}
-                    // objeto={objeto}
-                    // UnidadNombre={UnidadNombre}
-                    // Unidad={Unidad}
+                        AltaInventario={AltaInventario}
+                        objeto={objeto}
+                        UnidadNombre={UnidadNombre}
+                        Unidad={Unidad}
+                    // firmanteInventario={AltaInventario.firmanteInventario}
+                    // firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                    // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
+                    // visadoInventario={AltaInventario.visadoInventario}
+                    // visadoFinanzas={AltaInventario.visadoFinanzas}
+                    // visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
+                    // visadoInformatica={AltaInventario.visadoInformatica}
+                    // visadoCompra={AltaInventario.visadoCompra}
+                    // visadoConvenio={AltaInventario.visadoConvenio}
+                    // visadoRfisico={AltaInventario.visadoRfisico}
                     />
                 ).toBlob();
 
@@ -1420,7 +1493,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setModalSolicitarVisadoresClasico(true);
     };
 
-
     {/*---------------------- Logica Especies--------------------*/ }
 
     const especieOptions = comboEspecies.map((item) => ({
@@ -1552,7 +1624,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 // Anular todos en serie
                 for (const i of FormularioBajas) {
                     await anularInventarioActions(i.aF_CLAVE);
-                    listaAltasRegistradasActions("", "", "", i.altaS_CORR, i.idocumento, objeto.Roles[0].codigoEstablecimiento);
+                    listaAltasModificarActions("", "", "", i.altaS_CORR, i.idocumento, objeto.Roles[0].codigoEstablecimiento);
                     setFilasSeleccionadas([]);
                     setHabilitarVisado(false);
                     handleRefrescar();
@@ -1740,10 +1812,18 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             cellClassName: 'text-nowrap text-center'
         },
         {
+            key: 'fecha' as keyof ListaEstadoFirmas,
+            header: 'Última Actualización',
+            className: 'text-center',
+            cellClassName: 'text-center',
+            render: (value: string) => value === "0" ? "-" : value
+        },
+
+        {
             key: 'estado' as keyof ListaEstadoFirmas,
             header: 'Estado Solicitud',
             className: 'text-center',
-            cellClassName: 'text-center w-30',
+            cellClassName: 'text-center',
             render: (value: number, item: ListaEstadoFirmas) => {
 
                 const esSistemaAntiguo = item.idocumento === 441154;
@@ -1780,15 +1860,36 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             }
         },
         {
-            key: 'fecha' as keyof ListaEstadoFirmas,
-            header: 'Última Actualización',
+            key: 'estado' as keyof ListaEstadoFirmas,
+            header: 'Ver',
             className: 'text-center',
             cellClassName: 'text-center',
-            render: (value: string) => value === "0" ? "-" : value
+            disableSort: true,
+            render: (_: number, item: ListaEstadoFirmas) => (
+                <>
+                    {item.idocumento !== 441154 && item.estado === 1 && (
+                        <>
+                            <Button
+                                type="button"
+                                variant="danger"
+                                className="fw-semibold"
+                                onClick={() => handleObtieneVisado(item.idocumento)}
+                            >
+                                <FiletypePdf
+                                    className="flex-shrink-0"
+                                    width={20}
+                                    height={20}
+                                    aria-hidden="true"
+                                />
+                            </Button>
+                        </>
+                    )}
+                </>
+            )
         },
         {
             key: 'accion' as keyof ListaEstadoFirmas,
-            header: 'Acción',
+            header: 'Modificar',
             className: 'text-start',
             cellClassName: 'text-nowrap',
             headerStyle: { position: 'sticky', left: 0, zIndex: 3 },
@@ -1796,17 +1897,15 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             disableSort: true,
             render: (_: any, item: ListaEstadoFirmas) => (
                 <>
-
                     <Button
                         type="button"
                         variant="secondary"
                         className="fw-semibold mx-1"
                         onClick={() => handleModalModificar(item.altaS_CORR, item.idocumento)}
                     >
-                        Modificar
-                        <PencilSquare className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                    </Button>
 
+                        <PencilSquare className="flex-shrink-0 h-5 w-5" width={20} height={20} aria-hidden="true" />
+                    </Button>
                 </>
             )
         }
@@ -1948,7 +2047,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
                         {/* Paginador */}
                         {totalPaginas > 1 && (
-                            <div className="mt-3">
+                            <div className="mt-3 paginador-scroll">
                                 <ul className="pagination pagination-sm justify-content-center">
                                     <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                                         <button
@@ -2062,22 +2161,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                       </Button>
                     </div> */}
                 <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <Col xs={12} lg="auto">
-                        <div className="d-flex justify-content-center justify-content-lg-end">
-                            {listaEstadoVisadores.length > 0 &&
-                                listaEstadoVisadores.every(v => v.firmado === 1) && (
-                                    <Button
-                                        type="button"
-                                        variant="success"
-                                        className="fw-semibold p-2"
-                                        onClick={() => handleObtieneVisado(listaEstadoVisadores[0].idocumento)}
-                                    >
-                                        Visado Disponible
-                                        <FiletypePdf className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                    </Button>
-                                )}
-                        </div>
-                    </Col>
                     <div className="table-responsive">
                         <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
                             <thead>
@@ -2145,7 +2228,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <>
                             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-lg-end">
                                 <Col xs={12} lg="auto">
-                                    {listaAltasRegistradas.length > 10 && (
+                                    {listaAltasModificar.length > 10 && (
                                         <div className="d-flex align-items-center justify-content-center justify-content-lg-end">
                                             <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
                                                 Tamaño de página:
@@ -2205,7 +2288,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 </Col>
                                 <Col xs={12} lg="auto">
                                     <div className="d-flex justify-content-center justify-content-lg-end gap-2">
-                                        {listaAltasRegistradas[0]?.idocumento !== 441154 ? (
+                                        {listaAltasModificar[0]?.idocumento !== 441154 ? (
                                             <>
                                                 <Button
                                                     variant="secondary"
@@ -2240,7 +2323,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                     className="p-2"
                                                     disabled={habilitarVisado}
                                                 >
-                                                    Solicitar Nuevo Visado
+                                                    Visar Documento
                                                 </Button>
                                             </>
                                         ) : (
@@ -2261,28 +2344,42 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             </Row>
                             <Row className="g-3 mb-2 mt-2">
                                 {/* Tarjeta de Nº Documento */}
-                                <Col md={4}>
+                                <Col md={3}>
                                     <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} position-relative`}>
                                         <small className="text-muted d-block mb-1">Nº Documento</small>
                                         <h5 className="mb-0 fw-bold d-flex align-items-center">
-                                            {listaAltasRegistradas[0]?.idocumento ?? "-"}
+                                            {listaAltasModificar[0]?.idocumento ?? "-"}
                                         </h5>
                                     </div>
                                 </Col>
 
                                 {/* Tarjeta de Nº Alta */}
-                                <Col md={4}>
+                                <Col md={3}>
                                     <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
                                         <small className="d-block mb-1">Nº Alta</small>
-                                        <h5 className="mb-0 fw-bold">{listaAltasRegistradas[0]?.altaS_CORR ?? "-"}</h5>
+                                        <h5 className="mb-0 fw-bold">{listaAltasModificar[0]?.altaS_CORR ?? "-"}</h5>
                                     </div>
                                 </Col>
 
                                 {/* Tarjeta de Fecha Alta */}
-                                <Col md={4}>
+                                <Col md={2}>
                                     <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
                                         <small className="d-block mb-1">Fecha Alta</small>
-                                        <h5 className="mb-0 fw-bold">{listaAltasRegistradas[0]?.fechA_ALTA ?? "-"}</h5>
+                                        <h5 className="mb-0 fw-bold">{listaAltasModificar[0]?.fechA_ALTA ?? "-"}</h5>
+                                    </div>
+                                </Col>
+                                {/* Tarjeta de Monto Total */}
+                                <Col md={2}>
+                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                        <small className="d-block mb-1">Total</small>
+                                        <h5 className="mb-0 fw-bold">$ {(totalSum ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</h5>
+                                    </div>
+                                </Col>
+                                {/* Tarjeta de Cantidad */}
+                                <Col md={2}>
+                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                        <small className="d-block mb-1">Cantidad</small>
+                                        <h5 className="mb-0 fw-bold">{listaAltasModificar.length}</h5>
                                     </div>
                                 </Col>
                             </Row>
@@ -3137,6 +3234,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
                                 totalSum={totalSum}
+                                AltaInventario={AltaInventario}
+                                objeto={objeto}
+                                UnidadNombre={UnidadNombre}
+                                Unidad={Unidad}
+                            // firmanteInventario={AltaInventario.firmanteInventario}
+                            // firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                            // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
+                            // visadoInventario={AltaInventario.visadoInventario}
+                            // visadoFinanzas={AltaInventario.visadoFinanzas}
+                            // visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
                             />
                         }>
                             {({ url, loading }) =>
@@ -3164,16 +3271,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                     <Modal.Title className="fw-semibold">Visar Documento</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={` ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <div className="d-flex flex-column flex-md-row align-items-start 
-                       bg-light border-start border-4 border-info shadow-sm rounded p-3 gap-2 mb-2">
+                    <div className="d-flex flex-column flex-md-row align-items-start bg-light border-start border-4 border-info shadow-sm rounded p-3 gap-2 mb-2">
 
                         <span className="fw-semibold text-info me-2">
                             <InfoCircle className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
                         </span>
+
                         <div className="small text-dark">
                             <strong>Validación de documento:</strong><br />
-                            EL visado se mostrará inmediatamente una vez seleccionado el/los firmante(s). Luego puede utilizar las herramientas para imprimir.
+                            El visado se mostrará automáticamente una vez que seleccione el o los firmantes.
+                            Posteriormente, podrá utilizar las herramientas disponibles para imprimir el documento.<br />
+                            En caso de que el visado no se visualice, deberá solicitar a la <b>Unidad de Desarrollo</b> cargar la imagen de la firma.
                         </div>
+
                     </div>
                     <Row>
                         <Col md={2}>
@@ -3676,6 +3786,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <DocumentoPDF
                             row={filasSeleccionadasPDF}
                             totalSum={totalSum}
+                            AltaInventario={AltaInventario}
+                            objeto={objeto}
+                            UnidadNombre={UnidadNombre}
+                            Unidad={Unidad}
+                        // firmanteInventario={AltaInventario.firmanteInventario}
+                        // firmanteFinanzas={AltaInventario.firmanteFinanzas}
+                        // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
+                        // visadoInventario={AltaInventario.visadoInventario}
+                        // visadoFinanzas={AltaInventario.visadoFinanzas}
+                        // visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
                         />
                     }>
                         {({ url, loading }) =>
@@ -3926,7 +4046,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 };
 
 const mapStateToProps = (state: RootState) => ({
-    listaAltasRegistradas: state.listaAltasRegistradasReducers.listaAltasRegistradas,
+    listaAltasModificar: state.listaAltasModificarReducers.listaAltasModificar,
     listaEstado: state.listaEstadoReducers.listaEstado,
     listaEstadoVisadores: state.listaEstadoVisadoresReducers.listaEstadoVisadores,
     documentoByte64: state.obtieneVisadoCompletoReducers.documentoByte64,
@@ -3946,14 +4066,13 @@ const mapStateToProps = (state: RootState) => ({
 
 
 export default connect(mapStateToProps, {
-    listaAltasRegistradasActions,
+    listaAltasModificarActions,
     listaEstadoActions,
     obtieneVisadoCompletoActions,
     listaEstadoVisadoresActions,
     registrarDocumentoAltaActions,
     modificarFormInventarioActions,
     rechazarAltaActions,
-    limpiarDataActions,
     obtenerfirmasAltasActions,
     obtenerUnidadesActions,
     listadoDeEspeciesBienActions,

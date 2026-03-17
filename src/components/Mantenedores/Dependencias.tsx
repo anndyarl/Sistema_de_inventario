@@ -215,8 +215,8 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
 
 
   const columnas = [
-    { key: 'deP_CORR' as keyof ListadoMantenedor, header: 'Código' },
-    { key: 'deP_COD' as keyof ListadoMantenedor, header: 'Código Dependencia' },
+    { key: 'deP_CORR' as keyof ListadoMantenedor, header: 'Código Dependencia' },
+    // { key: 'deP_COD' as keyof ListadoMantenedor, header: 'Código Dependencia' },
     { key: 'seR_COD' as keyof ListadoMantenedor, header: 'Código Servicio' },
     { key: 'nombre' as keyof ListadoMantenedor, header: 'Nombre' },
     { key: 'fechA_CREA' as keyof ListadoMantenedor, header: 'Fecha Creación' }
@@ -278,7 +278,7 @@ const Dependencias: React.FC<GeneralProps> = ({ listadoMantenedorDependenciasAct
             {/* Paginador */}
             {/* Paginador */}
             {totalPaginas > 1 && (
-              <div className="mt-3">
+              <div className="mt-3 paginador-scroll">
                 <ul className="pagination pagination-sm justify-content-center ">
                   <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                     <button

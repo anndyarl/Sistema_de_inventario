@@ -1,17 +1,17 @@
-import axios from 'axios';
 import {
     OBTENER_MAX_SERVICIO_REQUEST,
     OBTENER_MAX_SERVICIO_SUCCESS,
     OBTENER_MAX_SERVICIO_FAIL,
 } from '../types';
 import { Dispatch } from 'redux';
+import axiosInstance from '../../../../services/axiosConfig';
 
 export const obtenerMaxServicioActions = () => async (dispatch: Dispatch): Promise<boolean> => {
 
     dispatch({ type: OBTENER_MAX_SERVICIO_REQUEST });
 
     try {
-        const res = await axios.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMaxCorrServicios`);
+        const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/TraeMaxCorrServicios`);
 
         const seR_CORR = res.data.seR_CORR;
 

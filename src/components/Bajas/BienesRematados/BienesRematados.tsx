@@ -471,7 +471,7 @@ const BienesRematados: React.FC<DatosBajas> = ({
 
             {/* Paginador */}
             {totalPaginas > 1 && (
-              <div className="mt-3">
+              <div className="mt-3 paginador-scroll">
                 <ul className="pagination pagination-sm justify-content-center">
                   <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                     <button

@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import Swal from "sweetalert2";
-import { Eraser, Search } from "react-bootstrap-icons";
+import { Eraser, FileExcel, Search } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import SkeletonLoader from "../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
@@ -15,6 +15,7 @@ import { anularInventarioActions } from "../../redux/actions/Inventario/AnularIn
 import { listaAltasActions } from "../../redux/actions/Altas/RegistrarAltas/listaAltasActions.tsx";
 import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
 import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
+import * as XLSX from "xlsx";
 export interface InventarioCompleto {
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
@@ -54,7 +55,7 @@ export interface InventarioCompleto {
 
 interface ListaInventarioProps {
     listaInventarioAnular: InventarioCompleto[];
-    listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
+    listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, fechaIniF: string, estabL_CORR: number, af_precio_ref: number, af_inv_estado: number | null) => Promise<boolean>;
     anularInventarioActions: (aF_CLAVE: number) => Promise<boolean>;
     listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
     isDarkMode: boolean;
@@ -69,6 +70,7 @@ interface FechasProps {
 const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false);
+    const [loadingCrowne, setLoadingCrowne] = useState(false);
     const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
     // Estados para ordenamiento
     const [sortColumn, setSortColumn] = useState<keyof InventarioCompleto | null>(null);
@@ -79,6 +81,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         af_codigo_generico: "",
         fechaInicio: "",
         fechaTermino: "",
+        fechaIniF: "2026-03-16",
     });
 
 
@@ -112,7 +115,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
     const listaAuto = async () => {
         if (listaInventarioAnular.length === 0) {
             setLoading(true);
-            const resultado = await listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
+            const resultado = await listaInventarioAnularActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento, 0, 4);
             if (!resultado) {
                 Swal.fire({
                     icon: "warning",
@@ -147,9 +150,15 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
             return; // Salir si contiene caracteres no numéricos
         }
+
+        // Convierte `value` a número
+        let newValue: string | number = ["af_precio_ref"].includes(name)
+            ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
+            : value;
+
         setInventario((prevState) => ({
             ...prevState,
-            [name]: value,
+            [name]: newValue,
         }));
     };
 
@@ -164,7 +173,8 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             setLoading(false);
             return;
         }
-        resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablecimiento);
+        console.log(Inventario);
+        resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, "", objeto.Roles[0].codigoEstablecimiento, 0, 4);
 
 
         if (!resultado) {
@@ -184,6 +194,39 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             return;
         } else {
             setLoading(false); //Finaliza estado de carga
+        }
+    };
+    const handleBuscarCrown = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        setLoadingCrowne(true);
+        setError({});
+        let resultado = false;
+
+        // Si ambas fechas están ingresadas, validar    
+        if (!validate()) {
+            setLoadingCrowne(false);
+            return;
+        }
+        resultado = await listaInventarioAnularActions("", "", "", Inventario.fechaIniF, 0, 1, 0);
+
+
+        if (!resultado) {
+            Swal.fire({
+                icon: "warning",
+                title: "Sin resultados",
+                text: "No se encontraron registros para la búsqueda realizada.",
+                confirmButtonText: "Ok",
+                background: isDarkMode ? "#1e1e1e" : "#ffffff",
+                color: isDarkMode ? "#ffffff" : "#000000",
+                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+                customClass: {
+                    popup: "custom-border",
+                },
+            });
+            setLoadingCrowne(false);
+            return;
+        } else {
+            setLoadingCrowne(false); //Finaliza estado de carga
         }
     };
 
@@ -308,92 +351,99 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             key: 'aF_DESCRIPCION' as keyof InventarioCompleto,
             header: 'Descripción',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'aF_FINGRESO' as keyof InventarioCompleto,
             header: 'Fecha',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: string) => value === "" ? "Sin fecha" : value
+            render: (value: string) => value === "" ? "Sin información" : value
         },
         {
             key: 'seR_NOMBRE' as keyof InventarioCompleto,
             header: 'Servicio',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'deP_NOMBRE' as keyof InventarioCompleto,
             header: 'Dependencia',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'esP_NOMBRE' as keyof InventarioCompleto,
             header: 'Especie',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'deT_PRECIO' as keyof InventarioCompleto,
             header: 'Precio',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: number) => `$${value?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}`
+            render: (value: number) => value === 0 ? <p className="text-danger text-center fw-bold" > - </p> : `$${value?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}`
         },
         {
             key: 'aF_VIDAUTIL' as keyof InventarioCompleto,
             header: 'Vida Útil',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'origen' as keyof InventarioCompleto,
             header: 'Origen',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: string) => value ? value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase() : "S/N"
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase()
         },
         {
             key: 'nrecepcion' as keyof InventarioCompleto,
             header: 'Nº Recepción',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: string) => value || "S/N"
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'ctA_COD' as keyof InventarioCompleto,
             header: 'Nº Cta',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'aF_OCO_NUMERO_REF' as keyof InventarioCompleto,
             header: 'Orden de Compra',
             className: 'text-nowrap',
-            cellClassName: 'text-start'
+            cellClassName: 'text-start',
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'deT_MARCA' as keyof InventarioCompleto,
             header: 'Marca',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: string) => value || "-"
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'deT_MODELO' as keyof InventarioCompleto,
             header: 'Modelo',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: string) => value || "-"
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'deT_SERIE' as keyof InventarioCompleto,
             header: 'Serie',
             className: 'text-nowrap',
             cellClassName: 'text-start',
-            render: (value: string) => value || "-"
+            render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
         },
         {
             key: 'accion' as keyof InventarioCompleto,
@@ -425,8 +475,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             )
         }
     ];
-
-
 
     // PASO 1: Primero ordenamos TODOS los datos según la columna seleccionada
     const datosOrdenados = useMemo(() => {
@@ -469,6 +517,46 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
         setSortColumn(column);
         setSortDirection(direction);
         // No reseteamos la selección al ordenar
+    };
+
+    const handleExportarExcel = () => {
+        if (!listaInventarioAnular || listaInventarioAnular.length === 0) {
+            Swal.fire({
+                icon: "info",
+                title: "Sin datos",
+                text: "No hay datos para exportar.",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            });
+            return;
+        }
+
+        const datosExportar = datosOrdenados.map(item => ({
+            "Nº Inventario": item.aF_CODIGO_GENERICO,
+            "Descripción": item.aF_DESCRIPCION || "-",
+            "Fecha Ingreso": item.aF_FINGRESO || "-",
+            "Servicio": item.seR_NOMBRE || "-",
+            "Dependencia": item.deP_NOMBRE || "-",
+            "Especie": item.esP_NOMBRE || "-",
+            "Precio": item.deT_PRECIO || "-",
+            "Vida Útil": item.aF_VIDAUTIL || "-",
+            "Nº Alta": item.altaS_CORR || "-",
+            "Origen": item.origen || "-",
+            "Nº Recepción": item.nrecepcion || "-",
+            "Cuenta": item.ctA_COD || "-",
+            "Orden Compra": item.aF_OCO_NUMERO_REF || "-",
+            "Marca": item.deT_MARCA || "-",
+            "Modelo": item.deT_MODELO || "-",
+            "Serie": item.deT_SERIE || "-",
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(datosExportar);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario");
+
+        // Exporta directamente
+        XLSX.writeFile(workbook, "Inventario.xlsx");
     };
     return (
         <Layout>
@@ -580,9 +668,67 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                         Limpiar
                                         <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
                                     </Button>
+                                    <Button variant={`${isDarkMode ? "secondary" : "success"}`} onClick={handleExportarExcel}>
+                                        Exportar
+                                        <FileExcel className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                    </Button>
                                 </div>
                             </Col>
                         </Row>
+                        {objeto.Roles[0].codigoEstablecimiento === 2 && (
+                            <>
+                                <Row className="border rounded p-2 m-2 border-warning col-7">
+                                    <Col lg={5} md={4}>
+                                        <div className="mb-2">
+                                            <div className="flex-grow-1 mb-2">
+                                                <label htmlFor="fechaIniF" className="form-label fw-semibold small">Fecha Úlitima Carga Crowne</label>
+                                                <div className="input-group">
+                                                    <input
+                                                        aria-label="Fecha Desde"
+                                                        type="date"
+                                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                        name="fechaIniF"
+                                                        onChange={handleChange}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === "Enter") {
+                                                                handleBuscarCrown(e);
+                                                            }
+                                                        }}
+                                                        value={Inventario.fechaIniF}
+                                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Col>
+
+                                    <Col lg={4} md={4}>
+                                        <div className="d-flex flex-column gap-2 mt-4">
+                                            <Button
+                                                onClick={handleBuscarCrown}
+                                                variant={`${isDarkMode ? "secondary" : "warning"}`}
+                                                className="w-100"
+                                            >
+                                                {loadingCrowne ? (
+                                                    <>
+                                                        Buscar Crowne
+                                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Buscar Crowne
+                                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                                                    </>
+                                                )}
+                                            </Button>
+
+                                        </div>
+                                    </Col>
+
+                                </Row>
+                            </>
+                        )}
+
 
                         {/* Controles de página y exportación */}
                         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
@@ -600,7 +746,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                         </Row>
 
                         {/* Tabla con selección */}
-                        {loading ? (
+                        {loading || loadingCrowne ? (
                             <SkeletonLoader rowCount={10} />
                         ) : (
                             <TablaGenerica<InventarioCompleto>
@@ -615,7 +761,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
 
                         {/* Paginador */}
                         {totalPaginas > 1 && (
-                            <div className="mt-3">
+                            <div className="mt-3 paginador-scroll">
                                 <ul className="pagination pagination-sm justify-content-center">
                                     <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                                         <button

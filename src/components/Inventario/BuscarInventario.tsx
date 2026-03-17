@@ -48,6 +48,7 @@ interface InventarioCompleto {
   aF_FECHA_SOLICITUD: string; // formato ISO string (puedes cambiar a Date si es necesario)
   aF_FECHAFAC: string;
   aF_FINGRESO: string;
+  fechA_ALTA: string;
   aF_MONTOFACTURA: number;
   aF_NUM_FAC: string;
   aF_OCO_NUMERO_REF: string;
@@ -96,7 +97,8 @@ interface ListaInventarioProps {
 
 const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBuscarActions, comboServicioActions, comboDependenciaActions, comboEspeciesBienActions, listaInventarioBuscar, comboServicio, comboDependencia, comboEspecies, isDarkMode, objeto }) => {
   const [error, setError] = useState<Partial<FechasProps> & {}>({});
-  const [loading, setLoading] = useState(false); // Estado para controlar la carga
+  const [loading, setLoading] = useState(false);
+  const [loadingCrowne, setLoadingCrowne] = useState(false);
 
   const [Inventario, setInventario] = useState({
     af_codigo_generico: "",
@@ -255,6 +257,52 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
     }
     setLoading(false);
   };
+  const handleBuscarCrowne = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setLoadingCrowne(true);
+    setError({});
+    let resultado = false;
+
+    // Si ambas fechas están ingresadas, validar    
+    if (!validate()) {
+      setLoadingCrowne(false);
+      return;
+    }
+
+    resultado = await listaInventarioBuscarActions(
+      Inventario.af_codigo_generico,
+      Inventario.fechaInicio,
+      Inventario.fechaTermino,
+      Inventario.seR_CORR,
+      Inventario.deP_CORR,
+      Inventario.esP_CODIGO,
+      Inventario.nrecepcion,
+      Inventario.marca,
+      Inventario.modelo,
+      Inventario.serie,
+      Inventario.aF_OCO_NUMERO_REF,
+      Inventario.altaS_CORR,
+      0
+    );
+
+    if (!resultado) {
+      Swal.fire({
+        icon: "warning",
+        title: "Sin resultados",
+        text: "No se encontraron registros para la búsqueda realizada.",
+        confirmButtonText: "Ok",
+        background: isDarkMode ? "#1e1e1e" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+        confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
+        customClass: {
+          popup: "custom-border",
+        },
+      });
+      setLoadingCrowne(false);
+      return;
+    }
+    setLoadingCrowne(false);
+  };
 
   const handleLimpiar = () => {
     setInventario((prevInventario) => ({
@@ -289,18 +337,19 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
 
     const datosExportar = datosOrdenados.map(item => ({
       "Nº Inventario": item.aF_CODIGO_GENERICO,
-      "Descripción": item.aF_DESCRIPCION,
-      "Fecha Ingreso": item.aF_FINGRESO || "Sin fecha",
-      "Servicio": item.seR_NOMBRE,
-      "Dependencia": item.deP_NOMBRE,
-      "Especie": item.esP_NOMBRE,
-      "Precio": item.deT_PRECIO,
-      "Vida Útil": item.aF_VIDAUTIL,
-      "Nº Alta": item.altaS_CORR,
-      "Origen": item.origen,
+      "Descripción": item.aF_DESCRIPCION || "-",
+      "Fecha Ingreso": item.aF_FINGRESO || "-",
+      "Servicio": item.seR_NOMBRE || "-",
+      "Dependencia": item.deP_NOMBRE || "-",
+      "Especie": item.esP_NOMBRE || "-",
+      "Precio": item.deT_PRECIO || "-",
+      "Vida Útil": item.aF_VIDAUTIL || "-",
+      "Nº Alta": item.altaS_CORR || "-",
+      "Fecha Alta": item.fechA_ALTA || "-",
+      "Origen": item.origen || "-",
       "Nº Recepción": item.nrecepcion || "-",
-      "Cuenta": item.ctA_COD,
-      "Orden Compra": item.aF_OCO_NUMERO_REF,
+      "Cuenta": item.ctA_COD || "-",
+      "Orden Compra": item.aF_OCO_NUMERO_REF || "-",
       "Marca": item.deT_MARCA || "-",
       "Modelo": item.deT_MODELO || "-",
       "Serie": item.deT_SERIE || "-",
@@ -358,21 +407,100 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
   };
   const columnas = [
     { key: 'aF_CODIGO_GENERICO' as keyof InventarioCompleto, header: 'Nº Inventario' },
-    { key: 'aF_DESCRIPCION' as keyof InventarioCompleto, header: 'Descripción' },
-    { key: 'aF_FINGRESO' as keyof InventarioCompleto, header: 'Fecha' },
-    { key: 'seR_NOMBRE' as keyof InventarioCompleto, header: 'Servicio' },
-    { key: 'deP_NOMBRE' as keyof InventarioCompleto, header: 'Dependencia' },
-    { key: 'esP_NOMBRE' as keyof InventarioCompleto, header: 'Especie' },
-    { key: 'deT_PRECIO' as keyof InventarioCompleto, header: 'Precio' },
-    { key: 'aF_VIDAUTIL' as keyof InventarioCompleto, header: 'Vida Útil' },
+    {
+      key: 'aF_DESCRIPCION' as keyof InventarioCompleto,
+      header: 'Descripción',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    { key: 'aF_FINGRESO' as keyof InventarioCompleto, header: 'Fecha Ingreso' },
+    {
+      key: 'seR_NOMBRE' as keyof InventarioCompleto,
+      header: 'Servicio',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'deP_NOMBRE' as keyof InventarioCompleto,
+      header: 'Dependencia',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'esP_NOMBRE' as keyof InventarioCompleto,
+      header: 'Especie',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'deT_PRECIO' as keyof InventarioCompleto,
+      header: 'Precio',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: number) => value === 0 ? <p className="text-danger text-center fw-bold" > - </p> : `$${value?.toLocaleString("es-ES", { minimumFractionDigits: 0 })}`
+    },
+    {
+      key: 'aF_VIDAUTIL' as keyof InventarioCompleto,
+      header: 'Vida Útil',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
     { key: 'altaS_CORR' as keyof InventarioCompleto, header: 'Nº Alta' },
-    { key: 'origen' as keyof InventarioCompleto, header: 'Origen' },
-    { key: 'nrecepcion' as keyof InventarioCompleto, header: 'Nº Recepción' },
-    { key: 'ctA_COD' as keyof InventarioCompleto, header: 'Nº Cta' },
-    { key: 'aF_OCO_NUMERO_REF' as keyof InventarioCompleto, header: 'Orden de Compra' },
-    { key: 'deT_MARCA' as keyof InventarioCompleto, header: 'Marca' },
-    { key: 'deT_MODELO' as keyof InventarioCompleto, header: 'Modelo' },
-    { key: 'deT_SERIE' as keyof InventarioCompleto, header: 'Serie' }
+    { key: 'fechA_ALTA' as keyof InventarioCompleto, header: 'Fecha Alta' },
+    {
+      key: 'origen' as keyof InventarioCompleto,
+      header: 'Origen',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value.charAt(0).toUpperCase() + value.slice(1).toLocaleLowerCase()
+    },
+    {
+      key: 'nrecepcion' as keyof InventarioCompleto,
+      header: 'Nº Recepción',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'ctA_COD' as keyof InventarioCompleto,
+      header: 'Nº Cta',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'aF_OCO_NUMERO_REF' as keyof InventarioCompleto,
+      header: 'Orden de Compra',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'deT_MARCA' as keyof InventarioCompleto,
+      header: 'Marca',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'deT_MODELO' as keyof InventarioCompleto,
+      header: 'Modelo',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
+    {
+      key: 'deT_SERIE' as keyof InventarioCompleto,
+      header: 'Serie',
+      className: 'text-nowrap',
+      cellClassName: 'text-start',
+      render: (value: string) => value === "" ? <p className="text-danger text-center fw-bold" > - </p> : value
+    },
   ];
 
   return (
@@ -662,7 +790,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
               </Col>
 
               {/* Columna 5: Botones de Acción */}
-              <Col lg={1} md={2}>
+              <Col lg={2} md={2}>
                 <div className="d-flex flex-column gap-2 mt-4">
                   <Button
                     onClick={handleBuscar}
@@ -682,7 +810,28 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                       </>
                     )}
                   </Button>
-
+                  {objeto.Roles[0].codigoEstablecimiento === 2 && (
+                    <>
+                      <Button
+                        onClick={handleBuscarCrowne}
+                        variant={`${isDarkMode ? "secondary" : "warning"}`}
+                        className="w-100"
+                      // disabled={loading}
+                      >
+                        {loadingCrowne ? (
+                          <>
+                            Buscar Crowne
+                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
+                          </>
+                        ) : (
+                          <>
+                            Buscar Crowne
+                            <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
+                          </>
+                        )}
+                      </Button>
+                    </>
+                  )}
                   <Button onClick={handleLimpiar} variant={`${isDarkMode ? "secondary" : "primary"}`} className="w-100">
                     Limpiar
                     <Eraser className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
@@ -714,7 +863,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
             </Row>
 
             {/* Tabla con selección */}
-            {loading ? (
+            {loading || loadingCrowne ? (
               <SkeletonLoader rowCount={10} />
             ) : (
               <TablaGenerica<InventarioCompleto>
@@ -729,7 +878,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
 
             {/* Paginador */}
             {totalPaginas > 1 && (
-              <div className="mt-3">
+              <div className="mt-3 paginador-scroll">
                 <ul className="pagination pagination-sm justify-content-center">
                   <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                     <button

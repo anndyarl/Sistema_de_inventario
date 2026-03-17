@@ -243,7 +243,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
     };
 
     const columnas = [
-        { key: 'seR_COD' as keyof ListadoMantenedor, header: 'Codigo' },
+        { key: 'seR_CORR' as keyof ListadoMantenedor, header: 'Codigo' },
         { key: 'seR_NOMBRE' as keyof ListadoMantenedor, header: 'Nombre' },
         {
             key: 'seR_USER_CREA' as keyof ListadoMantenedor,
@@ -307,7 +307,7 @@ const Servicios: React.FC<GeneralProps> = ({ comboServicioActions, obtenerMaxSer
                         )}
                         {/* Paginador */}
                         {totalPaginas > 1 && (
-                            <div className="mt-3">
+                            <div className="mt-3 paginador-scroll">
                                 <ul className="pagination pagination-sm justify-content-center">
                                     <li className={`page-item ${paginaActual === 1 ? "disabled" : ""}`}>
                                         <button

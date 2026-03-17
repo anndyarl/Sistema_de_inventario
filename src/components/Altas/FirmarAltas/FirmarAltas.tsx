@@ -118,7 +118,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
     const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
     const elementosPorPagina = Paginacion.nPaginacion;
     const [Unidad, setUnidad] = useState<number>(0);
-    const [__, setUnidadNombre] = useState<string>("");
+    const [UnidadNombre, setUnidadNombre] = useState<string>("");
     const [altaSeleccionada, setAltaSeleccionada] = useState(0);
 
     const filasSeleccionadasPDF = listaAltasRegistradas.filter((_, index) =>
@@ -232,7 +232,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
         visadoInventario: "",
         visadoFinanzas: "",
-        visadoAbastecimiento: ""
+        visadoAbastecimiento: "",
+        visadoInformatica: "",
+        visadoCompra: "",
+        visadoConvenio: "",
+        visadoRFisico: ""
     });
 
     const listaAuto = async () => {
@@ -426,10 +430,20 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             <DocumentoPDF
                 row={filasSeleccionadasPDF}
                 totalSum={totalSum}
-            // AltaInventario={AltaInventario}
-            // objeto={objeto}
-            // UnidadNombre={UnidadNombre}
-            // Unidad={Unidad}
+                AltaInventario={AltaInventario}
+                objeto={objeto}
+                UnidadNombre={UnidadNombre}
+                Unidad={Unidad}
+            // firmanteInventario={AltaInventario.firmanteInventario}
+            // firmanteFinanzas={AltaInventario.firmanteFinanzas}
+            // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}
+            // visadoInventario={AltaInventario.visadoInventario}
+            // visadoFinanzas={AltaInventario.visadoFinanzas}
+            // visadoAbastecimiento={AltaInventario.visadoAbastecimiento}
+            // visadoInformatica={AltaInventario.visadoInformatica}
+            // visadoCompra={AltaInventario.visadoCompra}
+            // visadoConvencio={AltaInventario.visadoConvencio}
+            // visadoRfisico={AltaInventario.visadoRfisico}
             />
         ).toBlob();
 
@@ -498,7 +512,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                     // Imágenes
                     visadoInventario: "",
                     visadoFinanzas: "",
-                    visadoAbastecimiento: ""
+                    visadoAbastecimiento: "",
+                    visadoCompra: "",
+                    visadoInformatica: "",
+                    visadoConvenio: "",
+                    visadoRFisico: ""
                 };
                 setIsDisabled(true);
                 setIsExpanded(false);
@@ -607,6 +625,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         let visadoInventario = prev.visadoInventario || "";
         let visadoFinanzas = prev.visadoFinanzas || "";
         let visadoAbastecimiento = prev.visadoAbastecimiento || "";
+        let visadoCompra = prev.visadoCompra || "";
+        let visadoInformatica = prev.visadoInformatica || "";
+        let visadoConvenio = prev.visadoConvenio || "";
+        let visadoRFisico = prev.visadoRFisico || "";
+
 
         for (const firma of datosFirmas) {
 
@@ -669,12 +692,14 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
                     if (name === "titularAbastecimiento" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteAbastecimiento = nombreCompleto;
+                        visadoAbastecimiento = FIRMA;
                         updatedState.subroganteAbastecimiento = false;
                         setNombreTitularAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubAbastecimiento("");
                     }
                     if (name === "subroganteAbastecimiento" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteAbastecimiento = nombreCompleto;
+                        visadoAbastecimiento = FIRMA;
                         updatedState.titularAbastecimiento = false;
                         setNombreSubAbastecimiento(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularAbastecimiento("");
@@ -682,14 +707,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
                 //Departamento de Informática
                 if (firma.iD_UNIDAD === 4) {
-                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularInformatica" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteInformatica = nombreCompleto;
+                        visadoInformatica = FIRMA;
                         updatedState.subroganteInformatica = false;
                         setNombreTitularInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubInformatica("");
                     }
-                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteInformatica" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteInformatica = nombreCompleto;
+                        visadoInformatica = FIRMA;
                         updatedState.titularInformatica = false;
                         setNombreSubInformatica(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularInformatica("");
@@ -697,14 +724,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
                 //Departamento de Compra
                 if (firma.iD_UNIDAD === 5) {
-                    if (name === "titularCompra" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularCompra" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteCompra = nombreCompleto;
+                        visadoCompra = FIRMA;
                         updatedState.subroganteCompra = false;
                         setNombreTitularCompra(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubCompra("");
                     }
-                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteCompra" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteCompra = nombreCompleto;
+                        visadoCompra = FIRMA;
                         updatedState.titularCompra = false;
                         setNombreSubCompra(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularCompra("");
@@ -712,14 +741,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
                 //Departamento de Convenio
                 if (firma.iD_UNIDAD === 6) {
-                    if (name === "titularConvenio" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularConvenio" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteConvenio = nombreCompleto;
+                        visadoConvenio = FIRMA;
                         updatedState.subroganteConvenio = false;
                         setNombreTitularConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubConvenio("");
                     }
-                    if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteConvenio" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteConvenio = nombreCompleto;
+                        visadoConvenio = FIRMA;
                         updatedState.titularConvenio = false;
                         setNombreSubConvenio(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularConvenio("");
@@ -727,14 +758,16 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                 }
                 //Departamento de Recursos Fisicos
                 if (firma.iD_UNIDAD === 7) {
-                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR") {
+                    if (name === "titularRFisico" && checked && firma.rol === "TITULAR" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteRFisico = nombreCompleto;
+                        visadoRFisico = FIRMA;
                         updatedState.subroganteRFisico = false;
                         setNombreTitularRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreSubRFisico("");
                     }
-                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE") {
+                    if (name === "subroganteRFisico" && checked && firma.rol === "SUBROGANTE" && firma.estabL_CORR === objeto.Roles[0].codigoEstablecimiento.toString()) {
                         firmanteRFisico = nombreCompleto;
+                        visadoRFisico = FIRMA;
                         updatedState.titularRFisico = false;
                         setNombreSubRFisico(firma.nombre + " " + firma.apellidO_PATERNO);
                         setNombreTitularRFisico("");
@@ -754,6 +787,11 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         updatedState.visadoInventario = visadoInventario;
         updatedState.visadoFinanzas = visadoFinanzas;
         updatedState.visadoAbastecimiento = visadoAbastecimiento;
+        updatedState.visadoInformatica = visadoInformatica;
+        updatedState.visadoCompra = visadoCompra;
+        updatedState.visadoConvenio = visadoConvenio;
+        updatedState.visadoRFisico = visadoRFisico;
+
         setIsDisabled(false);
         setIsExpanded(true);
         setAltaInventario(updatedState);
@@ -1772,9 +1810,9 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                         <div className="small text-dark">
                             <strong>Validación de documento</strong><br />
                             Una vez enviada la solicitud, ingrese al sistema <b>ERP</b>:
-                            <a href="https://www.ssmso.cl/GestorSSMSO/" target="_blank" rel="noopener noreferrer">
+                            <a href="https://www.ssmso.cl/GestorSSMSO/" target="_blank" className="mx-1" rel="noopener noreferrer">
                                 https://www.ssmso.cl/GestorSSMSO/
-                            </a>.
+                            </a>
                             <br />
                             Luego diríjase al módulo <b>Gestor Documental</b> y acceda a la sección <b>“Validar”</b>.
                         </div>
@@ -1814,7 +1852,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                                 ) : (
                                     <>
                                         <FileSignatureIcon className="flex-shrink-0" width={18} height={18} aria-hidden="true" />
-                                        <span>Solicitar visado</span>
+                                        <span>Visar Documento</span>
                                     </>
                                 )}
                             </Button>
@@ -2306,10 +2344,10 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
                             <DocumentoPDF
                                 row={filasSeleccionadasPDF}
                                 totalSum={totalSum}
-                            // AltaInventario={AltaInventario}
-                            // objeto={objeto}
-                            // UnidadNombre={UnidadNombre}
-                            // Unidad={Unidad}
+                                AltaInventario={AltaInventario}
+                                objeto={objeto}
+                                UnidadNombre={UnidadNombre}
+                                Unidad={Unidad}
                             // firmanteInventario={AltaInventario.firmanteInventario}
                             // firmanteFinanzas={AltaInventario.firmanteFinanzas}
                             // firmanteAbastecimiento={AltaInventario.firmanteAbastecimiento}

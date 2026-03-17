@@ -1,10 +1,10 @@
 import { Dispatch } from "redux";
-import axios from "axios";
 import {
   REGISTRAR_DEPENDENCIA_REQUEST,
   REGISTRAR_DEPENDENCIA_SUCCESS,
   REGISTRAR_DEPENDENCIA_FAIL,
 } from "../types";
+import axiosInstance from "../../../../services/axiosConfig";
 
 export const registrarMantenedorDependenciasActions = (formModal: Record<string, any>) => async (dispatch: Dispatch): Promise<boolean> => {
 
@@ -16,7 +16,7 @@ export const registrarMantenedorDependenciasActions = (formModal: Record<string,
   dispatch({ type: REGISTRAR_DEPENDENCIA_REQUEST });
 
   try {
-    const res = await axios.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearDependencias`, body);
+    const res = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearDependencias`, body);
 
     if (res.status === 200) {
       dispatch({

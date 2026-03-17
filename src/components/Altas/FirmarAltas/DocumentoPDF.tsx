@@ -1,5 +1,7 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer';
 import { Col, Row } from 'react-bootstrap';
+import { Objeto } from '../../Navegacion/Profile';
+
 const styles = StyleSheet.create({
     page: {
         padding: 20,
@@ -114,12 +116,20 @@ const styles = StyleSheet.create({
     },
 
     firmaBox: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '30%',
+    },
+    derecha: {
         flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'flex-end',
+        marginTop: 5,
+        marginBottom: 10,
     },
     firmaLabel1: {
         marginTop: 5,
-        marginRight: 50,
+        marginRight: 60,
         fontSize: 10,
         textAlign: 'left'
     },
@@ -136,9 +146,10 @@ const styles = StyleSheet.create({
         textAlign: 'left'
     },
     firmaImagen: {
-        bottom: 40,
-        width: "30%",
-        position: 'absolute'
+        width: 100,
+        height: 40,
+        marginBottom: 5,
+        objectFit: 'contain',
     },
     footer: {
         marginTop: 10,
@@ -163,6 +174,45 @@ const styles = StyleSheet.create({
         width: "100%",
         backgroundColor: "rgba(0,0,0,0.15)", // simulación
     },
+
+    firmaContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 50,
+        paddingHorizontal: 20,
+        flexWrap: 'wrap',
+        gap: 10,
+    },
+
+    firmaLinea: {
+        fontSize: 10,
+        marginBottom: 2,
+        textAlign: 'center',
+    },
+
+    firmaNombre: {
+        fontSize: 10,
+        fontWeight: 'bold',
+        marginBottom: 2,
+        textAlign: 'center',
+    },
+
+    firmaUnidad: {
+        fontSize: 9,
+        textAlign: 'center',
+        color: '#666',
+    },
+    firmaMensaje: {
+        height: 40, // Misma altura que firmaImagen (width: 100, height: 40)
+        fontSize: 9,
+        color: '#ff0000',
+        textAlign: 'center',
+        marginBottom: 5,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
 });
 
 // Formatear la fecha actual en español (Chile)
@@ -193,70 +243,55 @@ function insertNewLinesDigits(value: any, every = 10) {
         .join('\n');
 }
 
-
-
-const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: any[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => {
+const DocumentoPDF = ({
+    row,
+    totalSum,
+    AltaInventario,
+    objeto,
+    UnidadNombre,
+    Unidad
+}: {
+    row: any[];
+    totalSum: number;
+    AltaInventario: any;
+    objeto: Objeto;
+    UnidadNombre: string;
+    Unidad: number;
+}) => {
     const filasPorPagina = 12;
     const paginas = arreglo(row, filasPorPagina);
-
-    // const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Unidad*/ }: { row: ListaAltas[]; totalSum: number /*AltaInventario: any, objeto: Objeto, UnidadNombre: string, Unidad: number*/ /*firmanteInventario: string, firmanteFinanzas: string, firmanteAbastecimiento: string, visadoInventario: string, visadoFinanzas: string, visadoAbastecimiento: string */ }) => (
 
     return (
         <Document>
             {paginas.map((rows, indicePagina) => (
-                <Page size="A4" style={styles.page}>
+                <Page style={styles.page} key={indicePagina}>
                     <View style={styles.body}>
-                        {/* Logo */}
-                        {/* <Container style={styles.containerHeader}> */}
-                        {/* <View style={styles.headerContainer}> */}
-                        {/* Logo a la izquierda */}
-                        {/* <Image src={ssmso_logo} style={styles.logo} /> */}
-
-                        {/* Textos a la derecha */}
-                        {/* <View style={styles.textContainer}>
-                        <Text style={styles.p}>Servicio de Salud Metropolitano Sur Oriente</Text>
-                        <Text style={styles.p}>Subdirección Administrativa</Text>
-                        <Text style={styles.p}>Departamento de Finanzas</Text>
-                        <Text style={styles.p}>Unidad de Inventarios</Text>
-                    </View> */}
-                        {/* </View> */}
-                        {/* </Container> */}
                         {/* Encabezado */}
-
                         {(() => {
-                            const altasUnicas = [...new Set(row.map(item => item.altaS_CORR))];
+                            const altasUnicas = [...new Set(rows.map(item => item.altaS_CORR))];
                             if (altasUnicas.length === 1) {
-                                const lista = row[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
+                                const lista = rows[0]; // todos tienen la misma altaS_CORR, así que usamos el primero
                                 return (
-                                    <>
-
-                                        <Row>
-                                            <View style={styles.headerContainer}>
-                                                <Col md={6}>
-                                                    <Text style={styles.header}>Alta Nº: {lista.altaS_CORR}</Text>
-                                                    <Text style={styles.header}>Nº Recepción: {lista.nrecep}</Text>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <Text style={styles.header}>Fecha de Alta: {lista.fechA_ALTA}</Text>
-                                                    {/* <Text style={styles.header}>Nº Factura: {lista.aF_NUM_FAC}</Text> */}
-                                                    {/* <Text style={styles.header}>Orde de Compra:{lista.aF_OCO_NUMERO_REF}</Text> */}
-                                                </Col>
-
-                                            </View>
-                                        </Row>
-                                    </>
-
+                                    <Row>
+                                        <View style={styles.headerContainer}>
+                                            <Col md={6}>
+                                                <Text style={styles.header}>Alta Nº: {lista.altaS_CORR}</Text>
+                                                <Text style={styles.header}>Nº Recepción: {lista.nrecep}</Text>
+                                            </Col>
+                                            <Col md={6}>
+                                                <Text style={styles.header}>Fecha de Alta: {lista.fechA_ALTA}</Text>
+                                            </Col>
+                                        </View>
+                                    </Row>
                                 );
                             }
-
                             return null; // no mostrar nada si hay más de una alta
                         })()}
 
-                        {/* {indicePagina === 0 && ( */}
-                        <View style={styles.firmaBox}>
-                            <Text style={styles.firmaLabel3}>Cantidad: {row.length}</Text>
+                        <View style={styles.derecha}>
+                            <Text style={styles.firmaLabel2}>Cantidad: {rows.length}</Text>
                         </View>
-                        {/* )} */}
+
                         {/* Tabla */}
                         <View style={styles.table}>
                             {/* Cabecera de la tabla */}
@@ -271,14 +306,12 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                                 <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
                                 <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
                                 <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
-                                {/* <Text style={[styles.tableCell, styles.colObs]}>Estado</Text> */}
                                 <Text style={[styles.tableCell, styles.colPrecio]}>Precio</Text>
-                                {/* <Text style={[styles.tableCell, styles.colRecepcion]}>Nº Recepción</Text> */}
                             </View>
-                            {/* Fila de datos */}
-                            {rows.map((lista) => (
 
-                                <View style={styles.tableRow} key={lista}>
+                            {/* Filas de datos */}
+                            {rows.map((lista, index) => (
+                                <View style={styles.tableRow} key={index}>
                                     <Text style={[styles.tableCell, styles.colCodigo]}>{lista.aF_CODIGO_GENERICO}</Text>
                                     <Text style={[styles.tableCell, styles.colNfactura]}> {insertNewLinesDigits(lista.aF_NUM_FAC, 10)}</Text>
                                     <Text style={[styles.tableCell, styles.colOdeCompra]}> {insertNewLinesDigits(lista.aF_OCO_NUMERO_REF, 10)}</Text>
@@ -289,92 +322,16 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                                     <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
                                     <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>
                                     <Text style={[styles.tableCell, styles.colSerie]}> {insertNewLinesDigits(lista.deT_SERIE, 10)}</Text>
-                                    {/* <Text style={[styles.tableCell, styles.colObs]}>{lista.estado}</Text> */}
                                     <Text style={[styles.tableCell, styles.colPrecio]}>$ {insertNewLinesDigits((lista.deT_PRECIO ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 }), 10)}</Text>
-                                    {/* <Text style={[styles.tableCell, styles.colRecepcion]}>{lista.nrecep}</Text> */}
                                 </View>
                             ))}
                         </View>
-                        {/* Área de firmas */}
-                        {/* <View style={styles.firmaContainer}> */}
-                        {/* Firma Unidad Inventario */}
-                        {/* {AltaInventario.ajustarFirma && ( */}
-                        {/* <View style={styles.firmaBox}> */}
-                        {/* {AltaInventario.visadoInventario ? (
-                            <Image src={AltaInventario.visadoInventario} style={{ ...styles.firmaImagen }} />
-                        ) : (
-                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                        )} */}
-                        {/* <Text>_______________________</Text>
-                <Text style={styles.firmaLabel}>{AltaInventario.firmanteInventario}</Text>
-                <Text style={styles.firmaLabel}>Unidad Inventario</Text>
-            </View> */}
-                        {/* )} */}
 
-                        {/* Firma Unidad Finanzas */}
-                        {/* {AltaInventario.chkFinanzas && ( */}
-                        {/* <View style={styles.firmaBox}> */}
-                        {/* {AltaInventario.visadoFinanzas ? (
-                            <Image src={AltaInventario.visadoFinanzas} style={{ ...styles.firmaImagen }} />
-                        ) : (
-                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                        )} */}
-                        {/* <Text>_______________________</Text>
-                        <Text style={styles.firmaLabel}>{AltaInventario.firmanteFinanzas}</Text>
-                        <Text style={styles.firmaLabel}>Departamento de Finanzas</Text>
-                    </View> */}
-                        {/* )} */}
-                        {/* id usuario Gabriela 888 */}
-                        {/* {objeto.IdCredencial == 888 || objeto.IdCredencial === 62511 ? ( */}
-                        {/* <> */}
-                        {/* Firma Abastecimiento */}
-                        {/* {Unidad === 3 && (
-                                <View style={styles.firmaBox}>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
-                                    <Text style={styles.firmaLabel}>{UnidadNombre}</Text>
-                                </View>
-                            )} */}
-                        {/* Firma Informatica */}
-                        {/* {Unidad === 4 && (
-                                <View style={styles.firmaBox}>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>{AltaInventario.firmanteInformatica}</Text>
-                                    <Text style={styles.firmaLabel}>{UnidadNombre}</Text>
-                                </View>
-                            )} */}
-                        {/* Firma Compra */}
-                        {/* {Unidad === 5 && (
-                                <View style={styles.firmaBox}>
-                                    <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>{AltaInventario.firmanteCompra}</Text>
-                                    <Text style={styles.firmaLabel}>{UnidadNombre}</Text>
-                                </View>
-                            )} */}
-
-                        {/* </>
-                     ) : (
-                         <> */}
-                        {/* Firma Unidad Abastecimiento */}
-                        {/* {AltaInventario.chkAbastecimiento && (
-                                <View style={styles.firmaBox}> */}
-                        {/* {AltaInventario.visadoAbastecimiento ? (
-                            <Image src={AltaInventario.visadoAbastecimiento} style={{ ...styles.firmaImagen }} />
-                        ) : (
-                            <Text style={styles.firmaLabel}>Falta Visar Documento</Text>
-                        )} */}
-                        {/* <Text>_______________________</Text>
-                                    <Text style={styles.firmaLabel}>{AltaInventario.firmanteAbastecimiento}</Text>
-                                    <Text style={styles.firmaLabel}>Unidad de Abastecimiento</Text>
-                                </View>
-                            )} */}
-                        {/* </> */}
-                        {/* )} */}
-                        {/* </View> */}
+                        {/* Total al final de cada página */}
                         {indicePagina === paginas.length - 1 && (
                             <>
                                 <Text style={styles.firmaLabel2}>_________________________</Text>
-                                <View style={styles.firmaBox}>
+                                <View style={styles.derecha}>
                                     <Text style={styles.firmaLabel1}>Total</Text>
                                     <Text style={styles.firmaLabel2}>
                                         $ {(totalSum ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}
@@ -383,13 +340,132 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                             </>
                         )}
 
+                        {/* Área de firmas - Solo en la última página y si idocumento coincide */}
+                        {indicePagina === paginas.length - 1 && rows[0]?.idocumento === 441154 && (
+                            <View style={styles.firmaContainer}>
+                                {/* Firma Unidad Inventario */}
+                                {AltaInventario.ajustarFirma && (
+                                    <View style={styles.firmaBox}>
+                                        {AltaInventario.visadoInventario ? (
+                                            <Image src={AltaInventario.visadoInventario} style={styles.firmaImagen} />
+                                        ) : (
+                                            <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                        )}
+                                        <Text style={styles.firmaLinea}>_______________________</Text>
+                                        <Text style={styles.firmaNombre}>{AltaInventario.firmanteInventario || 'NOMBRE FIRMANTE'}</Text>
+                                        <Text style={styles.firmaUnidad}>Unidad Inventario</Text>
+                                    </View>
+                                )}
 
+                                {/* Firma Unidad Finanzas */}
+                                {AltaInventario.chkFinanzas && (
+                                    <View style={styles.firmaBox}>
+                                        {AltaInventario.visadoFinanzas ? (
+                                            <Image src={AltaInventario.visadoFinanzas} style={styles.firmaImagen} />
+                                        ) : (
+                                            <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                        )}
+                                        <Text style={styles.firmaLinea}>_______________________</Text>
+                                        <Text style={styles.firmaNombre}>{AltaInventario.firmanteFinanzas || 'NOMBRE FIRMANTE'}</Text>
+                                        <Text style={styles.firmaUnidad}>Departamento de Finanzas</Text>
+                                    </View>
+                                )}
+
+                                {/* Verificación de rol para mostrar firmas adicionales */}
+                                {objeto?.Roles && objeto.Roles[0]?.codigoEstablecimiento === 1 ? (
+                                    <>
+                                        {/* Firma Abastecimiento */}
+                                        {Unidad === 3 && (
+                                            <View style={styles.firmaBox}>
+                                                {AltaInventario.visadoAbastecimiento ? (
+                                                    <Image src={AltaInventario.visadoAbastecimiento} style={styles.firmaImagen} />
+                                                ) : (
+                                                    <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                                )}
+                                                <Text style={styles.firmaLinea}>_______________________</Text>
+                                                <Text style={styles.firmaNombre}>{AltaInventario.firmanteAbastecimiento || 'NOMBRE FIRMANTE'}</Text>
+                                                <Text style={styles.firmaUnidad}>{UnidadNombre}</Text>
+                                            </View>
+                                        )}
+                                        {/* Firma Informatica */}
+                                        {Unidad === 4 && (
+                                            <View style={styles.firmaBox}>
+                                                {AltaInventario.visadoInformatica ? (
+                                                    <Image src={AltaInventario.visadoInformatica} style={styles.firmaImagen} />
+                                                ) : (
+                                                    <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                                )}
+                                                <Text style={styles.firmaLinea}>_______________________</Text>
+                                                <Text style={styles.firmaNombre}>{AltaInventario.firmanteInformatica || 'NOMBRE FIRMANTE'}</Text>
+                                                <Text style={styles.firmaUnidad}>{UnidadNombre}</Text>
+                                            </View>
+                                        )}
+                                        {/* Firma Compra */}
+                                        {Unidad === 5 && (
+                                            <View style={styles.firmaBox}>
+                                                {AltaInventario.visadoCompra ? (
+                                                    <Image src={AltaInventario.visadoCompra} style={styles.firmaImagen} />
+                                                ) : (
+                                                    <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                                )}
+                                                <Text style={styles.firmaLinea}>_______________________</Text>
+                                                <Text style={styles.firmaNombre}>{AltaInventario.firmanteCompra || 'NOMBRE FIRMANTE'}</Text>
+                                                <Text style={styles.firmaUnidad}>{UnidadNombre}</Text>
+                                            </View>
+                                        )}
+                                        {/* Firma Convenio */}
+                                        {Unidad === 6 && (
+                                            <View style={styles.firmaBox}>
+                                                {AltaInventario.visadoConvenio ? (
+                                                    <Image src={AltaInventario.visadoConvenio} style={styles.firmaImagen} />
+                                                ) : (
+                                                    <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                                )}
+                                                <Text style={styles.firmaLinea}>_______________________</Text>
+                                                <Text style={styles.firmaNombre}>{AltaInventario.firmanteConvenio || 'NOMBRE FIRMANTE'}</Text>
+                                                <Text style={styles.firmaUnidad}>{UnidadNombre}</Text>
+                                            </View>
+                                        )}
+                                        {/* Firma Recursos Fisicos */}
+                                        {Unidad === 7 && (
+                                            <View style={styles.firmaBox}>
+                                                {AltaInventario.visadoRFisico ? (
+                                                    <Image src={AltaInventario.visadoRFisico} style={styles.firmaImagen} />
+                                                ) : (
+                                                    <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                                )}
+                                                <Text style={styles.firmaLinea}>_______________________</Text>
+                                                <Text style={styles.firmaNombre}>{AltaInventario.firmanteRFisico || 'NOMBRE FIRMANTE'}</Text>
+                                                <Text style={styles.firmaUnidad}>{UnidadNombre}</Text>
+                                            </View>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Firma Unidad Abastecimiento - caso general */}
+                                        {AltaInventario.chkAbastecimiento && (
+                                            <View style={styles.firmaBox}>
+                                                {AltaInventario.visadoAbastecimiento ? (
+                                                    <Image src={AltaInventario.visadoAbastecimiento} style={styles.firmaImagen} />
+                                                ) : (
+                                                    <Text style={styles.firmaMensaje}>Falta Visar Documento</Text>
+                                                )}
+                                                <Text style={styles.firmaLinea}>_______________________</Text>
+                                                <Text style={styles.firmaNombre}>{AltaInventario.firmanteAbastecimiento || 'NOMBRE FIRMANTE'}</Text>
+                                                <Text style={styles.firmaUnidad}>Unidad de Abastecimiento</Text>
+                                            </View>
+                                        )}
+                                    </>
+                                )}
+                            </View>
+                        )}
                     </View>
+
+                    {/* Pie de página */}
                     <View style={styles.datosGrid}>
                         <View style={styles.datosColumnaIzquierda}>
                         </View>
                         <View style={styles.datosColumnaDerecha}>
-
                             <View style={styles.footer}>
                                 <Text>{fechaHoy}</Text>
                                 <View style={styles.fakeGradient} />
@@ -397,12 +473,10 @@ const DocumentoPDF = ({ row, totalSum /*AltaInventario, objeto, UnidadNombre, Un
                             </View>
                         </View>
                     </View>
-
                 </Page>
-            ))
-            }
-        </Document >
-
+            ))}
+        </Document>
     );
 };
+
 export default DocumentoPDF;
