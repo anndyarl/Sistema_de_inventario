@@ -18,7 +18,7 @@ interface Parametros {
 
 interface Props {
   listaInventarioAnular: Parametros[];
-  listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, fechaIniF: string, estabL_CORR: number, af_precio: number, af_estado_inv: number | null) => Promise<boolean>;
+  listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
   objeto: Objeto;
 }
 
@@ -35,7 +35,7 @@ const Dashboard: React.FC<Props> = ({
   // 🔹 Carga inicial
   useEffect(() => {
     if (listaInventarioAnular.length === 0) {
-      listaInventarioAnularActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento, 0, 4);
+      listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
     }
   }, [listaInventarioAnular, listaInventarioAnularActions, objeto]);
 
@@ -175,7 +175,7 @@ const Dashboard: React.FC<Props> = ({
                 <Button
                   size="sm"
                   variant="success"
-                  onClick={() => listaInventarioAnularActions("", fechaInicio, fechaFin, "", objeto.Roles[0].codigoEstablecimiento, 0, 4)}>
+                  onClick={() => listaInventarioAnularActions("", fechaInicio, fechaFin, objeto.Roles[0].codigoEstablecimiento)}>
                   Aplicar
                 </Button>
               </Col>

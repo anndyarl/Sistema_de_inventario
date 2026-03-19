@@ -55,7 +55,7 @@ export interface InventarioCompleto {
 
 interface ListaInventarioProps {
     listaInventarioAnular: InventarioCompleto[];
-    listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, fechaIniF: string, estabL_CORR: number, af_precio_ref: number, af_inv_estado: number | null) => Promise<boolean>;
+    listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
     anularInventarioActions: (aF_CLAVE: number) => Promise<boolean>;
     listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
     isDarkMode: boolean;
@@ -70,7 +70,6 @@ interface FechasProps {
 const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnularActions, anularInventarioActions, listaAltasActions, listaInventarioAnular, isDarkMode, objeto }) => {
     const [error, setError] = useState<Partial<FechasProps> & {}>({});
     const [loading, setLoading] = useState(false);
-    const [loadingCrowne, setLoadingCrowne] = useState(false);
     const [__, setElementoSeleccionado] = useState<FechasProps[]>([]);
     // Estados para ordenamiento
     const [sortColumn, setSortColumn] = useState<keyof InventarioCompleto | null>(null);
@@ -115,7 +114,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
     const listaAuto = async () => {
         if (listaInventarioAnular.length === 0) {
             setLoading(true);
-            const resultado = await listaInventarioAnularActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento, 0, 4);
+            const resultado = await listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
             if (!resultado) {
                 Swal.fire({
                     icon: "warning",
@@ -147,9 +146,9 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
-            return; // Salir si contiene caracteres no numéricos
-        }
+        // if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+        //     return; // Salir si contiene caracteres no numéricos
+        // }
 
         // Convierte `value` a número
         let newValue: string | number = ["af_precio_ref"].includes(name)
@@ -174,7 +173,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             return;
         }
         console.log(Inventario);
-        resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, "", objeto.Roles[0].codigoEstablecimiento, 0, 4);
+        resultado = await listaInventarioAnularActions(Inventario.af_codigo_generico, Inventario.fechaInicio, Inventario.fechaTermino, objeto.Roles[0].codigoEstablecimiento);
 
 
         if (!resultado) {
@@ -194,39 +193,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             return;
         } else {
             setLoading(false); //Finaliza estado de carga
-        }
-    };
-    const handleBuscarCrown = async (e: React.MouseEvent<HTMLButtonElement> | React.KeyboardEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        setLoadingCrowne(true);
-        setError({});
-        let resultado = false;
-
-        // Si ambas fechas están ingresadas, validar    
-        if (!validate()) {
-            setLoadingCrowne(false);
-            return;
-        }
-        resultado = await listaInventarioAnularActions("", "", "", Inventario.fechaIniF, 0, 1, 0);
-
-
-        if (!resultado) {
-            Swal.fire({
-                icon: "warning",
-                title: "Sin resultados",
-                text: "No se encontraron registros para la búsqueda realizada.",
-                confirmButtonText: "Ok",
-                background: isDarkMode ? "#1e1e1e" : "#ffffff",
-                color: isDarkMode ? "#ffffff" : "#000000",
-                confirmButtonColor: isDarkMode ? "#6c757d" : "#0d6efd",
-                customClass: {
-                    popup: "custom-border",
-                },
-            });
-            setLoadingCrowne(false);
-            return;
-        } else {
-            setLoadingCrowne(false); //Finaliza estado de carga
         }
     };
 
@@ -616,7 +582,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                         {error.fechaTermino && <div className="invalid-feedback d-block">{error.fechaTermino}</div>}
 
                                     </div>
-                                    <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
+                                    <small className="fw-semibold">Filtre los resultados por fecha de ingreso.</small>
                                 </div>
                             </Col>
 
@@ -675,60 +641,6 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                                 </div>
                             </Col>
                         </Row>
-                        {objeto.Roles[0].codigoEstablecimiento === 2 && (
-                            <>
-                                <Row className="border rounded p-2 m-2 border-warning col-7">
-                                    <Col lg={5} md={4}>
-                                        <div className="mb-2">
-                                            <div className="flex-grow-1 mb-2">
-                                                <label htmlFor="fechaIniF" className="form-label fw-semibold small">Fecha Úlitima Carga Crowne</label>
-                                                <div className="input-group">
-                                                    <input
-                                                        aria-label="Fecha Desde"
-                                                        type="date"
-                                                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                        name="fechaIniF"
-                                                        onChange={handleChange}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === "Enter") {
-                                                                handleBuscarCrown(e);
-                                                            }
-                                                        }}
-                                                        value={Inventario.fechaIniF}
-                                                        max={new Date().toLocaleDateString("sv-SE", { timeZone: "America/Santiago" })}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Col>
-
-                                    <Col lg={4} md={4}>
-                                        <div className="d-flex flex-column gap-2 mt-4">
-                                            <Button
-                                                onClick={handleBuscarCrown}
-                                                variant={`${isDarkMode ? "secondary" : "warning"}`}
-                                                className="w-100"
-                                            >
-                                                {loadingCrowne ? (
-                                                    <>
-                                                        Buscar Crowne
-                                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="ms-1" />
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        Buscar Crowne
-                                                        <Search className="flex-shrink-0 h-5 w-5 ms-1" aria-hidden="true" />
-                                                    </>
-                                                )}
-                                            </Button>
-
-                                        </div>
-                                    </Col>
-
-                                </Row>
-                            </>
-                        )}
-
 
                         {/* Controles de página y exportación */}
                         <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
@@ -746,7 +658,7 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
                         </Row>
 
                         {/* Tabla con selección */}
-                        {loading || loadingCrowne ? (
+                        {loading ? (
                             <SkeletonLoader rowCount={10} />
                         ) : (
                             <TablaGenerica<InventarioCompleto>

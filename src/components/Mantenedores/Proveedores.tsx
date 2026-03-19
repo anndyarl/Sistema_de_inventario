@@ -17,6 +17,8 @@ import { validate } from 'rut.js';
 import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
 import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
 import { BusquedaTabla } from "../Utils/BusquedaTabla.tsx";
+import { Objeto } from "../Navegacion/Profile.tsx";
+import { actualizarMantenedorProveedoresActions } from "../../redux/actions/Mantenedores/Proveedores/actualizarMantenedorProveedoresActions.tsx";
 export interface ListadoMantenedor {
     proV_CORR: number,
     proV_RUN: number,
@@ -30,11 +32,13 @@ interface GeneralProps {
     obtenerMaxServicioActions: () => void;
     listadoMantenedorProveedoresActions: () => Promise<boolean>;
     registrarMantenedorProveedoresActions: (formModal: Record<string, any>) => Promise<boolean>;
+    actualizarMantenedorProveedoresActions: (formModal: Record<string, any>) => Promise<boolean>;
     token: string | null;
     isDarkMode: boolean;
+    objeto: Objeto; //Objeto que obtiene los datos del usuario
 }
 
-const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, listadoMantenedor, token, isDarkMode }) => {
+const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMantenedorProveedoresActions, registrarMantenedorProveedoresActions, actualizarMantenedorProveedoresActions, listadoMantenedor, token, isDarkMode, objeto }) => {
     const [loading, setLoading] = useState(false);
     const [loadingRegistro, setLoadingRegistro] = useState(false);
     const [error, setError] = useState<Partial<ListadoMantenedor> & {}>({});
@@ -42,7 +46,8 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
     const [paginaActual, setPaginaActual] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [terminoBusqueda, setTerminoBusqueda] = useState("");
-
+    const [mostrarModalEditar, setMostrarModalEditar] = useState<ListadoMantenedor | null>(null);
+    const [_, setFilaSeleccionada] = useState<any[]>([]);
     const datosFiltrados = useMemo(() => {
         if (!terminoBusqueda.trim()) {
             return listadoMantenedor;
@@ -57,7 +62,8 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                 item.proV_DIR.toLowerCase().includes(termino) ||
                 item.proV_FONO.toLowerCase().includes(termino) ||
                 item.proV_NOMBRE.toLowerCase().includes(termino) ||
-                item.proV_RUN.toString().includes(termino)
+                item.proV_RUN.toString().includes(termino) ||
+                item.proV_DV.toString().includes(termino)
             );
         });
     }, [listadoMantenedor, terminoBusqueda]);
@@ -107,7 +113,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
         listadoMantenedorAuto();
     }, [listadoMantenedorProveedoresActions, obtenerMaxServicioActions, token, listadoMantenedor.length]); // Asegúrate de incluir dependencias relevantes
 
-    const validateForm = () => {
+    const validateRegistro = () => {
         let tempErrors: Partial<any> & {} = {};
         // Validación  
         if (!Mantenedor.proV_RUN) tempErrors.proV_RUN = "Campo obligatorio";
@@ -122,6 +128,16 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
             }
         }
         if (!Mantenedor.proV_DV) tempErrors.proV_DV = "Campo obligatorio";
+        if (!Mantenedor.proV_NOMBRE) tempErrors.proV_NOMBRE = "Campo obligatorio";
+        if (!Mantenedor.proV_FONO) tempErrors.proV_FONO = "Campo obligatorio";
+        if (!Mantenedor.proV_DIR) tempErrors.proV_DIR = "Campo obligatorio";
+        setError(tempErrors);
+        return Object.keys(tempErrors).length === 0;
+    };
+
+    const validateEditar = () => {
+        let tempErrors: Partial<any> & {} = {};
+
         if (!Mantenedor.proV_NOMBRE) tempErrors.proV_NOMBRE = "Campo obligatorio";
         if (!Mantenedor.proV_FONO) tempErrors.proV_FONO = "Campo obligatorio";
         if (!Mantenedor.proV_DIR) tempErrors.proV_DIR = "Campo obligatorio";
@@ -162,7 +178,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (validateForm()) {
+        if (validateRegistro()) {
             // const selectedIndices = filasSeleccionada.map(Number);
             const result = await Swal.fire({
                 icon: "info",
@@ -235,8 +251,110 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
         { key: 'proV_RUN' as keyof ListadoMantenedor, header: 'Rut' },
         { key: 'proV_DV' as keyof ListadoMantenedor, header: 'Dv' },
         { key: 'proV_NOMBRE' as keyof ListadoMantenedor, header: 'Nombre' },
-        { key: 'proV_FONO' as keyof ListadoMantenedor, header: 'Fono' }
+        { key: 'proV_FONO' as keyof ListadoMantenedor, header: 'Fono' },
+        { key: 'proV_DIR' as keyof ListadoMantenedor, header: 'Dirección' }
     ];
+    const handleCerrarModalRegistrar = () => {
+        setMostrarModalRegistrar(false);
+        setMantenedor((prevPrev) => ({
+            ...prevPrev,
+            proV_NOMBRE: '',
+            proV_RUN: 0,
+            proV_DV: '',
+            proV_FONO: '',
+            proV_DIR: ''
+        }));
+        setError({});
+    };
+    const handleCerrarModalEditar = (index?: number) => {
+        if (index !== undefined) {
+            setFilaSeleccionada((prevSeleccionadas) =>
+                prevSeleccionadas.filter((fila) => fila !== index.toString())
+            );
+        }
+        setMostrarModalEditar(null); //Cierra modal del indice seleccionado
+        setMantenedor((prevPrev) => ({
+            ...prevPrev,
+            proV_NOMBRE: '',
+            proV_RUN: 0,
+            proV_DV: '',
+            proV_FONO: '',
+            proV_DIR: ''
+        }));
+        setError({});
+    };
+
+    const handleSubmitEditar = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (validateEditar()) {
+            const result = await Swal.fire({
+                icon: "info",
+                title: "Editar",
+                text: "Confirme para editar el proveedor seleccionado",
+                showDenyButton: false,
+                showCancelButton: true,
+                confirmButtonText: "Confirmar",
+                background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                customClass: {
+                    popup: "custom-border", // Clase personalizada para el borde
+                }
+            });
+
+            if (result.isConfirmed) {
+                const FormEditar = {
+                    ...Mantenedor,
+                    proV_RUN: Mantenedor.proV_RUN,
+                    proV_NOMBRE: Mantenedor.proV_NOMBRE,
+                    proV_FONO: Mantenedor.proV_FONO,
+                    esp_user_mod: objeto.IdCredencial.toString(),
+                };
+
+                const resultado = await actualizarMantenedorProveedoresActions(FormEditar);
+                if (resultado) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Actualización Exitosa",
+                        text: "Se ha editado un proveedor correctamente.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                    listadoMantenedorProveedoresActions();
+                    setMostrarModalEditar(null);
+
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: ":'(",
+                        text: "Hubo un problema al editar la especie.",
+                        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+                        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+                        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+                        customClass: {
+                            popup: "custom-border", // Clase personalizada para el borde
+                        }
+                    });
+                }
+            }
+        }
+    };
+
+    const handleSeleccion = (item: ListadoMantenedor) => {
+        setMostrarModalEditar(item)
+        setMantenedor((prevMantenedor) => ({
+            ...prevMantenedor,
+            proV_CORR: item.proV_CORR,
+            proV_RUN: item.proV_RUN,
+            proV_DV: item.proV_DV,
+            proV_NOMBRE: item.proV_NOMBRE,
+            proV_DIR: item.proV_DIR,
+        }));
+    };
 
     return (
         <Layout>
@@ -288,7 +406,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                 data={elementosActuales}
                                 columns={columnas}
                                 isDarkMode={isDarkMode}
-                            // onEdit={(item) => handleSeleccion(item)}
+                                onEdit={(item) => handleSeleccion(item)}
                             />
                         )}
                         {/* Paginador */}
@@ -365,7 +483,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
             {/* Modal formulario Registro*/}
             <Modal
                 show={mostrarModalRegistrar}
-                onHide={() => setMostrarModalRegistrar(false)}
+                onHide={(handleCerrarModalRegistrar)}
                 dialogClassName="modal-right" // Clase personalizada
 
             // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
@@ -426,7 +544,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                     value={Mantenedor.proV_RUN}
                                 />
                                 {error.proV_RUN && (
-                                    <div className="invalid-feedback fw-semibold">{error.proV_RUN}</div>
+                                    <div className="invalid-feedback fw-semibold d-block">{error.proV_RUN}</div>
                                 )}
                             </div>
                             <div className="mt-1 mx-2">
@@ -468,7 +586,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                 value={Mantenedor.proV_NOMBRE}
                             />
                             {error.proV_NOMBRE && (
-                                <div className="invalid-feedback fw-semibold">{error.proV_NOMBRE}</div>
+                                <div className="invalid-feedback fw-semibold d-block">{error.proV_NOMBRE}</div>
                             )}
                         </div>
                         <div className="mt-1">
@@ -485,7 +603,7 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                 value={Mantenedor.proV_FONO}
                             />
                             {error.proV_FONO && (
-                                <div className="invalid-feedback fw-semibold">{error.proV_FONO}</div>
+                                <div className="invalid-feedback fw-semibold d-block">{error.proV_FONO}</div>
                             )}
                         </div>
                         <div className="mt-1">
@@ -502,7 +620,101 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
                                 value={Mantenedor.proV_DIR}
                             />
                             {error.proV_DIR && (
-                                <div className="invalid-feedback fw-semibold">{error.proV_DIR}</div>
+                                <div className="invalid-feedback fw-semibold d-block">{error.proV_DIR}</div>
+                            )}
+                        </div>
+                    </form>
+                </Modal.Body>
+            </Modal >
+
+            {/* Modal formulario Editar*/}
+            <Modal
+                show={mostrarModalEditar !== null}
+                onHide={() => handleCerrarModalEditar()}
+                dialogClassName="modal-right" // Clase personalizada
+            // backdrop="static"    // Evita el cierre al hacer clic fuera del modal
+            // keyboard={false}     // Evita el cierre al presionar la tecla Esc
+            >
+                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                    <Modal.Title className="fw-semibold">Editar Proveedor: {Mantenedor.proV_RUN + "-" + Mantenedor.proV_DV}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <form onSubmit={handleSubmitEditar}>
+                        {/* Boton actualizar filas seleccionadas */}
+                        <div className="d-flex justify-content-end">
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                className="m-1 p-2 d-flex align-items-center"  // Alinea el spinner y el texto
+                                disabled={loadingRegistro}  // Desactiva el botón mientras carga
+                            >
+                                {loadingRegistro ? (
+                                    <>
+                                        {"Un momento... "}
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="me-2"
+                                        />
+
+                                    </>
+                                ) : (
+                                    <>
+                                        Guardar
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+
+                        <div className="mt-1">
+                            <label className="fw-semibold">Nombre Proveedor</label>
+                            <input
+                                aria-label="proV_NOMBRE"
+                                type="text"
+                                className={`form-control ${error.proV_NOMBRE ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="proV_NOMBRE"
+                                placeholder="Ingrese nueva proveedor"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.proV_NOMBRE}
+                            />
+                            {error.proV_DIR && (
+                                <div className="invalid-feedback fw-semibold d-block">{error.proV_NOMBRE}</div>
+                            )}
+                        </div>
+                        <div className="mt-1">
+                            <label className="fw-semibold">Fono</label>
+                            <input
+                                aria-label="proV_FONO"
+                                type="text"
+                                className={`form-control ${error.proV_FONO ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="proV_FONO"
+                                placeholder="Ingrese un fono"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.proV_FONO}
+                            />
+                            {error.proV_DIR && (
+                                <div className="invalid-feedback fw-semibold d-block">{error.proV_FONO}</div>
+                            )}
+                        </div>
+                        <div className="mt-1">
+                            <label className="fw-semibold">Dirección</label>
+                            <input
+                                aria-label="proV_DIR"
+                                type="text"
+                                className={`form-control ${error.proV_DIR ? "is-invalid " : ""} ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                name="proV_DIR"
+                                placeholder="Ingrese una dirección"
+                                maxLength={100}
+                                onChange={handleChange}
+                                value={Mantenedor.proV_DIR}
+                            />
+                            {error.proV_DIR && (
+                                <div className="invalid-feedback fw-semibold d-block">{error.proV_DIR}</div>
                             )}
                         </div>
                     </form>
@@ -516,12 +728,14 @@ const mapStateToProps = (state: RootState) => ({
     listadoMantenedor: state.listadoMantenedorProveedoresReducers.listadoMantenedor,
     token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion
+    nPaginacion: state.mostrarNPaginacionReducer.nPaginacion,
+    objeto: state.validaApiLoginReducers,
 });
 
 export default connect(mapStateToProps, {
     obtenerMaxServicioActions,
     listadoMantenedorProveedoresActions,
     registrarMantenedorProveedoresActions,
+    actualizarMantenedorProveedoresActions,
     comboServicioActions
 })(Proveedores);

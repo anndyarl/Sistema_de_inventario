@@ -465,9 +465,9 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
-    if ((name === "aF_CODIGO_GENERICO_B" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
-      return; // Salir si contiene caracteres no numéricos
-    }
+    // if ((name === "aF_CODIGO_GENERICO_B" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
+    //   return; // Salir si contiene caracteres no numéricos
+    // }
 
     let newValue: string | number = [
       "IDMODALIDADCOMPRA", //modalidadDeCompra

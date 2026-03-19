@@ -82,7 +82,7 @@ interface DatosActivoFijoProps {
   onReset: () => void; // vuelve a al componente Datos_inventario
   registrarFormInventarioActions: (formInventario: Record<string, any>) => Promise<Boolean>;
   listaAltasActions: (fDesde: string, fHasta: string, af_codigo_generico: string, altas_corr: number, establ_corr: number) => Promise<boolean>;
-  listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, fechaIniF: string, estabL_CORR: number, af_precio_ref: number, af_inv_estado: number | null) => Promise<boolean>;
+  listaInventarioAnularActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => Promise<boolean>;
   montoRecepcion: number; //declaro un props para traer montoRecepción del estado global
 
   datosTablaActivoFijo: ActivoFijo[];
@@ -746,7 +746,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
           if (resultado) {
             //Va a la api ra obtener el ultimo registro recien ingrsado
             listaAltasActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
-            listaInventarioAnularActions("", "", "", "", objeto.Roles[0].codigoEstablecimiento, 0, 4);
+            listaInventarioAnularActions("", "", "", objeto.Roles[0].codigoEstablecimiento);
             // funcionObtieneMaxRegistro();
             dispatch(setNRecepcionActions(0));
             dispatch(setFechaRecepcionActions(""));

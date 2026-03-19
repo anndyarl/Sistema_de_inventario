@@ -151,7 +151,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
     const { name, value } = e.target;
 
     // Validación numérica
-    if ((name === "af_codigo_generico" || name === "altaS_CORR") && !/^[0-9]*$/.test(value)) {
+    if ((name === "altaS_CORR") && !/^[0-9]*$/.test(value)) {
       return;
     }
 

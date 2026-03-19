@@ -224,7 +224,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     const { name, value } = e.target;
 
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "aF_CODIGO_GENERICO" && !/^[0-9]*$/.test(value) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
+    if ((name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
       return; // Salir si contiene caracteres no numéricos
     }
     // Convierte `value` a número

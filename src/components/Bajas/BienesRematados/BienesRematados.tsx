@@ -108,7 +108,7 @@ const BienesRematados: React.FC<DatosBajas> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let { name, value } = e.target;
 
-    if ((name === "nresolucion" || name === "af_codigo_generico") && !/^[0-9]*$/.test(value)) {
+    if ((name === "nresolucion") && !/^[0-9]*$/.test(value)) {
       return;
     }
 

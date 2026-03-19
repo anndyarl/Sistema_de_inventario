@@ -164,9 +164,9 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
-      return; // Salir si contiene caracteres no numéricos
-    }
+    // if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+    //   return; // Salir si contiene caracteres no numéricos
+    // }
 
     // Actualizar estado
     setInventario((prevState) => ({

@@ -6,12 +6,12 @@ import {
 } from "../types";
 import axiosInstance from "../../../../services/axiosConfig";
 
-export const listaInventarioAnularActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, fechaIniF: string, estabL_CORR: number, af_precio: number, af_estado_inv: number | null) => async (dispatch: Dispatch): Promise<boolean> => {
+export const listaInventarioAnularActions = (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, estabL_CORR: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
   dispatch({ type: LISTA_INVENTARIO_ANULAR_REQUEST });
 
   try {
-    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventarioAnular?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&fechaIniF=${fechaIniF}&estabL_CORR=${estabL_CORR}&af_precio=${af_precio}&af_estado_inv=${af_estado_inv}`);
+    const res = await axiosInstance.get(`${import.meta.env.VITE_CSRF_API_URL}/traeListaInventarioAnular?af_codigo_generico=${af_codigo_generico}&FechaInicio=${FechaInicio}&FechaTermino=${FechaTermino}&estabL_CORR=${estabL_CORR}`);
 
     if (res.status === 200) {
       if (res.data?.length) {

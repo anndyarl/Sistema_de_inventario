@@ -216,16 +216,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             ? parseFloat(value) || 0 // Convierte a `number`, si no es válido usa 0
             : value;
 
-        // Validación específica para af_codigo_generico: solo permitir números
-        if (name === "af_codigo_generico") {
-            // Solo números usando una expresión regular
-            const soloNumeros = /^[0-9]*$/;
-
-            if (!soloNumeros.test(value)) {
-                return; // No actualiza el estado si hay caracteres inválidos
-            }
-
-        }
         setBuscar((prev) => ({
             ...prev,
             [name]: newValue,

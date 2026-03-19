@@ -40,6 +40,8 @@ interface InventarioCompleto {
   aF_CODIGO_GENERICO: string;
   seR_NOMBRE: string;
   deP_NOMBRE: string;
+  seR_CORR: number;
+  deP_CORR: number;
   aF_ALTA: string;
   aF_CANTIDAD: number;
   aF_DESCRIPCION: string;
@@ -161,9 +163,6 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
     if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
   }, [comboServicio, comboEspecies]);
 
-  useEffect(() => {
-    setPaginaActual(1);
-  }, [listaInventarioBuscar]);
 
   const listaAltasAuto = async () => {
     if (listaInventarioBuscar.length === 0) {
@@ -191,7 +190,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if ((name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
+    if ((name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
       return; // Salir si contiene caracteres no numéricos
     }
 
@@ -363,22 +362,52 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
     XLSX.writeFile(workbook, "Inventario.xlsx");
   };
 
-  // PASO 1: Primero ordenamos TODOS los datos según la columna seleccionada
-  const datosOrdenados = useMemo(() => {
-    if (!sortColumn) return listaInventarioBuscar;
+  // PASO 1: Filtrar los datos
+  const datosFiltrados = useMemo(() => {
+    return listaInventarioBuscar.filter(item => {
+      const coincideCodigo = !Inventario.af_codigo_generico ||
+        item.aF_CODIGO_GENERICO?.toString().toLowerCase().includes(Inventario.af_codigo_generico.toString().toLowerCase());
+      const coincideAlta = !Inventario.altaS_CORR ||
+        item.altaS_CORR?.toString().toLowerCase().includes(Inventario.altaS_CORR.toString().toLowerCase());
+      const coincideMarca = !Inventario.marca ||
+        item.deT_MARCA?.toString().toLowerCase().includes(Inventario.marca.toString().toLowerCase());
+      const coincideModelo = !Inventario.modelo ||
+        item.deT_MODELO?.toString().toLowerCase().includes(Inventario.modelo.toString().toLowerCase());
+      const coincideSerie = !Inventario.serie ||
+        item.deT_SERIE?.toString().toLowerCase().includes(Inventario.serie.toString().toLowerCase());
+      const coincideOC = !Inventario.aF_OCO_NUMERO_REF ||
+        item.aF_OCO_NUMERO_REF?.toString().toLowerCase().includes(Inventario.aF_OCO_NUMERO_REF.toString().toLowerCase());
+      const coincideEspecie = !Inventario.esP_CODIGO ||
+        item.esP_CODIGO?.toString().toLowerCase().includes(Inventario.esP_CODIGO.toString().toLowerCase());
+      const coincideServicio = !Inventario.seR_CORR ||
+        item.seR_CORR?.toString().toLowerCase().includes(Inventario.seR_CORR.toString().toLowerCase());
+      const coincideDependencia = !Inventario.deP_CORR ||
+        item.deP_CORR?.toString().toLowerCase().includes(Inventario.deP_CORR.toString().toLowerCase());
+      const coincideRecepcion = !Inventario.nrecepcion ||
+        item.nrecepcion?.toString().toLowerCase().includes(Inventario.nrecepcion.toString().toLowerCase());
 
-    return [...listaInventarioBuscar].sort((a, b) => {
+      return coincideCodigo && coincideAlta && coincideMarca && coincideModelo
+        && coincideSerie && coincideOC && coincideEspecie && coincideServicio
+        && coincideDependencia && coincideRecepcion;
+    });
+  }, [listaInventarioBuscar, Inventario.af_codigo_generico, Inventario.altaS_CORR, Inventario.marca,
+    Inventario.modelo, Inventario.serie, Inventario.aF_OCO_NUMERO_REF, Inventario.esP_CODIGO,
+    Inventario.seR_CORR, Inventario.deP_CORR, Inventario.nrecepcion]);
+
+  // PASO 2: Ordenar los datos YA FILTRADOS
+  const datosOrdenados = useMemo(() => {
+    if (!sortColumn) return datosFiltrados;
+
+    return [...datosFiltrados].sort((a, b) => {
       const aValue = a[sortColumn];
       const bValue = b[sortColumn];
 
-      // Manejar valores numéricos
       if (!isNaN(Number(aValue)) && !isNaN(Number(bValue))) {
         return sortDirection === 'asc'
           ? Number(aValue) - Number(bValue)
           : Number(bValue) - Number(aValue);
       }
 
-      // Manejar valores de texto
       const aString = aValue?.toString() || '';
       const bString = bValue?.toString() || '';
 
@@ -386,20 +415,18 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
         ? aString.localeCompare(bString)
         : bString.localeCompare(aString);
     });
-  }, [listaInventarioBuscar, sortColumn, sortDirection]);
+  }, [datosFiltrados, sortColumn, sortDirection]); // <-- Depende de datosFiltrados
 
-  // PASO 3: Paginación (para la vista, NO para la exportación)
-  const totalRegistros = listaInventarioBuscar.length;
+  // PASO 3: Paginación sobre los datos filtrados Y ordenados
+  const totalRegistros = datosOrdenados.length; // <-- Usar datosOrdenados
   const totalPaginas = Math.ceil(totalRegistros / pageSize);
   const indiceInicio = (paginaActual - 1) * pageSize;
   const indiceFin = indiceInicio + pageSize;
 
-  // Para la vista usamos los datos ordenados pero paginados
   const elementosActuales = useMemo(() => {
-    return datosOrdenados.slice(indiceInicio, indiceFin);
+    return datosOrdenados.slice(indiceInicio, indiceFin); // <-- Usar datosOrdenados
   }, [datosOrdenados, indiceInicio, indiceFin]);
 
-  // Función para manejar el ordenamiento
   const handleSort = (column: keyof InventarioCompleto, direction: 'asc' | 'desc') => {
     setSortColumn(column);
     setSortDirection(direction);
@@ -503,6 +530,10 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
     },
   ];
 
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [datosFiltrados, listaInventarioBuscar, datosOrdenados]);
+
   return (
     <Layout>
       <Helmet>
@@ -589,7 +620,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
                     }}
                   />
                 </div>
-                <small className="fw-semibold">Filtre los resultados por fecha de recepción.</small>
+                <small className="fw-semibold">Filtre los resultados por fecha de ingreso.</small>
               </Col>
 
               {/* Columna 2: Servicio, Dependencia y N° Inventario */}

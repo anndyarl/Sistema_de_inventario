@@ -75,21 +75,13 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        // Si el campo es "af_codigo_generico", validamos que solo tenga números
-        if (name === "af_codigo_generico") {
-            // Solo números usando una expresión regular
-            const soloNumeros = /^[0-9]*$/;
 
-            if (!soloNumeros.test(value)) {
-                return; // No actualiza el estado si hay caracteres inválidos
-            }
+        setInventario((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+        return;
 
-            setInventario((prevState) => ({
-                ...prevState,
-                [name]: value,
-            }));
-            return;
-        }
     };
 
     const handleBuscar = async () => {

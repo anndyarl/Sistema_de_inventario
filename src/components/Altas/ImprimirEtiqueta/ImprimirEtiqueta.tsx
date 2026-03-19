@@ -171,7 +171,7 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         //solo permitir números
-        if ((name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) || (name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
+        if ((name === "altaS_CORR" && !/^[0-9]*$/.test(value))) {
             return; // Salir si contiene caracteres no numéricos
         }
 

@@ -311,6 +311,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
                 }
             }
         }
+
     };
 
     const handleSeleccion = (item: ListadoMantenedor) => {
@@ -346,6 +347,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             esP_NOMBRE: '',
             ctA_COD: ''
         }));
+        setError({});
     };
 
     const nombreUsuario = (codigo: string) => {
@@ -620,7 +622,7 @@ const Especies: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listadoMa
             // keyboard={false}     // Evita el cierre al presionar la tecla Esc
             >
                 <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-                    <Modal.Title className="fw-semibold">Especie: {Mantenedor.esP_CODIGO}</Modal.Title>
+                    <Modal.Title className="fw-semibold">Editar Especie: {Mantenedor.esP_CODIGO}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     <form onSubmit={handleSubmitEditar}>

@@ -284,9 +284,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const handleChangeEnviados = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
-      return; // Salir si contiene caracteres no numéricos
-    }
+    // if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+    //   return; // Salir si contiene caracteres no numéricos
+    // }
     // Convertir a número solo si el campo está en la lista
     const camposNumericos = ["tras_corr", "establ_corr"];
     const newValue: string | number = camposNumericos.includes(name)
@@ -314,9 +314,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const handleChangeRecibidos = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     // Validación específica para af_codigo_generico: solo permitir números
-    if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
-      return; // Salir si contiene caracteres no numéricos
-    }
+    // if (name === "af_codigo_generico" && !/^[0-9]*$/.test(value)) {
+    //   return; // Salir si contiene caracteres no numéricos
+    // }
     // Convertir a número solo si el campo está en la lista
     const camposNumericos = ["tras_corr", "establ_corr"];
     const newValue: string | number = camposNumericos.includes(name)
