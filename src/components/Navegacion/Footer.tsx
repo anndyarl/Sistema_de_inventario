@@ -35,8 +35,8 @@ const Footer: React.FC<Props> = ({ listaVersionamiento, isDarkMode, activo = "Ve
                             className={`fw-normal mx-1 text-decoration-none`}
                             style={{ cursor: "pointer" }}
                         >
-                            <b className={`fw-semibold ${isDarkMode ? "text-white" : "text-dark"}`}>
-                                {version}
+                            <b className={`fw-semibold ${isDarkMode ? "text-white" : "text-primary"}`}>
+                                v{version}
                             </b>
                         </a>
                     </p>

@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, EyeSlash, FiletypePdf, InfoCircle, Paperclip, Pencil, PencilSquare, Search, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, EyeSlash, FiletypePdf, InfoCircle, Paperclip, Pencil, PencilSquare, Search, Textarea, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { pdf } from "@react-pdf/renderer";
@@ -125,6 +125,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [modalVisadores, setModalSolicitarVisadores] = useState(false);
     const [modalVisadoresClasico, setModalSolicitarVisadoresClasico] = useState(false);
     const [modalModificar, setModalModificar] = useState(false);
+    const [modalModificarDetalles, setModalModificarDetalles] = useState(false);
     const [paginaActualModificar, setPaginaActualModificar] = useState(1);
     const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
     const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
@@ -231,7 +232,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         descripcionEspecie: "",
     });
 
-
     const [BuscarEspecie, setBuscarEspecie] = useState({
         esP_CODIGO: "",
         esp_NOMBRE: ""
@@ -242,6 +242,9 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         label: item.descripcion,
     }));
 
+    const [modalObservacion, setModalObservacion] = useState(false);
+    const [observacionTemp, setObservacionTemp] = useState('');
+    const [indiceObservacion, setIndiceObservacion] = useState<number | null>(null);
     // const handleServicioChange = (selectedOption: any) => {
     //     const value = selectedOption ? selectedOption.value : 0;
     //     setInventarioModificar((prevInventario) => ({ ...prevInventario, DEP_CORR: value }));
@@ -676,6 +679,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         setHabilitarModificar(false);
     };
 
+    const handleCambiaOBS = (indexVisible: number, nuevaObs: string) => {
+        const indexReal = indicePrimerElementoModificar + indexVisible;
+        setInventarioModificar(prev =>
+            prev.map((item, i) =>
+                i === indexReal ? { ...item, deT_OBS: nuevaObs } : item
+            )
+        );
+        setHabilitarModificar(false);
+    };
+
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleFileInput = () => {
@@ -1032,6 +1045,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
     const handleModalModificar = async (altaS_CORR: number, idocumento: number) => {
         setModalModificar(true); //Abre modal modificar
+        setLoadingModificar(true); //Carga skeletor tabla
+        setHabilitarModificar(true); //deshabilita boton modificar
+        setHabilitarVisado(true); //deshabilita boton visado
+        setEstadoRechazado(false); //quita mensaje de rechazo idocumento
+        await listaAltasModificarActions("", "", "", altaS_CORR, idocumento, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
+        paginarModificar(1); //muestra la primera pagina
+        setLoadingModificar(false); //para la carga de Skeletor
+    };
+    const handleModalModificarDetalles = async (altaS_CORR: number, idocumento: number) => {
+        setModalModificarDetalles(true); //Abre modal modificar
         setLoadingModificar(true); //Carga skeletor tabla
         setHabilitarModificar(true); //deshabilita boton modificar
         setHabilitarVisado(true); //deshabilita boton visado
@@ -1754,6 +1777,22 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         // No reseteamos la selección al ordenar
     };
 
+    const handleCerrarModalObservacion = () => {
+        setModalObservacion(false);
+        setObservacionTemp('');
+        setIndiceObservacion(null);
+    };
+
+    const handleGuardarObservacion = () => {
+        if (indiceObservacion !== null) {
+            const indexVisible = indiceObservacion - indicePrimerElementoModificar;
+            if (indexVisible >= 0 && indexVisible < elementosActualesModificar.length) {
+                handleCambiaOBS(indexVisible, observacionTemp);
+            }
+            handleCerrarModalObservacion();
+        }
+    };
+
     //Listado modificar
     const indiceUltimoElementoModificar = paginaActualModificar * elementosPorPaginaModificar;
     const indicePrimerElementoModificar = indiceUltimoElementoModificar - elementosPorPaginaModificar;
@@ -2205,6 +2244,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             </Modal>
 
             {/*Modal Modificar */}
+            {/*Modal Modificar */}
             <Modal show={modalModificar} onHide={(handleCerrarModalModificar)}
                 backdrop="static"
                 keyboard={false}
@@ -2407,6 +2447,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                             <th scope="col" className="text-nowrap">Modelo</th>
                                             <th scope="col" className="text-nowrap">Serie</th>
                                             <th scope="col" className="text-nowrap">Precio</th>
+                                            <th scope="col" className="text-nowrap">Observación</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2441,16 +2482,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             />
                                                         </div>
                                                     </td>
-                                                    {/* <td className="text-nowrap">
-                                                        <OverlayTrigger
-                                                            placement="top"
-                                                            overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.serv}</Tooltip>}
-                                                        >
-                                                            <span style={{ cursor: "default" }}>
-                                                                {Lista.serv.length > 15 ? `${Lista.serv.slice(0, 15)}...` : Lista.serv}
-                                                            </span>
-                                                        </OverlayTrigger>
-                                                    </td> */}
                                                     <OverlayTrigger
                                                         placement="top"
                                                         overlay={<Tooltip id={`tooltip-serv-${index}`}>{Lista.serv + " " + Lista.dep}</Tooltip>}
@@ -2470,22 +2501,21 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                 styles={{
                                                                     control: (baseStyles) => ({
                                                                         ...baseStyles,
-                                                                        // background: !isDarkMode ? "#e9ecef" : "",//Color que indica deshabilitado
-                                                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo oscuro
-                                                                        color: isDarkMode ? "white" : "#dc3545", // Texto blanco
-                                                                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e", // Bordes
+                                                                        backgroundColor: isDarkMode ? "#212529" : "white",
+                                                                        color: isDarkMode ? "white" : "#dc3545",
+                                                                        borderColor: isDarkMode ? "rgb(108 117 125)" : "#a6a6a66e",
                                                                         fontSize: "0.875rem",
-                                                                        minHeight: "31px", // altura del input sm (~31px)
+                                                                        minHeight: "31px",
                                                                         height: "31px",
                                                                         width: "300px"
                                                                     }),
                                                                     singleValue: (base) => ({
                                                                         ...base,
-                                                                        color: isDarkMode ? "white" : "#212529", // Color del texto seleccionado
+                                                                        color: isDarkMode ? "white" : "#212529",
                                                                     }),
                                                                     menu: (base) => ({
                                                                         ...base,
-                                                                        backgroundColor: isDarkMode ? "#212529" : "white", // Fondo del menú desplegable
+                                                                        backgroundColor: isDarkMode ? "#212529" : "white",
                                                                         color: isDarkMode ? "white" : "#212529",
                                                                     }),
                                                                     option: (base, { isFocused, isSelected }) => ({
@@ -2574,8 +2604,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                 value={Lista.ctA_COD}
                                                                 autoFocus
                                                                 data-index={indexReal}
-                                                                style={{ height: "31px", width: "300px" }}
-                                                            // disabled={isDisabled ? isDisabled : !Especies.codigoEspecie}
+                                                                style={{ height: "31px", width: "300px", fontSize: '13px' }}
                                                             >
                                                                 <option value="">Selecciona una opción</option>
 
@@ -2590,6 +2619,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             </select>
                                                         </td>
                                                     </OverlayTrigger>
+
                                                     <td className={`${isDarkMode ? "text-light" : "text-dark"}`} onClick={() => setEditarCampo(indexReal.toString())}>
                                                         <div className={`d-flex align-items-center  ${isDarkMode ? "text-light" : "text-dark"}`}>
                                                             <Form.Control
@@ -2654,6 +2684,27 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                             />
                                                         </div>
                                                     </td>
+                                                    {/* Celda de Observación con modal anidado */}
+                                                    <td className={`${isDarkMode ? "text-light" : "text-dark"}`}>
+                                                        <div className="d-flex align-items-center">
+                                                            <Form.Control
+                                                                size="sm"
+                                                                type="text"
+                                                                value={Lista.deT_OBS || ''}
+                                                                onClick={() => {
+                                                                    setIndiceObservacion(indexReal);
+                                                                    setObservacionTemp(Lista.deT_OBS || '');
+                                                                    setModalObservacion(true);
+                                                                }}
+                                                                readOnly
+                                                                placeholder="Haz clic para editar observación"
+                                                                style={{
+                                                                    cursor: 'pointer',
+                                                                    backgroundColor: isDarkMode ? '#2c3034' : '#f8f9fa'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             );
                                         })}
@@ -2678,10 +2729,73 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 </div>
                             </div>
                         </>
-                    )
-                    }
+                    )}
                 </Modal.Body>
-            </Modal >
+            </Modal>
+
+            {/* Modal anidado para editar observación */}
+            <Modal
+                show={modalObservacion}
+                onHide={handleCerrarModalObservacion}
+                size="lg"
+                backdrop="static"
+                keyboard={false}
+                centered
+                style={{ zIndex: 1060 }}
+            >
+                <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
+                    <Modal.Title className="fw-semibold">
+                        <PencilSquare className="me-2" size={18} />
+                        Editar Observación
+                    </Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+                    <Form.Group className="mb-3">
+                        <Form.Label className="fw-semibold">
+                            Observación del Activo Fijo
+                        </Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={5}
+                            value={observacionTemp}
+                            maxLength={1000}
+                            onChange={(e) => setObservacionTemp(e.target.value)}
+                            placeholder="Ingrese la observación aquí..."
+                            className={isDarkMode ? "bg-dark text-light border-secondary" : ""}
+                            autoFocus
+                        />
+                        <Form.Text className="text-muted">
+                            Puede escribir hasta 1000 caracteres.
+                        </Form.Text>
+                    </Form.Group>
+
+                    {indiceObservacion !== null && elementosActualesModificar && (
+                        <div className={`alert alert-info p-2 mt-2 ${isDarkMode ? "bg-dark text-light" : ""}`}>
+                            <small>
+                                <strong>Activo:</strong> {elementosActualesModificar.find((_, idx) =>
+                                    indicePrimerElementoModificar + idx === indiceObservacion
+                                )?.aF_CODIGO_GENERICO || 'N/A'}
+                            </small>
+                        </div>
+                    )}
+                </Modal.Body>
+
+                <Modal.Footer className={isDarkMode ? "darkModePrincipal" : ""}>
+                    <Button
+                        variant="secondary"
+                        onClick={handleCerrarModalObservacion}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button
+                        variant="primary"
+                        onClick={handleGuardarObservacion}
+                    >
+                        Guardar Observación
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
             {/*Modal Firma Visadores(Nuevo) */}
             <Modal show={modalVisadores} onHide={() => setModalSolicitarVisadores(false)} dialogClassName="modal-right" size="xl">

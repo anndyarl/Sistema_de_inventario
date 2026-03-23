@@ -46,7 +46,7 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
                 Ejemplo: v0.0.0.1
 
                 MAJOR: Versión principal (1) 
-                        - Indica l anzamientos importantes o incompatibles hacia atrás. 
+                        - Indica lanzamientos importantes o incompatibles hacia atrás. 
                         - Cambia solo en actualizaciones significativas.
 
                 MINOR: Funcionalidades menores (0) 
