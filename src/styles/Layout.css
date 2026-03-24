@@ -318,3 +318,8 @@ padding: 2px;
   display: none;
 }
 }
+
+ .custom-backdrop{
+  background: rgb(0 0 0 / 72%) !important;
+  z-index: 1060 !important;
+}

@@ -27,6 +27,9 @@ import { comboSerDepActions } from "../../../../redux/actions/Inventario/Modific
 import { listadoTrasladosActions } from "../../../../redux/actions/Traslados/listadoTrasladosActions";
 import Draggable from "react-draggable";
 
+import { comboDependenciaActions } from "../../../../redux/actions/Inventario/Combos/comboDependenciaActions";
+import { comboServicioActions } from "../../../../redux/actions/Inventario/Combos/comboServicioActions";
+
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
     return classes.filter(Boolean).join(" ");
 };
@@ -74,32 +77,44 @@ export interface ListaFolioServicioDependencia {
 
 }
 
+//Props para diferencias de busqueda de servicio
 interface SERVICIO {
     deP_CORR: number;
     descripcion: string;
 }
 
+// Define el tipo de los elementos del combo `servicio`
+interface COMBO_SERVICIO {
+    codigo: number;
+    nombrE_ORD: string;
+    descripcion: string;
+}
+
+// Define el tipo de los elementos del combo `dependencia`
+interface COMBO_DEPENDENCIA {
+    deP_CORR: number;
+    descripcion: string;
+}
 interface DatosAltas {
     registroTrasladoMultipleActions: (FormularioTraslado: Record<string, any>) => Promise<boolean>;
-    comboSerDepActions: (establ_corr: number) => void;//En buscador   
-    listaFolioServicioDependencia: ListaFolioServicioDependencia[];
-    listaFolioServicioDependenciaActions: (dep_corr: number, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
-    // comboServicioInforme: SERVICIO[];
-    comboSerDep: SERVICIO[];
-    comboDependenciaDestino: DEPENDENCIA[];
-    // comboServicioInformeActions: (establ_corr: number) => void;//En buscador   
-    // comboServicioInformeFormActions: (establ_corr: number) => void;//En formulario  
-    obtenerfirmasAltasActions: () => Promise<boolean>;
-    // comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
-    comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
     listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
-    token: string | null;
+    listaFolioServicioDependenciaActions: (dep_corr: number, af_codigo_generico: string, establ_corr: number) => Promise<boolean>;
+    obtenerfirmasAltasActions: () => Promise<boolean>;
+    comboSerDepActions: (establ_corr: number) => void;//En buscador   
+    comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
+    comboServicioActions: (establ_corr: number) => void;
+    comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+    listaFolioServicioDependencia: ListaFolioServicioDependencia[];
+    comboSerDep: SERVICIO[]; //verificar
+    comboDependenciaDestino: DEPENDENCIA[]; //verificar
+    comboServicio: COMBO_SERVICIO[];
+    comboDependencia: COMBO_DEPENDENCIA[];
     isDarkMode: boolean;
     objeto: Objeto; //Objeto que obtiene los datos del usuario
     datosFirmas: DatosFirmas[];
 }
 
-const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listadoTrasladosActions, listaFolioServicioDependencia, comboSerDep, objeto, token, isDarkMode, datosFirmas }) => {
+const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasActions, listaFolioServicioDependenciaActions, comboDependenciaDestinoActions, registroTrasladoMultipleActions, comboSerDepActions, listadoTrasladosActions, comboServicioActions, comboDependenciaActions, listaFolioServicioDependencia, comboServicio, comboDependencia, comboSerDep, objeto, isDarkMode, datosFirmas }) => {
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarTodoModal, setMostrarTodoModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
@@ -132,6 +147,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     const [Buscar, setBuscar] = useState({
         af_codigo_generico: "",
         servicio: 0,
+        dependencia: 0,
     });
 
     //Estado para completar fomulario traslado
@@ -199,14 +215,15 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
     // };
 
     useEffect(() => {
-        if (token) {
-            // listaAuto();
-            if (comboSerDep.length === 0) {
-                comboSerDepActions(objeto.Roles[0].codigoEstablecimiento);
-            }
-            // comboServicioInformeActions(objeto.Roles[0].codigoEstablecimiento);
+        // carga inicial de combos
+        if (comboServicio.length === 0) {
+            comboServicioActions(objeto.Roles[0].codigoEstablecimiento);
         }
-    }, [listaFolioServicioDependenciaActions, comboSerDepActions, listaFolioServicioDependencia.length, token]); // Asegúrate de incluir dependencias relevantes
+        if (comboSerDep.length === 0) {
+            comboSerDepActions(objeto.Roles[0].codigoEstablecimiento);
+        }
+
+    }, [listaFolioServicioDependenciaActions, comboSerDepActions, listaFolioServicioDependencia.length]); // Asegúrate de incluir dependencias relevantes
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -238,6 +255,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
         if (name === "seR_CORR") {
             comboDependenciaDestinoActions(value);
+        }
+        if (name === "servicio") {
+            comboDependenciaActions(value);
         }
     };
 
@@ -272,7 +292,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         setFirma(updatedState);
     }, [Firma, datosFirmas, objeto]);
 
-
     const handleBuscar = async () => {
         let resultado = false;
         setLoading(true);
@@ -294,7 +313,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             setLoading(false);
             return;
         }
-        resultado = await listaFolioServicioDependenciaActions(Buscar.servicio, Buscar.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
+        resultado = await listaFolioServicioDependenciaActions(Buscar.dependencia, Buscar.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento);
 
         setError({});
         if (!resultado) {
@@ -323,7 +342,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
         setBuscar((prevInventario) => ({
             ...prevInventario,
             af_codigo_generico: "",
-            servicio: 0
+            servicio: 0,
+            dependencia: 0
         }));
     };
 
@@ -340,7 +360,8 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             traS_NOM_RECIBE: "",
             traS_NOM_AUTORIZA: ""
         }));
-    }
+    };
+
     const handleSeleccionaTodos = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
             if (datosFirmas.length === 0) { obtenerfirmasAltasActions(); }
@@ -415,7 +436,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                     // Limpiar
                     setFilasSeleccionadas([]);
                     setMostrarModalTraslado(false);
-                    listaFolioServicioDependenciaActions(Buscar.servicio, Buscar.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento); //Actualiza lisa de folio servicio dependencia
+                    listaFolioServicioDependenciaActions(Buscar.dependencia, Buscar.af_codigo_generico, objeto.Roles[0].codigoEstablecimiento); //Actualiza lisa de folio servicio dependencia
                     listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento); //actualixza listado de traslados
                 } else {
                     Swal.fire({
@@ -432,7 +453,6 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             }
         }
     };
-
 
     // Lógica de Paginación actualizada
     const indiceUltimoElemento = paginaActual * elementosPorPagina;
@@ -682,7 +702,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                             onChange={handleServicioChange}
                                             name="servicio"
                                             value={servicioOptions.find((option) => option.value === Buscar.servicio) || null}
-                                            placeholder="Buscar"
+                                            placeholder="Busqueda rápida"
                                             classNamePrefix="react-select"
                                             isClearable
                                             isSearchable
@@ -727,6 +747,61 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
                                         />
                                     </div>
                                 </Col>
+                                <Col sm={12} md={12} lg={3}>
+                                    <div className="mb-1">
+                                        <label htmlFor="servicio" className="fw-semibold fw-semibold">Servicio</label>
+                                        <select
+                                            aria-label="servicio"
+                                            className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
+                                            name="servicio"
+                                            onChange={handleChange}
+                                            value={Buscar.servicio || 0}
+                                        >
+                                            <option value="">Seleccione</option>
+                                            {comboServicio.map((traeServicio) => (
+                                                <option
+                                                    key={traeServicio.codigo}
+                                                    value={traeServicio.codigo}
+                                                >
+                                                    {traeServicio.nombrE_ORD}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {error.servicio && (
+                                            <div className="invalid-feedback fw-semibold d-block">
+                                                {error.servicio}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="mb-1">
+                                        <label htmlFor="dependencia" className="fw-semibold">Dependencia</label>
+                                        <select
+                                            aria-label="dependencia"
+                                            className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                                                } ${error.dependencia ? "is-invalid" : ""}`}
+                                            name="dependencia"
+                                            disabled={!Buscar.servicio}
+                                            onChange={handleChange}
+                                        // value={Buscar.dependencia || 0}
+                                        >
+                                            <option value="">Selecciona una opción</option>
+                                            {comboDependencia.map((traeDependencia) => (
+                                                <option
+                                                    key={traeDependencia.deP_CORR}
+                                                    value={traeDependencia.deP_CORR}
+                                                >
+                                                    {traeDependencia.descripcion}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {error.dependencia && (
+                                            <div className="invalid-feedback fw-semibold d-block">
+                                                {error.dependencia}
+                                            </div>
+                                        )}
+                                    </div>
+                                </Col>
+
                                 <Col lg={2} md={4}>
                                     <div className="mb-1 mt-4">
                                         <Button onClick={handleBuscar}
@@ -1514,9 +1589,9 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
 
 const mapStateToProps = (state: RootState) => ({
     listaFolioServicioDependencia: state.listaFolioServicioDependenciaReducers.listaFolioServicioDependencia,
-    token: state.loginReducer.token,
     isDarkMode: state.darkModeReducer.isDarkMode,
-    // comboServicioInforme: state.comboServicioInformeReducers.comboServicioInforme,
+    comboServicio: state.comboServicioReducer.comboServicio,
+    comboDependencia: state.comboDependenciaReducer.comboDependencia,
     comboDependenciaDestino: state.comboDependenciaDestinoReducer.comboDependenciaDestino,
     objeto: state.validaApiLoginReducers,
     datosFirmas: state.obtenerfirmasAltasReducers.datosFirmas,
@@ -1531,5 +1606,7 @@ export default connect(mapStateToProps, {
     comboTrasladoServicioActions,
     comboDependenciaDestinoActions,
     comboSerDepActions,
-    listadoTrasladosActions
+    listadoTrasladosActions,
+    comboServicioActions,
+    comboDependenciaActions
 })(FolioPorServicioDependencia);

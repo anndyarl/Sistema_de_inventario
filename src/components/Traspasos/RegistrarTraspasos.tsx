@@ -210,7 +210,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
         paS_NOM_AUTORIZA: "",
         estabL_CORR: 0 //Establecimiento Destino
     });
-
+    //---------------- archivo adjuntos ---------------//
     const [anexos, setAnexos] = useState<File[]>([]);
     const [_, setNombreDocumento] = useState<string>("");
 
@@ -262,6 +262,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
             });
         }
     };
+
     const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
         const resultado: { nombre: string, contenido: string }[] = [];
 
@@ -284,9 +285,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
 
         return resultado;
     };
-    //----------------Fin Estado de archivo adjuntos ---------------//
-
-
+    //----------------Fin archivo adjuntos ---------------//
     const especieOptions = comboEspecies.map((item) => ({
         value: item.esP_CODIGO,
         label: item.nombrE_ESP,
@@ -1284,19 +1283,25 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
 
                         >
                             {/* Mensaje */}
-                            <div className={`py-2 rounded fw-semibold fs-09em
+                            {activosFijos.length > 0 ? (
+                                <div className={`py-2 rounded fw-semibold fs-09em
                                   ${isDarkMode
-                                    ? "bg-success text-light border border-secondary"
-                                    : "bg-primary bg-opacity-10 text-primary border-none"
-                                }`}
-                            >
-                                Se {activosFijos.length > 1 ? "han" : "ha"} agregado <strong>{activosFijos.length}</strong>  {activosFijos.length > 1 ? "bienes" : "bien"}.
+                                        ? "bg-success text-light border border-secondary"
+                                        : "bg-primary bg-opacity-10 text-primary border-none"
+                                    }`}
+                                >
+                                    Se {activosFijos.length > 1 ? "han" : "ha"} agregado <strong>{activosFijos.length}</strong>  {activosFijos.length > 1 ? "bienes" : "bien"} a traspasar.
 
-                            </div>
+                                </div>
+                            ) : (
+                                <div className="py-2 rounded fw-semibold text-muted fs-09em bg-secondary bg-opacity-10 border-none">
+                                    Aún no se han agregado bienes a traspasar
+                                </div>
+                            )}
                             <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
 
                                 <div className="d-flex justify-content-between w-100">
-                                    <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
+                                    <Modal.Title className="fw-semibold">Seleccione los bienes a traspasar</Modal.Title>
                                     <Button
                                         variant="transparent"
                                         className="border-0"
@@ -1591,6 +1596,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                         className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_MEMO_REF ? "is-invalid" : ""}`}
                                         maxLength={50}
                                         name="paS_MEMO_REF"
+                                        placeholder="Ingrese un memo referencia..."
                                         onChange={handleChange}
                                         value={Traspasos.paS_MEMO_REF}
                                     />
@@ -1633,6 +1639,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                                 } ${error.paS_NOM_ENTREGA ? "is-invalid" : ""}`}
                                             maxLength={50}
                                             name="paS_NOM_ENTREGA"
+                                            placeholder="Ingrese un nombre..."
                                             onChange={handleChange}
                                             disabled
                                             value={Traspasos.paS_NOM_ENTREGA}
@@ -1671,6 +1678,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                             className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.paS_NOM_AUTORIZA ? "is-invalid" : ""}`}
                                             maxLength={50}
                                             name="paS_NOM_AUTORIZA"
+                                            placeholder="Ingrese un nombre..."
                                             onChange={handleChange}
                                             value={Traspasos.paS_NOM_AUTORIZA}
                                         />
@@ -1681,7 +1689,6 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                 </div>
                             </Col>
                             <Col>
-
                                 <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
                                     {/* Observaciones */}
                                     <div className="mb-1">
@@ -1703,7 +1710,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                             <div className="invalid-feedback">{error.paS_OBS}</div>
                                         )}
                                     </div>
-
+                                    {/*---------------Archivo adjunto------------*/}
                                     {/* Zona de arrastre - siempre visible mientras no se alcance el limite */}
                                     {anexos.length < 3 && (
                                         <div
@@ -1779,7 +1786,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                             <small className="fw-semibold">Se alcanzo el limite máximo de 3 archivos adjuntos.</small>
                                         </div>
                                     )}
-
+                                    {/* ---------------Fin Archivo adjunto------------ */}
                                 </div>
                             </Col>
                         </Row>

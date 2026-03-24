@@ -46,11 +46,11 @@ export interface DETALLE {
 }
 
 // Define el tipo de los elementos del combo `ListaEspecie`
-export interface ListaEspecie {
+interface ListaEspecie {
   estabL_CORR: number;
   esP_CODIGO: string;
   nombrE_ESP: string;
-  vidA_UTIL?: string;
+  vidA_UTIL: string;
 }
 //Props del formulario
 export interface CuentaProps {

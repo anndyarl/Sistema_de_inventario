@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Row, Col, Collapse, OverlayTrigger, Tooltip, Button, Spinner, Pagination, Modal, Form, CloseButton, ModalDialog } from "react-bootstrap";
 import { connect } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { RootState } from "../../store";
-import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, FiletypePdf, Search } from "react-bootstrap-icons";
+import { ArrowLeftRight, CaretDown, CaretUpFill, Eraser, FiletypePdf, Paperclip, Search, Trash } from "react-bootstrap-icons";
 import "../../styles/Traslados.css"
 import Swal from "sweetalert2";
 import { Objeto } from "../Navegacion/Profile";
@@ -220,6 +220,83 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     comboSerDep,
     comboEspecies]);
 
+  //---------------- archivo adjuntos ---------------//
+  const [anexos, setAnexos] = useState<File[]>([]);
+  const [_, setNombreDocumento] = useState<string>("");
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+
+  const handleFileInput = () => {
+    inputRef.current?.click();
+  };
+
+  const handleChangeFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const nuevosArchivos = Array.from(e.target.files);
+
+      setAnexos((prev) => {
+        const nombresPrevios = new Set(prev.map((file) => file.name));
+        const archivosFiltrados = nuevosArchivos.filter((file) => !nombresPrevios.has(file.name));
+        return [...prev, ...archivosFiltrados];
+      });
+
+      // Resetear el input para permitir seleccionar el mismo archivo nuevamente
+      e.target.value = "";
+    }
+  };
+
+  //Habilita el estado arrastrar
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  //Deshabilita el estado arrastrar al salir de la zona
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  //Adjuntar por arrastre (soporta multiples archivos)
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const archivosArrastrados = Array.from(e.dataTransfer.files);
+    if (archivosArrastrados.length > 0) {
+      setAnexos((prev) => {
+        const nombresPrevios = new Set(prev.map((file) => file.name));
+        const archivosFiltrados = archivosArrastrados.filter((file) => !nombresPrevios.has(file.name));
+        return [...prev, ...archivosFiltrados];
+      });
+    }
+  };
+
+  const convertirArchivosABase64 = async (archivos: File[]): Promise<{ nombre: string, contenido: string }[]> => {
+    const resultado: { nombre: string, contenido: string }[] = [];
+
+    for (const archivo of archivos) {
+      const contenido = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(archivo);
+      });
+
+      resultado.push({
+        nombre: archivo.name,
+        contenido
+      });
+
+      setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
+      // console.log("archivo.name", archivo.name);
+    }
+
+    return resultado;
+  };
+
+  //----------------Fin archivo adjuntos ---------------//
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
@@ -278,7 +355,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     }
 
   };
-
 
   const [isExpanded, setIsExpanded] = useState({
     fila1: true,
@@ -577,7 +653,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
 
       if (result.isConfirmed) {
         setLoading(true);
-        const activosSeleccionados = activosFijos.map((item) => ({
+        const anexosBase64 = await convertirArchivosABase64(anexos);
+
+        const Entidad = activosFijos.map((item) => ({
           aF_CLAVE: item.aF_CLAVE,
           aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
           deP_CORR: item.deP_CORR_ORIGEN,//Dependencia Origen
@@ -600,7 +678,17 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
           serviciO_DEPENDENCIA_DESTINO: comboSerDep.find(item => item.deP_CORR === Traslados.deP_CORR)?.descripcion || "",
         }));
 
-        const resultado = await registroTrasladoMultipleActions(activosSeleccionados);
+        const Adjuntos = anexosBase64.map((anexo) => ({
+          nombre: anexo.nombre,
+          contenido: anexo.contenido
+        }));
+
+        const TraspasoConAdjuntos = {
+          Entidad,
+          Adjuntos
+        };
+
+        const resultado = await registroTrasladoMultipleActions(TraspasoConAdjuntos);
         if (resultado) {
           mostrarAlerta();
           listadoTrasladosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
@@ -1157,18 +1245,25 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               keyboard={false}
             >
               {/* Mensaje */}
-              <div className={`py-2 rounded fw-semibold fs-09em
-                                  ${isDarkMode
-                  ? "bg-success text-light border border-secondary"
-                  : "bg-primary bg-opacity-10 text-primary border-none"
-                }`}
-              >
-                Se {activosFijos.length > 1 ? "han" : "ha"} agregado <strong>{activosFijos.length}</strong>  {activosFijos.length > 1 ? "bienes" : "bien"}.
 
-              </div>
+              {activosFijos.length > 0 ? (
+                <div className={`py-2 rounded fw-semibold fs-09em
+                                  ${isDarkMode
+                    ? "bg-success text-light border border-secondary"
+                    : "bg-primary bg-opacity-10 text-primary border-none"
+                  }`}
+                >
+                  Se {activosFijos.length > 1 ? "han" : "ha"} agregado <strong>{activosFijos.length}</strong>  {activosFijos.length > 1 ? "bienes" : "bien"} a trasladar.
+                </div>
+              ) : (
+                <div className="py-2 rounded fw-semibold text-muted fs-09em bg-secondary bg-opacity-10 border-none">
+                  Aún no se han agregado bienes a trasladar
+                </div>
+              )}
+
               <Modal.Header className={`modal-header`}>
                 <div className="d-flex justify-content-between w-100">
-                  <Modal.Title className="fw-semibold">Resultado Busqueda</Modal.Title>
+                  <Modal.Title className="fw-semibold">Seleccione los bienes a trasladar</Modal.Title>
                   <Button
                     variant="transparent"
                     className="border-0"
@@ -1245,16 +1340,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                                   checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
                                 />
                               </th>
-                              <th scope="col" className="text-nowrap">Código</th>
-                              <th scope="col" className="text-nowrap">Nº Inventario</th>
-                              <th scope="col" className="text-nowrap">Nº Alta</th>
-                              <th scope="col" className="text-nowrap">Descripción</th>
-                              <th scope="col" className="text-nowrap">Dependencia	Serv/Depto</th>
-                              <th scope="col" className="text-nowrap">Especie</th>
-                              <th scope="col" className="text-nowrap">Marca</th>
-                              <th scope="col" className="text-nowrap">Modelo</th>
-                              <th scope="col" className="text-nowrap">Serie</th>
-                              <th scope="col" className="text-nowrap">Código Dependencia</th>
+                              <th scope="col" className="text-nowrap small">Código</th>
+                              <th scope="col" className="text-nowrap small">Nº Inventario</th>
+                              <th scope="col" className="text-nowrap small">Nº Alta</th>
+                              <th scope="col" className="text-nowrap small">Descripción</th>
+                              <th scope="col" className="text-nowrap small">Dependencia	Serv/Depto</th>
+                              <th scope="col" className="text-nowrap small">Especie</th>
+                              <th scope="col" className="text-nowrap small">Marca</th>
+                              <th scope="col" className="text-nowrap small">Modelo</th>
+                              <th scope="col" className="text-nowrap small">Serie</th>
+                              <th scope="col" className="text-nowrap small">Código Dependencia</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1269,16 +1364,16 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                                       checked={filasSeleccionadas.includes(indexReal.toString())}
                                     />
                                   </td>
-                                  <td className="text-nowrap">{lista.aF_CLAVE}</td>
-                                  <td className="text-nowrap">{lista.aF_CODIGO_GENERICO}</td>
-                                  <td className="text-nowrap">{lista.altaS_CORR}</td>
-                                  <td className="text-nowrap">{lista.deT_OBS}</td>
-                                  <td className="text-nowrap">{lista.serviciO_DEPENDENCIA}</td>
-                                  <td className="text-nowrap">{lista.esP_NOMBRE}</td>
-                                  <td className="text-nowrap">{lista.deT_MARCA}</td>
-                                  <td className="text-nowrap">{lista.deT_MODELO}</td>
-                                  <td className="text-nowrap">{lista.deT_SERIE}</td>
-                                  <td className="text-nowrap">{lista.deP_CORR_ORIGEN}</td>
+                                  <td className="text-nowrap small">{lista.aF_CLAVE}</td>
+                                  <td className="text-nowrap small">{lista.aF_CODIGO_GENERICO}</td>
+                                  <td className="text-nowrap small">{lista.altaS_CORR}</td>
+                                  <td className="text-nowrap small">{lista.deT_OBS}</td>
+                                  <td className="text-nowrap small">{lista.serviciO_DEPENDENCIA}</td>
+                                  <td className="text-nowrap small">{lista.esP_NOMBRE}</td>
+                                  <td className="text-nowrap small">{lista.deT_MARCA}</td>
+                                  <td className="text-nowrap small">{lista.deT_MODELO}</td>
+                                  <td className="text-nowrap small">{lista.deT_SERIE}</td>
+                                  <td className="text-nowrap small">{lista.deP_CORR_ORIGEN}</td>
                                 </tr>
                               );
                             })}
@@ -1439,6 +1534,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_MEMO_REF ? "is-invalid" : ""}`}
                     maxLength={50}
                     name="traS_MEMO_REF"
+                    placeholder="Ingrese un memo referencia..."
                     onChange={handleChange}
                     value={Traslados.traS_MEMO_REF}
                   />
@@ -1476,6 +1572,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                     rows={6}
                     maxLength={500}
                     style={{ minHeight: "8px", resize: "none" }}
+                    placeholder="Escriba una observacion aquí..."
                     onChange={handleChange}
                     value={Traslados.traS_OBS}
                   />
@@ -1499,6 +1596,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         } ${error.traS_NOM_ENTREGA ? "is-invalid" : ""}`}
                       maxLength={50}
                       name="traS_NOM_ENTREGA"
+                      placeholder="Ingrese un nombre..."
                       onChange={handleChange}
                       value={Traslados.traS_NOM_ENTREGA}
                     />
@@ -1518,6 +1616,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         } ${error.traS_NOM_RECIBE ? "is-invalid" : ""}`}
                       maxLength={50}
                       name="traS_NOM_RECIBE"
+                      placeholder="Ingrese un nombre..."
                       onChange={handleChange}
                       value={Traslados.traS_NOM_RECIBE}
                     />
@@ -1536,6 +1635,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                       className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.traS_NOM_AUTORIZA ? "is-invalid" : ""}`}
                       maxLength={50}
                       name="traS_NOM_AUTORIZA"
+                      placeholder="Ingrese un nombre..."
                       onChange={handleChange}
                       value={Traslados.traS_NOM_AUTORIZA}
                     />
@@ -1545,6 +1645,86 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   </div>
                 </div>
               </Col>
+              <Col>
+                {/*---------------Archivo adjunto------------*/}
+                {/* Zona de arrastre - siempre visible mientras no se alcance el limite */}
+                {anexos.length < 3 && (
+                  <div
+                    className={`text-center m-2 px-4 py-3 rounded border-2 border-dashed ${isDragging
+                      ? "border-primary bg-primary bg-opacity-10"
+                      : isDarkMode
+                        ? "bg-dark text-light border-secondary"
+                        : "bg-light text-muted border"
+                      }`}
+                    style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                    onDrop={handleDrop}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onClick={handleFileInput}
+                  >
+                    <Paperclip width={24} height={24} aria-hidden="true" className="mb-1" />
+                    <p className="file-name fw-semibold mb-0">
+                      {isDragging
+                        ? "Suelta los archivos aqui"
+                        : "Arrastra y suelta archivos aqui, o haz clic para seleccionar"}
+                    </p>
+                    <small className="text-muted">Formatos: PDF, DOC, DOCX, JPG, PNG (max. 3 archivos)</small>
+                    <input
+                      aria-label="file"
+                      ref={inputRef}
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.png"
+                      style={{ display: "none" }}
+                      onChange={handleChangeFiles}
+                    />
+                  </div>
+                )}
+
+                {/* Lista de archivos adjuntos */}
+                {anexos.length > 0 && (
+                  <div className="m-2">
+                    <label className="fw-semibold mb-1">Archivos adjuntos ({anexos.length}/3)</label>
+                    <ul className="list-group">
+                      {anexos.map((file, index) => (
+                        <li
+                          key={index}
+                          className={`list-group-item d-flex justify-content-between align-items-center ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                            }`}
+                        >
+                          <div className="d-flex align-items-center text-truncate">
+                            <Paperclip width={14} height={14} aria-hidden="true" className="me-2 flex-shrink-0" />
+                            <span className="text-truncate">{file.name}</span>
+                            <small className="text-muted ms-2 flex-shrink-0">
+                              ({(file.size / 1024).toFixed(1)} KB)
+                            </small>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            className="ms-2 flex-shrink-0"
+                            onClick={() => {
+                              setAnexos((prev) => prev.filter((_, i) => i !== index));
+                            }}
+                            title="Quitar archivo"
+                          >
+                            <Trash className="flex-shrink-0" width={14} height={14} aria-hidden="true" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Mensaje cuando se alcanzo el limite */}
+                {anexos.length >= 3 && (
+                  <div className="alert alert-warning m-2 py-2 mb-0">
+                    <small className="fw-semibold">Se alcanzo el limite máximo de 3 archivos adjuntos.</small>
+                  </div>
+                )}
+                {/* ---------------Fin Archivo adjunto------------ */}
+
+              </Col>
             </Row>
           </form>
         </Modal.Body>
@@ -1552,179 +1732,181 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
 
 
       {/* Resumen traspasos */}
-      {listaSalidaTraslados.length > 0 && (
-        <>
-          <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
-            {/* Mensaje */}
-            <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
-            >
-              Se {listaSalidaTraslados.length > 1 ? "han" : "ha"} trasladado <strong>{listaSalidaTraslados.length}</strong>  {listaSalidaTraslados.length > 1 ? "bienes" : "bien"} correctamente.
-            </div>
-            <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
-              <Modal.Title className="fw-semibold">Resumen de Traslados</Modal.Title>
-            </Modal.Header>
-            <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
-              <Button
-                className={`px-4 py-2 mx-1 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
-                onClick={() => {
-                  navigate("/traslados/ListadoTraslados");
-                }}
+      {
+        listaSalidaTraslados.length > 0 && (
+          <>
+            <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+              {/* Mensaje */}
+              <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
               >
-                Ir a Listado de Traslados
-              </Button>
-              <Button
-                variant={`${isDarkMode ? "secondary" : "primary"}`}
-                onClick={handleAbrirModalExportar}
-                disabled={listaSalidaTraslados.length === 0 || loadingExportar}
-              >
-                {loadingExportar ? (
-                  <>
-                    Un Momento...
-                    <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
-                  </>
-                ) : (
-                  <>
-                    <FiletypePdf
-                      className="flex-shrink-0 h-5 w-5 mx-2"
-                      aria-hidden="true"
-                    />
-                    Exportar
-                    <span className="badge bg-light text-dark mx-1 mt-1">
-                      {/* {listaSalidaTraslados.length} */}
-                    </span>
-                  </>
-                )}
-              </Button>
-            </div>
-            <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
+                Se {listaSalidaTraslados.length > 1 ? "han" : "ha"} trasladado <strong>{listaSalidaTraslados.length}</strong>  {listaSalidaTraslados.length > 1 ? "bienes" : "bien"} correctamente.
+              </div>
+              <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                <Modal.Title className="fw-semibold">Resumen de Traslados</Modal.Title>
+              </Modal.Header>
+              <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Button
+                  className={`px-4 py-2 mx-1 fw-semibold ${isDarkMode ? "btn-secondary" : "btn-primary"}`}
+                  onClick={() => {
+                    navigate("/traslados/ListadoTraslados");
+                  }}
+                >
+                  Ir a Listado de Traslados
+                </Button>
+                <Button
+                  variant={`${isDarkMode ? "secondary" : "primary"}`}
+                  onClick={handleAbrirModalExportar}
+                  disabled={listaSalidaTraslados.length === 0 || loadingExportar}
+                >
+                  {loadingExportar ? (
+                    <>
+                      Un Momento...
+                      <Spinner as="span" className="ms-1" animation="border" size="sm" role="status" aria-hidden="true" />
+                    </>
+                  ) : (
+                    <>
+                      <FiletypePdf
+                        className="flex-shrink-0 h-5 w-5 mx-2"
+                        aria-hidden="true"
+                      />
+                      Exportar
+                      <span className="badge bg-light text-dark mx-1 mt-1">
+                        {/* {listaSalidaTraslados.length} */}
+                      </span>
+                    </>
+                  )}
+                </Button>
+              </div>
+              <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
 
-              <Row className="mb-4 d-flex justify-content-between">
-                <Col md={4}>
-                  <p><strong>Traslado N° </strong> {listaSalidaTraslados[0]?.n_TRASLADO}</p>
-                </Col>
-                <Col md={4}>
-                  <p><span className="fw-semibold">Fecha Traslado: </span>{listaSalidaTraslados[0]?.traS_FECHA}</p>
-                  <p><span className="fw-semibold">Nº Memorandum: </span>{listaSalidaTraslados[0]?.traS_MEMO_REF}</p>
-                  <p ><span className="fw-semibold">Fecha Memo: </span>{formatearFecha(listaSalidaTraslados[0]?.traS_FECHA_MEMO)}</p>
-                </Col>
-              </Row>
-              <Row className="mb-4">
-                <Col md={4}>
-                  <p className="fw-semibold">Origen</p>
-                  <p>{listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}</p>
-                </Col>
-                <Col md={4}>
-                  <p className="fw-semibold">Destino</p>
-                  <p> {listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}
-                  </p>
-                </Col>
-              </Row>
-              <Col className="row align-items-center justify-content-center gap-2 px-2">
+                <Row className="mb-4 d-flex justify-content-between">
+                  <Col md={4}>
+                    <p><strong>Traslado N° </strong> {listaSalidaTraslados[0]?.n_TRASLADO}</p>
+                  </Col>
+                  <Col md={4}>
+                    <p><span className="fw-semibold">Fecha Traslado: </span>{listaSalidaTraslados[0]?.traS_FECHA}</p>
+                    <p><span className="fw-semibold">Nº Memorandum: </span>{listaSalidaTraslados[0]?.traS_MEMO_REF}</p>
+                    <p ><span className="fw-semibold">Fecha Memo: </span>{formatearFecha(listaSalidaTraslados[0]?.traS_FECHA_MEMO)}</p>
+                  </Col>
+                </Row>
+                <Row className="mb-4">
+                  <Col md={4}>
+                    <p className="fw-semibold">Origen</p>
+                    <p>{listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}</p>
+                  </Col>
+                  <Col md={4}>
+                    <p className="fw-semibold">Destino</p>
+                    <p> {listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}
+                    </p>
+                  </Col>
+                </Row>
+                <Col className="row align-items-center justify-content-center gap-2 px-2">
 
+                  {listaSalidaTraslados.length > 10 && (
+                    <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
+                      <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
+                        Tamaño de página:
+                      </label>
+                      <select
+                        aria-label="Seleccionar tamaño de página"
+                        className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        name="nPaginacion2"
+                        onChange={handleChange}
+                        value={Paginacion2.nPaginacion2}
+                      >
+                        {[10, 15, 20, 25, 50, 100].map((val) => (
+                          <option key={val} value={val}>{val}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </Col>
+
+                <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                  <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                    <thead>
+                      <tr>
+                        <th className="text-center">Nº Inventario</th>
+                        <th className="text-center">Especie</th>
+                        <th className="text-center">Marca</th>
+                        <th className="text-center">Modelo</th>
+                        <th className="text-center">Serie</th>
+                        <th className="text-center">Observación</th>
+                        {/* <th className="text-center">Estado</th> */}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {elementosActuales2.length > 0 ? (
+                        elementosActuales2.map((item, index) => (
+                          <tr key={index}>
+                            <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
+                            <td className="text-center">{item.esP_NOMBRE || 'N/A'}</td>
+                            <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
+                            <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
+                            <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
+                            <td className="text-center">{item.deT_OBS || 'N/A'}</td>
+                            {/* <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td> */}
+                            {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td className="text-center">No hay registros</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Paginador */}
                 {listaSalidaTraslados.length > 10 && (
-                  <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                    <label htmlFor="nPaginacion2" className="form-label fw-semibold mb-0 me-2">
-                      Tamaño de página:
-                    </label>
-                    <select
-                      aria-label="Seleccionar tamaño de página"
-                      className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                      name="nPaginacion2"
-                      onChange={handleChange}
-                      value={Paginacion2.nPaginacion2}
-                    >
-                      {[10, 15, 20, 25, 50, 100].map((val) => (
-                        <option key={val} value={val}>{val}</option>
+                  <div className="paginador-container mt-3">
+                    <Pagination className="paginador-scroll justify-content-center">
+                      <Pagination.First onClick={() => paginar2(1)} disabled={paginaActual2 === 1} />
+                      <Pagination.Prev
+                        onClick={() => paginar2(paginaActual2 - 1)}
+                        disabled={paginaActual2 === 1}
+                      />
+                      {Array.from({ length: totalPaginas2 }, (_, i) => (
+                        <Pagination.Item
+                          key={i + 1}
+                          active={i + 1 === paginaActual2}
+                          onClick={() => paginar2(i + 1)}
+                        >
+                          {i + 1}
+                        </Pagination.Item>
                       ))}
-                    </select>
+                      <Pagination.Next
+                        onClick={() => paginar2(paginaActual2 + 1)}
+                        disabled={paginaActual2 === totalPaginas2}
+                      />
+                      <Pagination.Last
+                        onClick={() => paginar2(totalPaginas2)}
+                        disabled={paginaActual2 === totalPaginas2}
+                      />
+                    </Pagination>
                   </div>
                 )}
-              </Col>
-
-              <div className="table-responsive" style={{ maxHeight: "50vh", overflowY: "auto" }}>
-                <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
-                  <thead>
-                    <tr>
-                      <th className="text-center">Nº Inventario</th>
-                      <th className="text-center">Especie</th>
-                      <th className="text-center">Marca</th>
-                      <th className="text-center">Modelo</th>
-                      <th className="text-center">Serie</th>
-                      <th className="text-center">Observación</th>
-                      {/* <th className="text-center">Estado</th> */}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {elementosActuales2.length > 0 ? (
-                      elementosActuales2.map((item, index) => (
-                        <tr key={index}>
-                          <td className="text-center">{item.aF_CODIGO_GENERICO || 'N/A'}</td>
-                          <td className="text-center">{item.esP_NOMBRE || 'N/A'}</td>
-                          <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
-                          <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
-                          <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
-                          <td className="text-center">{item.deT_OBS || 'N/A'}</td>
-                          {/* <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td> */}
-                          {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td className="text-center">No hay registros</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-              {/* Paginador */}
-              {listaSalidaTraslados.length > 10 && (
-                <div className="paginador-container mt-3">
-                  <Pagination className="paginador-scroll justify-content-center">
-                    <Pagination.First onClick={() => paginar2(1)} disabled={paginaActual2 === 1} />
-                    <Pagination.Prev
-                      onClick={() => paginar2(paginaActual2 - 1)}
-                      disabled={paginaActual2 === 1}
-                    />
-                    {Array.from({ length: totalPaginas2 }, (_, i) => (
-                      <Pagination.Item
-                        key={i + 1}
-                        active={i + 1 === paginaActual2}
-                        onClick={() => paginar2(i + 1)}
-                      >
-                        {i + 1}
-                      </Pagination.Item>
-                    ))}
-                    <Pagination.Next
-                      onClick={() => paginar2(paginaActual2 + 1)}
-                      disabled={paginaActual2 === totalPaginas2}
-                    />
-                    <Pagination.Last
-                      onClick={() => paginar2(totalPaginas2)}
-                      disabled={paginaActual2 === totalPaginas2}
-                    />
-                  </Pagination>
+              </Modal.Body>
+            </Modal>
+            {
+              loading && (
+                <div
+                  className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
+                  style={{
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    // zIndex: 1050,
+                  }}
+                >
+                  <div className="text-center">
+                    <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+                    <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+                  </div>
                 </div>
-              )}
-            </Modal.Body>
-          </Modal>
-          {
-            loading && (
-              <div
-                className="position-fixed top-0 start-0 w-100 h-100 z-99999 d-flex justify-content-center align-items-center"
-                style={{
-                  backgroundColor: "rgba(0, 0, 0, 0.5)",
-                  // zIndex: 1050,
-                }}
-              >
-                <div className="text-center">
-                  <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
-                  <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
-                </div>
-              </div>
-            )
-          }
-        </>
-      )}
+              )
+            }
+          </>
+        )
+      }
 
       {/* Modal PDF Excel Word */}
       <Modal

@@ -16,7 +16,7 @@ import { FileSignatureIcon } from "lucide-react";
 import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDF from "../FirmarAltas/DocumentoPDF";
 import ModificarInventario, { InventarioCompleto, SERVICIO_DEPENDENCIA } from "../../Inventario/ModificarInventario";
-import { BIEN, CUENTA, DETALLE, ListaEspecie } from "../../Inventario/RegistrarInventario/DatosCuenta";
+import { BIEN, CUENTA, DETALLE } from "../../Inventario/RegistrarInventario/DatosCuenta";
 import { listaEstadoActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoActions";
 import { obtieneVisadoCompletoActions } from "../../../redux/actions/Altas/EstadoFirmas/obtieneVisadoCompletoActions";
 import { listaEstadoVisadoresActions, setSeguimientoFirmasActions } from "../../../redux/actions/Altas/EstadoFirmas/listaEstadoVisadoresActions";
@@ -41,6 +41,13 @@ export interface ListaEstadoFirmas {
     altaS_CORR: number;
     estado: number;
     fecha: string;
+}
+
+interface ListaEspecie {
+    estabL_CORR: number;
+    esP_CODIGO: string;
+    nombrE_ESP: string;
+    vidA_UTIL: string;
 }
 
 export interface ListaEstadoVisadores {
@@ -1112,14 +1119,17 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const handleModificarSubmit = async () => {
         let mensajeHtml = "";
         if (InventarioModificar[0]?.estadO_FIRMA === 0 || InventarioModificar[0]?.estadO_FIRMA === 1) {
-            mensajeHtml = `Al modificar el documento <b>Nº ${InventarioModificar[0]?.idocumento}</b>, este será <b>rechazado de forma automática</b>. Posteriormente, deberá reiniciar el proceso de visado correspondiente manteniendo el número de alta <b>Nº ${InventarioModificar[0]?.altaS_CORR}</b>.`;
+            mensajeHtml = `<div>
+                              <p>Al confirmar los cambios, el documento <b>N° ${InventarioModificar[0]?.idocumento}</b> será <b style="color: #dc3545;">rechazado automáticamente</b>.</p>
+                              <p class="mt-2">Posteriormente, deberá <b>reiniciar el proceso de visado</b>, manteniendo el número de alta <b>N° ${InventarioModificar[0]?.altaS_CORR}</b>.</p>
+                          </div>`;
         } else {
             mensajeHtml = `Confirme para modificar su documento actualmente rechazado.`;
         }
 
         const result = await Swal.fire({
             icon: "warning",
-            title: "Modificar Documento",
+            title: "Confirmar Cambios",
             html: mensajeHtml,
             showCancelButton: true,
             confirmButtonText: "De acuerdo, continuar",
@@ -1777,6 +1787,12 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         // No reseteamos la selección al ordenar
     };
 
+
+    const handleAbrirModalObservacion = (indexReal: number, det_OBS: string) => {
+        setIndiceObservacion(indexReal);
+        setObservacionTemp(det_OBS || '');
+        setModalObservacion(true);
+    }
     const handleCerrarModalObservacion = () => {
         setModalObservacion(false);
         setObservacionTemp('');
@@ -2331,8 +2347,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                         {listaAltasModificar[0]?.idocumento !== 441154 ? (
                                             <>
                                                 <Button
-                                                    variant="secondary"
-                                                    className="p-2"
+                                                    variant="warning"
+                                                    className="p-2 text-muted fw-semibold"
                                                     onClick={handleModificarSubmit}
                                                     disabled={habilitarModificar}
                                                 >
@@ -2691,11 +2707,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                                                 size="sm"
                                                                 type="text"
                                                                 value={Lista.deT_OBS || ''}
-                                                                onClick={() => {
-                                                                    setIndiceObservacion(indexReal);
-                                                                    setObservacionTemp(Lista.deT_OBS || '');
-                                                                    setModalObservacion(true);
-                                                                }}
+                                                                onClick={() => handleAbrirModalObservacion(indexReal, Lista.deT_OBS)}
                                                                 readOnly
                                                                 placeholder="Haz clic para editar observación"
                                                                 style={{
@@ -2742,19 +2754,30 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                 keyboard={false}
                 centered
                 style={{ zIndex: 1060 }}
+                backdropClassName="custom-backdrop"
+                dialogClassName="custom-modal"
             >
                 <Modal.Header className={isDarkMode ? "darkModePrincipal" : ""} closeButton>
                     <Modal.Title className="fw-semibold">
                         <PencilSquare className="me-2" size={18} />
-                        Editar Observación
+                        Editar Observación |
+                        {indiceObservacion !== null && elementosActualesModificar && (
+
+                            <small className="mx-1">
+                                {elementosActualesModificar.find((_, idx) =>
+                                    indicePrimerElementoModificar + idx === indiceObservacion
+                                )?.aF_CODIGO_GENERICO || 'N/A'}
+                            </small>
+
+                        )}
                     </Modal.Title>
+
                 </Modal.Header>
 
                 <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+
                     <Form.Group className="mb-3">
-                        <Form.Label className="fw-semibold">
-                            Observación del Activo Fijo
-                        </Form.Label>
+
                         <Form.Control
                             as="textarea"
                             rows={5}
@@ -2769,16 +2792,6 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             Puede escribir hasta 1000 caracteres.
                         </Form.Text>
                     </Form.Group>
-
-                    {indiceObservacion !== null && elementosActualesModificar && (
-                        <div className={`alert alert-info p-2 mt-2 ${isDarkMode ? "bg-dark text-light" : ""}`}>
-                            <small>
-                                <strong>Activo:</strong> {elementosActualesModificar.find((_, idx) =>
-                                    indicePrimerElementoModificar + idx === indiceObservacion
-                                )?.aF_CODIGO_GENERICO || 'N/A'}
-                            </small>
-                        </div>
-                    )}
                 </Modal.Body>
 
                 <Modal.Footer className={isDarkMode ? "darkModePrincipal" : ""}>

@@ -6,7 +6,7 @@ import { AppDispatch, RootState } from "../../store";
 import { connect, useDispatch } from "react-redux";
 import Layout from "../../containers/hocs/layout/Layout";
 import { MODALIDAD, ORIGEN, PROVEEDOR, } from "./RegistrarInventario/DatosInventario";
-import { BIEN, CUENTA, DETALLE, ListaEspecie } from "./RegistrarInventario/DatosCuenta";
+import { BIEN, CUENTA, DETALLE } from "./RegistrarInventario/DatosCuenta";
 import { Check2Circle, Eye, Pencil, Plus, Search, Trash } from "react-bootstrap-icons";
 import MenuInventario from "../Menus/MenuInventario";
 import { Objeto } from "../Navegacion/Profile";
@@ -90,6 +90,13 @@ export interface InventarioCompleto {
   DET_PRECIO: number;
   DET_OBS: string;
 
+}
+
+interface ListaEspecie {
+  estabL_CORR: number;
+  esP_CODIGO: string;
+  nombrE_ESP: string;
+  // vidA_UTIL: number;
 }
 interface InventarioCompletoProps extends InventarioCompleto {
   comboOrigen: ORIGEN[];

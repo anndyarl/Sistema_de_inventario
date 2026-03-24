@@ -51,7 +51,7 @@ import { listaInventarioAnularActions } from "../../../redux/actions/Inventario/
 // Props del formulario
 export interface ActivoFijo {
   id: string;
-  vidaUtil: string;
+  vidaUtil: number | string;
   fechaIngreso: string;
   marca: string;
   cantidad: string;
@@ -102,7 +102,7 @@ interface DatosActivoFijoProps {
   utm: IndicadoresProps;
   objeto: Objeto;
   //Estados que se pasan desde paso 2 (DatosCuenta)
-  vidaUtil: string;
+  vidaUtil: number;
   nombreEspecie: string[]; //Para obtener del estado global de redux
   nCuenta: number[];
   // nServicio: string[];
@@ -158,7 +158,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   //Estado que guarda los objetos del formulario(dentro del Modal)
   const [activoFormulario, setActivoFormulario] = useState<ActivoFijo>({
     id: "",
-    vidaUtil: "",
+    vidaUtil: 0,
     fechaIngreso: fechaFormateada,
     marca: "",
     cantidad: "",
@@ -217,7 +217,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   const validate = () => {
     let tempErrors: Partial<ActivoFijo> & { general?: string } = {};
     if (!activoFormulario.vidaUtil) tempErrors.vidaUtil = "Campo obligatorio";
-    else if (!/^\d+$/.test(activoFormulario.vidaUtil)) tempErrors.vidaUtil = "Vida útil debe ser un número";
+    else if (!/^\d+$/.test(activoFormulario.vidaUtil.toString())) tempErrors.vidaUtil = "Vida útil debe ser un número";
     if (!activoFormulario.marca) tempErrors.marca = "Campo obligatorio";
     if (!activoFormulario.modelo) tempErrors.modelo = "Campo obligatorio";
     if (!activoFormulario.cantidad) tempErrors.cantidad = "Campo obligatorio";
@@ -452,7 +452,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
 
       // Despacha el array de nuevos activos a Redux
       dispatch(setDatosTablaActivoFijo(newActivos));
-      dispatch(setVidaUtilActions(activoFormulario.vidaUtil));
+      dispatch(setVidaUtilActions(activoFormulario.vidaUtil.toString()));
       dispatch(setFechaIngresoActions(activoFormulario.fechaIngreso));
       dispatch(setMarcaActions(activoFormulario.marca));
       dispatch(setModeloActions(activoFormulario.modelo));

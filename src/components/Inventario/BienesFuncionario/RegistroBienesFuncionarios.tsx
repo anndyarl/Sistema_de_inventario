@@ -18,7 +18,6 @@ import MenuInventario from "../../Menus/MenuInventario";
 import { setDependenciaBienesFuncionarioActions, setRutBienesFuncionarioActions, setServicioBienesFuncionarioActions, setAfCodigoGenericoActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/datosRegistroBeneficiarioActions";
 import { validate, format } from 'rut.js';
 import { Helmet } from "react-helmet-async";
-
 import { listadoBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/listadoBienesFuncionariosActions";
 import { maxBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/maxBienesFuncionariosActions";
 import { Search } from "react-bootstrap-icons";
@@ -37,8 +36,6 @@ interface FuncionarioProps {
   comprobanteDePago?: string;
   afCodigoGenerico?: string;
 }
-
-
 
 interface FormFuncionarioProps extends FuncionarioProps {
   comboServicio: SERVICIO[];
@@ -208,11 +205,9 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
     }
     if (name === "servicio") {
       comboDependenciaActions(value);
-      console.log(value);
       dispatch(setServicioBienesFuncionarioActions(parseInt(value)));
     }
     if (name === "dependencia") {
-      console.log(value);
       dispatch(setDependenciaBienesFuncionarioActions(parseInt(value)));
     }
     if (name === "afCodigoGenerico") {
