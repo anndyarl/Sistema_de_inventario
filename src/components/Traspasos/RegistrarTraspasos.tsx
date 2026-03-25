@@ -1625,7 +1625,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
 
                             </Col>
                             <Col md={6}>
-                                <div className="border border-1 mt-4 p-4 pb-5 rounded-2">
+                                <div className="border border-1 mt-4 p-4 rounded-2">
                                     <h5 className="fw-semibold mb-4">Datos de Recepción</h5>
                                     {/* Entregado Por */}
                                     <div className="mb-1">

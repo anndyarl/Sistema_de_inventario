@@ -229,34 +229,31 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   }, [token]); // Asegúrate de incluir dependencias relevantes
 
   const listaAutoEnviados = async () => {
-    if (token) {
-      //Carga Lista enviados
-      if (listadoTraspasos.length == 0) {
-        setLoadingEnviados(true);
-        const resultado = await listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+    //Carga Lista enviados
+    if (listadoTraspasos.length == 0) {
+      setLoadingEnviados(true);
+      const resultado = await listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
 
-        if (!resultado) {
-          setLoadingEnviados(false);
-        }
-        else {
-          setLoadingEnviados(false);
-        }
+      if (!resultado) {
+        setLoadingEnviados(false);
+      }
+      else {
+        setLoadingEnviados(false);
       }
     }
+
   };
 
   const listaAutoRecibidos = async () => {
-    if (token) {
-      //Carga Lista recibidos
-      if (listadoTraspasosRecibidos.length == 0) {
-        setLoadingRecibidos(true);
-        const resultado = await listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
-        if (!resultado) {
-          setLoadingRecibidos(false);
-        }
-        else {
-          setLoadingRecibidos(false);
-        }
+    //Carga Lista recibidos
+    if (listadoTraspasosRecibidos.length == 0) {
+      setLoadingRecibidos(true);
+      const resultado = await listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+      if (!resultado) {
+        setLoadingRecibidos(false);
+      }
+      else {
+        setLoadingRecibidos(false);
       }
     }
   };
@@ -901,14 +898,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                             <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                               <tr>
-                                <th scope="col" className="text-nowrap">Estado</th>
-                                <th scope="col" className="text-nowrap">N° Inventario</th>
-                                <th scope="col" className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>N° Traspaso</th>
-                                <th scope="col" className="text-nowrap">Fecha Traspaso</th>
-                                <th scope="col" className="text-nowrap">Nombre Especie</th>
-                                <th scope="col" className="text-nowrap">Entregado por</th>
-                                <th scope="col" className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>Ubicación Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
-                                <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
+                                <th scope="col" className="text-nowrap small">Estado</th>
+                                <th scope="col" className="text-nowrap small">N° Inventario</th>
+                                <th scope="col" className="text-nowrap small">N° Traspaso</th>
+                                <th scope="col" className="text-nowrap small">Fecha Traspaso</th>
+                                <th scope="col" className="text-nowrap small">Nombre Especie</th>
+                                <th scope="col" className="text-nowrap small">Entregado por</th>
+                                <th scope="col" className={`small ${expandedColumn === "enviados" ? "" : "d-none"}`}>Ubicación Destino<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-success"} aria-hidden="true" /></th>
+                                <th scope="col" className="text-nowrap sticky rounded-top small">
                                   <b>Acción</b>
                                 </th>
                               </tr>
@@ -925,17 +922,17 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           checked={filasSeleccionada.includes((indexReal).toString())}
                         />
                         </td> */}
-                                    <td className="text-nowrap">
-                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
+                                    <td className="text-nowrap small">
+                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary w-100 small"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success w-100 small">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger w-100 small">Rechazado</span> : <span>-</span>}
                                     </td>
 
-                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                    <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
-                                    <td className="text-nowrap">{Lista.paS_FECHA}</td>
-                                    <td className="text-nowrap">{Lista.esP_NOMBRE}</td>
-                                    <td className="text-nowrap">{
+                                    <td className="text-nowrap small">{Lista.aF_CODIGO_GENERICO}</td>
+                                    <td className="text-nowrap small">{Lista.n_TRASPASO}</td>
+                                    <td className="text-nowrap small">{Lista.paS_FECHA}</td>
+                                    <td className="text-nowrap small">{Lista.esP_NOMBRE}</td>
+                                    <td className="text-nowrap small">{
                                       Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
                                         Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
                                           Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
@@ -954,11 +951,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
 
                                     }</td>
-                                    <td className={` ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_DESTINO} {Lista.deP_NOMBRE_DESTINO}</td>
-                                    <td className="text-nowrap sticky-col-right-0 rounded">
+                                    <td className={`small ${expandedColumn === "enviados" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_DESTINO} {Lista.deP_NOMBRE_DESTINO}</td>
+                                    <td className="text-nowrap sticky rounded small">
                                       <Button
                                         variant="outline-primary"
-                                        className="fw-semibold  ps-3 pe-3"
+                                        className="fw-semibold  ps-3 pe-3 small"
                                         onClick={() => handleVerEnviados(index, Lista)}
                                       >
                                         Ver
@@ -1211,14 +1208,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                             <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`} >
                               <tr >
-                                <th scope="col" className="text-nowrap">Estado</th>
-                                <th scope="col" className="text-nowrap">N° Inventario</th>
-                                <th scope="col" className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>N° Traspaso</th>
-                                <th scope="col" className="text-nowrap">Fecha Traspaso</th>
-                                <th scope="col" className="text-nowrap">Nombre Especie</th>
-                                <th scope="col" className="text-nowrap">Entregado por</th>
+                                <th scope="col" className="text-nowrap small">Estado</th>
+                                <th scope="col" className="text-nowrap small">N° Inventario</th>
+                                <th scope="col" className="text-nowrap small">N° Traspaso</th>
+                                <th scope="col" className="text-nowrap small">Fecha Traspaso</th>
+                                <th scope="col" className="text-nowrap small">Nombre Especie</th>
+                                <th scope="col" className="text-nowrap small">Entregado por</th>
                                 <th scope="col" className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>Ubicación Origen<CircleFill className={"flex-shrink-0 h-5 w-5 ms-1 text-warning"} aria-hidden="true" /></th>
-                                <th scope="col" className="text-nowrap sticky-col-right-0 rounded-top">
+                                <th scope="col" className="text-nowrap sticky rounded-top small">
                                   <b>Acción</b>
                                 </th>
                               </tr>
@@ -1228,16 +1225,16 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                 let indexReal = indicePrimerElemento1 + index; // Índice real basado en la página
                                 return (
                                   <tr key={indexReal}>
-                                    <td className="text-nowrap">
-                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary  w-100"> Sin Validación</span>
-                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success  w-100">Recibido</span>
-                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger  w-100">Rechazado</span> : <span>-</span>}
+                                    <td className="text-nowrap small">
+                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary w-100 small"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success w-100 small">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger w-100 small">Rechazado</span> : <span>-</span>}
                                     </td>
-                                    <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                    <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.n_TRASPASO}</td>
-                                    <td className="text-nowrap">{Lista.paS_FECHA}</td>
-                                    <td className="text-nowrap" >{Lista.esP_NOMBRE}</td>
-                                    <td className="text-nowrap">{
+                                    <td className="text-nowrap small">{Lista.aF_CODIGO_GENERICO}</td>
+                                    <td className="text-nowrap small">{Lista.n_TRASPASO}</td>
+                                    <td className="text-nowrap small">{Lista.paS_FECHA}</td>
+                                    <td className="text-nowrap small" >{Lista.esP_NOMBRE}</td>
+                                    <td className="text-nowrap small">{
                                       Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
                                         Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
                                           Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
@@ -1256,11 +1253,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
 
                                     }</td>
-                                    <td className={` ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_ORIGEN} {Lista.deP_NOMBRE_ORIGEN}</td>
-                                    <td className="text-nowrap sticky-col-right-0 rounded">
+                                    <td className={`small ${expandedColumn === "recibidos" ? "" : "d-none"}`}>{Lista.seR_NOMBRE_ORIGEN} {Lista.deP_NOMBRE_ORIGEN}</td>
+                                    <td className="text-nowrap sticky-col-right-0 rounded small">
                                       <Button
                                         variant="outline-success"
-                                        className="fw-semibold  ps-3 pe-3"
+                                        className="fw-semibold ps-3 pe-3 small"
                                         onClick={() => handleVerRecibidos(index, Lista)}
                                       >
                                         Validar
@@ -1618,7 +1615,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             {/* Validación */}
             {estadoRecibido === 0 ? (
               <>
-                <p className="py-2 mb-1 rounded fw-semibold fs-09em bg-secondary bg-opacity-10 text-secondary border-none">¿Ha recibido el bien en su establecimiento?</p >
+                <p className="py-2 mb-1 rounded fw-semibold fs-09em bg-info bg-opacity-10 text-muted border-none">¿Ha recibido el bien en su establecimiento?</p >
                 <div className="d-flex gap-2 w-50 justify-content-center mx-auto">
                   <Button variant="success" className="w-25" size="sm" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
                     Sí, recibido

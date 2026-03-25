@@ -17,7 +17,7 @@ export const registroTrasladoMultipleActions = (FormularioTraslado: Record<strin
     dispatch({ type: POST_FORMULARIO_TRASLADO_REQUEST });
 
     try {
-        const response = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/ReporteFSD_traslado`, body);
+        const response = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/CrearTraslados`, body);
 
         if (response.status === 200) {
             if (response.data?.length) {
