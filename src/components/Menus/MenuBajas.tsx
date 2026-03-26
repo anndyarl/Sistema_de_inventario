@@ -58,8 +58,7 @@ const MenuBajas: React.FC<Props> = ({ isDarkMode }) => {
                     <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />
                 </button>
                 <div className="container-fluid">
-
-                    <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
+                    <div className={`  w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
                         <div className="navbar-nav mb-2 mb-lg-0 me-3">
                             {navigation.map((item, index) => (
                                 <NavLink

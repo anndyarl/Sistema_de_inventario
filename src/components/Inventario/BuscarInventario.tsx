@@ -975,7 +975,6 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
               </div>
             )}
           </div>
-
         </div>
       </div>
     </Layout >

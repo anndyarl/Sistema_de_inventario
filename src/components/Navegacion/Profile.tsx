@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import "../../styles/Profile.css";
 import { RootState } from "../../redux/reducers";
 import { Navigate } from 'react-router-dom';
-import { Building, Download, Geo, Gear } from "react-bootstrap-icons";
+import { Building, Download, Geo, Gear, X } from "react-bootstrap-icons";
 import { Col, Modal, Row, Spinner } from "react-bootstrap";
 import { indicadoresActions } from "../../redux/actions/Otros/indicadoresActions";
 import { logout } from "../../redux/actions/auth/authActions";
@@ -129,7 +129,7 @@ const Profile: React.FC<ProfileProps> = ({
   return (
     <>
       {/* Botón de perfil */}
-      <div className="d-flex justify-content-end align-content-center p-3">
+      <div className="d-flex justify-content-end align-content-center p-1">
         <button
           type="button"
           onClick={togglePanel}
@@ -152,7 +152,7 @@ const Profile: React.FC<ProfileProps> = ({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className={`slide-panel-overlay slide-panel ${isDarkMode ? "bg-color-dark" : "bg-light"}`}
+            className={`slide-panel-overlay  slide-panel ${isDarkMode ? "bg-color-dark" : "bg-light"}`}
             initial="initial"
             animate="animate"
             exit="exit"
@@ -163,11 +163,11 @@ const Profile: React.FC<ProfileProps> = ({
             <motion.div onClick={(e) => e.stopPropagation()}>
               <div className="d-flex justify-content-end">
                 <button
-                  className={`btn fs-1 ${isDarkMode ? "text-light" : "text-dark"}`}
+                  className={`btn p-0 ${isDarkMode ? "text-light" : "text-dark"}`}
                   onClick={togglePanel}
                   aria-label="Cerrar"
                 >
-                  ×
+                  <X size={35} />
                 </button>
               </div>
 

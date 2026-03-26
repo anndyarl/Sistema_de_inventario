@@ -612,13 +612,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     }
   };
 
-  function detectarTipo(base64: string): string {
-    if (base64.startsWith("JVBERi0")) return "pdf";
-    if (base64.startsWith("/9j/")) return "jpeg";
-    if (base64.startsWith("iVBOR")) return "png";
-    if (base64.startsWith("R0lGOD")) return "gif";
-    return "png"; // fallback
-  };
+
 
   const handleDescargarAdjunto = (lista: any) => {
     const contenido = listadoTraspasosAdjuntos?.[lista]?.contenido || lista?.contenido;
@@ -631,6 +625,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
     // Limpia el base64 (quita saltos de línea o espacios)
     const base64Limpio = contenido.replace(/\s/g, "").trim();
+
+    function detectarTipo(base64: string): string {
+      if (base64.startsWith("JVBERi0")) return "pdf";
+      if (base64.startsWith("/9j/")) return "jpeg";
+      if (base64.startsWith("iVBOR")) return "png";
+      if (base64.startsWith("R0lGOD")) return "gif";
+      return "png"; // fallback
+    };
 
     // Detecta tipo de archivo
     const tipo = detectarTipo(base64Limpio);

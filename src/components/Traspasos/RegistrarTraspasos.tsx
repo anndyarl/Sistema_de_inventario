@@ -1622,7 +1622,6 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                         <div className="invalid-feedback">{error.paS_FECHA_MEMO}</div>
                                     )}
                                 </div>
-
                             </Col>
                             <Col md={6}>
                                 <div className="border border-1 mt-4 p-4 rounded-2">

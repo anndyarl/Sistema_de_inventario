@@ -88,7 +88,7 @@ const Navbar: React.FC<DarkMode> = ({ isDarkMode }) => {
     // console.log(filteredRoutes);  // Resultado: Array con la ruta de 'Imprimir Etiqueta'
 
     return (
-        <nav id="navbar" className={`d-flex p-3 justify-content-end  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+        <nav id="navbar" className={`d-flex justify-content-end  ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
             <div className={`d-flex align-items-center border  ${isDarkMode ? "bg-dark" : "bg-light"} rounded-3 w-100 `}>
                 <input
                     type="text"

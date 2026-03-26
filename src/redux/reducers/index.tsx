@@ -114,6 +114,7 @@ import listaSalidaTraspasosReducers from "./Traspasos/listaSalidaTraspasosReduce
 import listaSalidaTrasladosReducers from "./Traslados/datosTrasladoRegistradoReducers";
 import preferenciasReducers from "./Configuracion/preferenciasReducers";
 import listaAltasModificarReducers from "./Altas/AnularAltas/listaAltasModificarReducers";
+import listadoTrasladosAdjuntosReducers from "./Traslados/listadoTrasladosAdjuntosReducers";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -196,6 +197,7 @@ const appReducer = combineReducers({
   comboDependenciaDestinoReducer,
   listadoTrasladosReducers,
   listaSalidaTrasladosReducers,
+  listadoTrasladosAdjuntosReducers,
 
   //Traspasos
   obtenerInventarioTraspasoReducers,

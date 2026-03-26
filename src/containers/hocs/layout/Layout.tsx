@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { type ReactNode, useState, useMemo } from "react"
+import { type ReactNode, useState, useMemo, useEffect } from "react"
 import { connect, useDispatch } from "react-redux"
 import type { RootState } from "../../../redux/reducers"
 import Sidebar from "../../../components/Navegacion/Sidebar"
@@ -27,22 +27,21 @@ import Profile from "../../../components/Navegacion/Profile.js"
 export const TIEMPOS_SESION = {
   30: {
     minutos: 30,
-    mensaje: 30 * 60 * 1000, // 1,800,000 ms (30 minutos)
-    cerrar: 31 * 60 * 1000    // 1,860,000 ms (31 minutos)
+    mensaje: 30 * 60 * 1000,
+    cerrar: 31 * 60 * 1000
   },
   40: {
     minutos: 40,
-    mensaje: 40 * 60 * 1000, // 2,400,000 ms (40 minutos)
-    cerrar: 41 * 60 * 1000    // 2,460,000 ms (41 minutos)
+    mensaje: 40 * 60 * 1000,
+    cerrar: 41 * 60 * 1000
   },
   60: {
     minutos: 60,
-    mensaje: 60 * 60 * 1000, // 3,600,000 ms (60 minutos)
-    cerrar: 61 * 60 * 1000    // 3,660,000 ms (61 minutos)
+    mensaje: 60 * 60 * 1000,
+    cerrar: 61 * 60 * 1000
   }
 } as const;
 
-// Helper para obtener tiempos de sesión
 export const getTiemposSesion = (minutos: number) => {
   return TIEMPOS_SESION[minutos as keyof typeof TIEMPOS_SESION] || TIEMPOS_SESION[30];
 };
@@ -52,7 +51,7 @@ interface LayoutProps {
   isAuthenticated: boolean | null;
   isDarkMode: boolean;
   isSidebarCollapsed: boolean;
-  tiempoSesion: number; // Viene de Redux con el valor persistido
+  tiempoSesion: number;
   activo?: string;
 }
 
@@ -69,33 +68,68 @@ const Layout: React.FC<LayoutProps> = ({
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+  // Cerrar sidebar al cambiar de ruta (opcional)
+  useEffect(() => {
+    const handleRouteChange = () => {
+      setSidebarOpen(false);
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
+  }, []);
+
   const toggleSidebarCollapse = () => {
     dispatch(setSidebarCollapsedActions());
   };
 
-  // Obtener tiempos en milisegundos basados en la configuración persistida de Redux
   const { mensaje, cerrar } = useMemo(() => {
     return getTiemposSesion(tiempoSesion);
   }, [tiempoSesion]);
 
-  // Hook de auto logout con los tiempos calculados
   useAutoLogout(mensaje, cerrar);
 
-  // Redireccionar si no está autenticado
   if (isAuthenticated === false) {
     return <Navigate to="/" />;
   }
 
+  // Animaciones mejoradas para el sidebar móvil
   const sidebarVariants = {
-    hidden: { x: "-100%", opacity: 0 },
-    visible: { x: 0, opacity: 1 },
-    exit: { x: "-100%", opacity: 0 },
+    hidden: {
+      x: "-100%",
+      opacity: 0,
+      transition: {
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.2
+      }
+    },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: "tween",
+        ease: "easeInOut",
+        duration: 0.25,
+        staggerChildren: 0.05,
+        delayChildren: 0.1
+      }
+    },
+    exit: {
+      x: "-100%",
+      opacity: 0,
+      transition: {
+        type: "tween",
+        ease: "easeIn",
+        duration: 0.2
+      }
+    }
   };
 
-  const sidebarTransition = {
-    type: "tween",
-    ease: "easeInOut",
-    duration: 0.01,
+  // Overlay para cerrar al hacer clic fuera
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 }
   };
 
   return (
@@ -105,38 +139,59 @@ const Layout: React.FC<LayoutProps> = ({
         <Sidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={toggleSidebarCollapse} />
       </div>
 
-      {/* Sidebar con animación en móviles */}
-      <AnimatePresence>
+      {/* Sidebar móvil con overlay y animación */}
+      <AnimatePresence mode="wait">
         {sidebarOpen && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            variants={sidebarVariants}
-            transition={sidebarTransition}
-            className={`d-md-none min-vh-100 ${isDarkMode ? "bg-color-dark" : "bg-color"}`}
-          >
-            <Sidebar isCollapsed={false} onToggleCollapse={() => { }} />
-          </motion.div>
+          <>
+            {/* Overlay oscuro detrás del sidebar */}
+            <motion.div
+              className="sidebar-overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+              onClick={toggleSidebar}
+            />
+
+            {/* Sidebar móvil con animación deslizante */}
+            <motion.div
+              className={`position-fixed top-0 start-0 h-100 z-1050 ${isDarkMode ? "bg-color-dark" : "bg-color"}`}
+              variants={sidebarVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <Sidebar isCollapsed={false} onToggleCollapse={() => { }} />
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
       {/* Contenedor principal */}
       <div id="page-content-wrapper" className="d-flex flex-column w-100">
         {/* Navbar (móvil) */}
-        <div className={`d-flex justify-content-around align-content-center shadow-sm ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
-          <button className="p-3 navbar-toggler" aria-label="button-mobile" type="button" onClick={toggleSidebar}>
-            {sidebarOpen ?
-              <X size={35} className={`${isDarkMode ? "text-white" : ""}`} /> :
-              <List size={35} className={`${isDarkMode ? "text-white" : ""}`} />
-            }
+        <div className={`d-flex justify-content-between align-items-center shadow-sm p-2 ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+          <button
+            className="navbar-toggler border-0 bg-transparent p-2 position-custom-buttonSidebar"
+            aria-label="button-mobile"
+            type="button"
+            onClick={toggleSidebar}
+          >
+            {sidebarOpen ? (
+              <X size={31} className="text-white" />
+            ) : (
+              <List size={28} className={isDarkMode ? "text-white" : "text-dark"} />
+            )}
           </button>
+
           <Navbar />
+
           <Profile activo={activo} />
         </div>
 
         {/* Navbar (escritorio) */}
-        <div className={`d-none d-md-flex justify-content-end align-content-center ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+        <div className={`d-none d-md-flex justify-content-end align-items-center ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
           <Navbar />
           <Profile activo={activo} />
         </div>
@@ -164,7 +219,7 @@ const mapStateToProps = (state: RootState) => ({
   isAuthenticated: state.validaApiLoginReducers.isAuthenticated,
   isDarkMode: state.darkModeReducer.isDarkMode,
   isSidebarCollapsed: state.setSidebarCollapsedReducer.isSidebarCollapsed,
-  tiempoSesion: state.preferenciasReducers?.tiempoSesion || 30, // Valor persistido de Redux
+  tiempoSesion: state.preferenciasReducers?.tiempoSesion || 30,
 });
 
 export default connect(mapStateToProps, {

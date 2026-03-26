@@ -139,7 +139,7 @@ export function TablaGenerica<T extends Record<string, any>>({
                                     cursor: col.disableSort ? 'default' : 'pointer',
                                     userSelect: 'none'
                                 }}
-                                className='text-nowrap'
+                                className='text-nowrap small'
                                 onClick={() => !col.disableSort && handleSort(col.key)}
                                 title={col.disableSort ? '' : "Haz clic para ordenar"}
                             >
@@ -183,7 +183,7 @@ export function TablaGenerica<T extends Record<string, any>>({
                                     )}
 
                                     {columns.map((col, i) => (
-                                        <td key={i}>
+                                        <td key={i} className='small'>
                                             {col.render
                                                 ? col.render(item[col.key], item)
                                                 : item[col.key]}

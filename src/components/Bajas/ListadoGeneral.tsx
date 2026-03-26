@@ -619,7 +619,7 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
                 </div>
               </Col>
               {/* Columna 5: Botones de Acción */}
-              <Col lg={1} md={4}>
+              <Col lg={2} md={3} sm={12}>
                 <div className="d-flex flex-column gap-2 mt-4">
                   <Button
                     onClick={handleBuscar}

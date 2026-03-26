@@ -50,3 +50,52 @@
   padding-right: 1rem !important;
 }
 
+
+.position-custom-buttonSidebar {
+  position: relative;
+  z-index: 1050 !important;
+}
+
+/* Overlay oscuro para móvil */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 1050;
+  /* backdrop-filter: blur(1px); */
+}
+
+/* Asegurar que el sidebar móvil esté por encima del overlay */
+.position-fixed.z-1050 {
+  z-index: 1050 !important;
+}
+
+/* Animación suave para el contenido al abrir/cerrar sidebar */
+#page-content-wrapper {
+  transition: transform 0.2s ease;
+}
+
+/* Estilo para el botón hamburguesa */
+.navbar-toggler:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Mejora para móviles */
+@media (max-width: 767.98px) {
+  .sidebar-overlay {
+    animation: fadeIn 0.2s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
