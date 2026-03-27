@@ -612,8 +612,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     }
   };
 
-
-
   const handleDescargarAdjunto = (lista: any) => {
     const contenido = listadoTraspasosAdjuntos?.[lista]?.contenido || lista?.contenido;
     const nombreArchivo = lista?.nombre || "documento";

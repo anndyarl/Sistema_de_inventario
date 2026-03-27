@@ -19,6 +19,8 @@ import * as XLSX from "xlsx";
 export interface InventarioCompleto {
     aF_CLAVE: number;
     aF_CODIGO_GENERICO: string;
+    seR_CORR: number;
+    deP_CORR: number;
     seR_NOMBRE: string;
     deP_NOMBRE: string;
     aF_ALTA: string;

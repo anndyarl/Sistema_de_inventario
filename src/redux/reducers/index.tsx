@@ -101,7 +101,6 @@ import comboServDepReducers from "./Inventario/Combos/comboServDepReducers";
 import obtenerInventarioXAltasReducers from "./Inventario/ModificarInventario/obtenerInventarioXAltasReducers";
 import listadoTraspasosRecibidosReducers from "./Traspasos/listadoTraspasosRecibidosReducers";
 import listadoTraspasosAdjuntosReducers from "./Traspasos/listadoTraspasosAdjuntosReducers";
-import maxBienesFuncionariosReducers from "./Inventario/BienesFuncionario/maxBienesFuncionariosReducers";
 import listadoBienesFuncionariosReducers from "./Inventario/BienesFuncionario/listadoBienesFuncionariosReducers";
 import buscarBienesFuncionariosReducers from "./Inventario/BienesFuncionario/buscarBienesFuncionariosReducers";
 import registrarDocumentoAltasReducers from "./Altas/FirmarAltas/registrarDocumentoAltasReducers";
@@ -184,7 +183,6 @@ const appReducer = combineReducers({
 
   // Bienes de Funcionarios
   datosBienesFuncionarioReducers,
-  maxBienesFuncionariosReducers,
   listadoBienesFuncionariosReducers,
   buscarBienesFuncionariosReducers,
 

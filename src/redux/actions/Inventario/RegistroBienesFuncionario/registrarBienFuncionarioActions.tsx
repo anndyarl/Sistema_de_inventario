@@ -6,13 +6,16 @@ import {
 } from "../types";
 import axiosInstance from "../../../../services/axiosConfig";
 
-// Función auxiliar para convertir archivo a base64
+// Función auxiliar para convertir archivo a base64 SIN el prefijo
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
             const result = reader.result as string;
-            resolve(result);
+            // Eliminar el prefijo "data:application/pdf;base64," o similar
+            // El resultado tiene formato: "data:[tipo];base64,[base64]"
+            const base64SinPrefijo = result.split(',')[1];
+            resolve(base64SinPrefijo);
         };
         reader.onerror = (error) => {
             reject(error);
@@ -22,13 +25,21 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 // Acción para enviar el formulario
-export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, SER_CORR: number, DEP_CORR: number, IMAGEN_COMPROBANTE_PAGO: File, IMAGEN_AUTORIZACION: File, AF_CODIGO_GENERICO: string) => async (dispatch: Dispatch): Promise<boolean> => {
+export const registrarBienFuncionarioActions = (
+    RUT_FUNCIONARIO: string,
+    SER_CORR: number,
+    DEP_CORR: number,
+    IMAGEN_COMPROBANTE_PAGO: File | null,
+    IMAGEN_AUTORIZACION: File | null,
+    AF_CODIGO_GENERICO: string
+) => async (dispatch: Dispatch): Promise<boolean> => {
 
-    const COMPROBANTE_PAGO = IMAGEN_COMPROBANTE_PAGO ? String(IMAGEN_COMPROBANTE_PAGO.name) : "";
-    const AUTORIZACION = IMAGEN_AUTORIZACION ? String(IMAGEN_AUTORIZACION.name) : "";
+    // Si el archivo es null, usar string vacío, sino obtener el nombre
+    const COMPROBANTE_PAGO = IMAGEN_COMPROBANTE_PAGO ? IMAGEN_COMPROBANTE_PAGO.name : "";
+    const AUTORIZACION = IMAGEN_AUTORIZACION ? IMAGEN_AUTORIZACION.name : "";
 
     try {
-        // Convertir archivos a base64 solo si existen
+        // Convertir archivos a base64 solo si existen (ya sin prefijo)
         const comprobanteBase64 = IMAGEN_COMPROBANTE_PAGO ? await fileToBase64(IMAGEN_COMPROBANTE_PAGO) : "";
         const autorizacionBase64 = IMAGEN_AUTORIZACION ? await fileToBase64(IMAGEN_AUTORIZACION) : "";
 
@@ -39,12 +50,16 @@ export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, SER_COR
         formBienesFormulario.append("COMPROBANTE_PAGO", COMPROBANTE_PAGO);
         formBienesFormulario.append("AUTORIZACION", AUTORIZACION);
         formBienesFormulario.append("AF_CODIGO_GENERICO", AF_CODIGO_GENERICO);
-        formBienesFormulario.append("IMAGEN_COMPROBANTE_PAGO", comprobanteBase64);     // Archivo en base64 o vacío
-        formBienesFormulario.append("IMAGEN_AUTORIZACION", autorizacionBase64);         // Archivo en base64 o vacío
+        formBienesFormulario.append("IMAGEN_COMPROBANTE_PAGO", comprobanteBase64);
+        formBienesFormulario.append("IMAGEN_AUTORIZACION", autorizacionBase64);
 
         dispatch({ type: POST_FORMULARIO_BIENES_REQUEST });
 
-        const response = await axiosInstance.post(`${import.meta.env.VITE_CSRF_API_URL}/crearBienFuncionario`, formBienesFormulario);
+        const response = await axiosInstance.post(
+            `${import.meta.env.VITE_CSRF_API_URL}/crearBienFuncionario`,
+            formBienesFormulario
+        );
+
         if (response.status === 200) {
             dispatch({
                 type: POST_FORMULARIO_BIENES_SUCCESS,
@@ -62,9 +77,8 @@ export const registrarBienFuncionarioActions = (RUT_FUNCIONARIO: string, SER_COR
         console.error("Error en la solicitud:", err);
         dispatch({
             type: POST_FORMULARIO_BIENES_FAIL,
-            error: "El token ha expirado.",
+            error: err.response?.data?.message || "El token ha expirado.",
         });
-
         return false;
     }
 };

@@ -11,7 +11,7 @@ import { Objeto } from "../Navegacion/Profile.tsx";
 import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados.tsx";
 import { listadoTrasladosActions } from "../../redux/actions/Traslados/listadoTrasladosActions.tsx";
-import { CircleFill, Download, Eraser, Eye, FiletypePdf, GeoFill, Search } from "react-bootstrap-icons";
+import { Check2Circle, CircleFill, Download, Eraser, ExclamationCircle, Eye, FiletypePdf, GeoFill, Search } from "react-bootstrap-icons";
 import { TablaGenerica } from "../Utils/TablaGenerica.tsx";
 import { PageSizeSelector } from "../Utils/PageSizeSelector.tsx";
 import { obtenerAdjuntosActions } from "../../redux/actions/Traslados/obtenerAdjuntosActions.tsx";
@@ -51,7 +51,7 @@ export interface listadoTraslados {
   traS_ACTIVO: number;
   esP_NOMBRE: string;
 }
-interface ListaAdjuntos {
+export interface ListaAdjuntos {
   nombre: string;
   contenido: string;
 }
@@ -60,7 +60,7 @@ interface GeneralProps {
   listadoTrasladosAdjuntos: ListaAdjuntos[];
   listadoTrasladosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
-  obtenerAdjuntosActions: (numTraslado: number) => Promise<boolean>;
+  obtenerAdjuntosActions: (numTraslado: number) => Promise<ListaAdjuntos[] | null>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto; //Objeto que obtiene los datos del usuario
@@ -77,8 +77,8 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
   const [pageSize, setPageSize] = useState(10);
   //-------------------Estados de archivos adjuntos ------------------//
   const [mostrarModalAdjuntos, setmostrarModalAdjuntos] = useState<number | null>(null);
-  const [elementoSeleccionado, setElementoSeleccionado] = useState<any[]>([]);
-  const [listaAdjuntos, setListaAdjuntos] = useState<number | null>(null);
+  const [elementoSeleccionado, setElementoSeleccionado] = useState<listadoTraslados[]>([]);
+  const [elementoSeleccionadoAdjuntos, setElementoSeleccionadoAdjuntos] = useState<ListaAdjuntos[] | null>([]);
   const [loadingAdjuntos, setLoadingAdjuntos] = useState(false);
   //-------------------Fin Estados de archivos adjuntos ------------------//
   const [ListadoTraslado, setListadoTraslado] = useState({
@@ -273,25 +273,48 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                                   usuario;
   };
 
-  const handleAbrirModal = async (aF_CLAVE: number, item: listadoTraslados) => {
+  // const handleAbrirModal = async (aF_CLAVE: number, listaTraslados: listadoTraslados, listaAdjuntos: ListaAdjuntos) => {
+  //   try {
+  //     setmostrarModalAdjuntos(aF_CLAVE);
+  //     setElementoSeleccionado([listaTraslados]);
+  //     setElementoSeleccionadoAdjuntos([listaAdjuntos]);
+  //     setLoadingAdjuntos(true);
+  //     // Verificar si los adjuntos ya están cargados para este traslado
+  //     const resultado = await obtenerAdjuntosActions(listaTraslados.n_TRASLADO);
+  //     if (resultado) {
+  //       setListaAdjuntos(listaTraslados.n_TRASLADO);
+  //     }
+  //     else {
+
+  //       setListaAdjuntos(null);
+  //     }
+  //     setLoadingAdjuntos(false);
+  //   } catch (error) {
+  //     console.error("Error al cargar adjuntos:", error);
+  //     setLoadingAdjuntos(false);
+  //   }
+  // };
+
+  const handleAbrirModal = async (aF_CLAVE: number, lista: listadoTraslados) => {
     try {
       setmostrarModalAdjuntos(aF_CLAVE);
-      console.log(aF_CLAVE, item)
-      setElementoSeleccionado([item]);
-      // Verificar si los adjuntos ya están cargados para este traslado
-      if (listaAdjuntos !== item.n_TRASLADO) {
-        setLoadingAdjuntos(true);
-        const resultado = await obtenerAdjuntosActions(item.n_TRASLADO);
-        if (resultado) {
-          setListaAdjuntos(item.n_TRASLADO);
-        }
-        setLoadingAdjuntos(false);
+      setElementoSeleccionado([lista]);
+      setLoadingAdjuntos(true);
+      const resultado = await obtenerAdjuntosActions(lista.n_TRASLADO);
+      if (resultado) {
+        setElementoSeleccionadoAdjuntos(resultado);
       }
+      setLoadingAdjuntos(false);
     } catch (error) {
       console.error("Error al cargar adjuntos:", error);
       setLoadingAdjuntos(false);
     }
   };
+
+  const handleCerrarModal = () => {
+    setmostrarModalAdjuntos(null);
+    setElementoSeleccionadoAdjuntos([]);
+  }
 
   const handleDescargarAdjunto = async (lista: any) => {
 
@@ -352,8 +375,6 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
     setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
   };
 
-
-
   // Definición de las columnas
   const columnas = [
     {
@@ -385,24 +406,14 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
       ),
       render: (_: any, item: listadoTraslados) => `${item.seR_NOMBRE_DESTINO} ${item.deP_NOMBRE_DESTINO}`
     },
-    { key: 'traS_MEMO_REF' as keyof listadoTraslados, header: 'Memo de Referencia' },
-    { key: 'traS_FECHA_MEMO' as keyof listadoTraslados, header: 'Fecha Memo' },
     {
       key: 'usuariO_CREA' as keyof listadoTraslados,
-      header: 'Usuario Crea',
+      header: 'Usuario Creador',
       render: (value: string) => formatearUsuario(value)
     },
     {
-      key: 'traS_OBS' as keyof listadoTraslados,
-      header: 'Observaciones',
-      render: (value: string) => parseInt(value) == 0 ? "Sin observaciones" : value
-    },
-    { key: 'traS_NOM_ENTREGA' as keyof listadoTraslados, header: 'Nombre Entrega' },
-    { key: 'traS_NOM_RECIBE' as keyof listadoTraslados, header: 'Nombre Recibe' },
-    { key: 'traS_NOM_AUTORIZA' as keyof listadoTraslados, header: 'Nombre Autoriza' },
-    {
       key: 'aF_CLAVE' as keyof listadoTraslados,
-      header: 'Documentos',
+      header: 'Ver Detalles',
       className: 'text-center fixed',
       cellClassName: 'text-center',
       style: {  // ← Dobles llaves
@@ -663,30 +674,179 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
       </div>
 
       {/* Detalle adjuntos */}
-
       <Modal
         show={mostrarModalAdjuntos !== null}
-        onHide={() => setmostrarModalAdjuntos(null)}
+        onHide={() => handleCerrarModal()}
         size="xl"
         centered
       >
-        <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
-          <Modal.Title className="fw-semibold d-flex align-items-center gap-2">
-            <span>Documentos del Traslado</span>
 
-          </Modal.Title>
+        <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
+          <Modal.Title className="fw-semibold">Información del Traslado</Modal.Title>
         </Modal.Header>
 
         <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
-          {elementoSeleccionado?.[0] && (
-            <span className="text-muted small">
-              Nº Traslado: <strong>{elementoSeleccionado[0].n_TRASLADO}</strong>
-              {" | "}
-              Código AF: <strong>{elementoSeleccionado[0].aF_CODIGO_GENERICO}</strong>
-            </span>
-          )}
           <Row className="g-1">
+            {/* Información General del Traspaso */}
+            <Col lg={6}>
+              <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                <Row className="g-1">
+                  <Col md={6}>
+                    <label className="fw-semibold small text-muted">Nº Inventario</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.aF_CODIGO_GENERICO || "Sin Información"}
+                    </div>
+                  </Col>
+                  <Col md={6}>
+                    <label className="fw-semibold small text-muted">Nº Traslado</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.n_TRASLADO || "Sin Información"}
+                    </div>
+                  </Col>
+                  <Col md={6}>
+                    <label className="fw-semibold small text-muted">Fecha Traslado</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.traS_FECHA || "No definida"}
+                    </div>
+                  </Col>
+                  <Col md={6}>
+                    <label className="fw-semibold small text-muted">Fecha del Memo</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.traS_FECHA_MEMO || "No definida"}
+                    </div>
+                  </Col>
+                  <Col md={6}>
+                    <label className="fw-semibold small text-muted">N° Memo de Referencia</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.traS_MEMO_REF || "Sin Información"}
+                    </div>
+                  </Col>
+
+                  <Col md={6}>
+                    <label className="fw-semibold small text-muted">Codigo Especie</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.esP_NOMBRE || "Sin Información"}
+                    </div>
+                  </Col>
+                  <Col md={12}>
+                    <label className="fw-semibold small text-muted">Especie</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.esP_NOMBRE || "Sin Información"}
+                    </div>
+                  </Col>
+                  <Col md={12}>
+                    <label className="fw-semibold small text-muted">Estado</label>
+                    <div
+                      className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                    >
+                      {elementoSeleccionado[0]?.traS_ESTADO_AF || "No definida"}
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+
+            {/* Origen y Destino */}
+            <Col lg={6}>
+              <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                <h5 className="fw-semibold mb-3 pb-1 border-bottom">Establecimiento</h5>
+                <Row className="g-1">
+                  <Col md={12} className="mb-1 border-bottom p-1">
+                    <div className="mb-3">
+                      <label className="fw-semibold small text-muted">
+                        <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
+                        Servicio/Dependencia Origen</label>
+                      <div className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>
+                        <p className="fs-05em text-start"> {elementoSeleccionado[0]?.seR_NOMBRE_ORIGEN + " " + elementoSeleccionado[0]?.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
+                      </div>
+                    </div>
+                  </Col>
+
+                  <Col md={12} className="mb-1 p-1">
+                    <div className="mb-3">
+                      <label className="fw-semibold small text-muted">
+                        <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
+                        Servicio/Dependencia Destino</label>
+                      <div
+                        className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                      >
+                        <p className="fs-05em text-start">  {elementoSeleccionado[0]?.seR_NOMBRE_DESTINO + " " + elementoSeleccionado[0]?.deP_NOMBRE_DESTINO || "Sin Información"}</p>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
+              </div>
+            </Col>
+
+            {/* Observaciones */}
             <Col lg={12}>
+              <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                <label className="fw-semibold mb-2">Observaciones</label>
+                <div
+                  className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                  style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
+                >
+                  {elementoSeleccionado[0]?.traS_OBS || "Sin observaciones"}
+                </div>
+              </div>
+            </Col>
+
+            {/* Recepción y Validación */}
+            <Col lg={6}>
+              <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
+                <h5 className="fw-semibold mb-3 pb-1 border-bottom">Despacho</h5>
+                <div className="mb-1">
+                  <label className="fw-semibold small">Entregado Por</label>
+                  <p className="d-flex align-items-center mb-0">
+                    {elementoSeleccionado[0]?.traS_NOM_ENTREGA || "Sin Información"}
+                    <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                  </p>
+
+                </div>
+                <div className="mb-1">
+                  <label className="fw-semibold small">Recibido Por</label>
+                  <p className="d-flex align-items-center mb-0">
+                    {elementoSeleccionado[0]?.traS_NOM_RECIBE === "X" ? (
+                      <>
+                        Esperando Validación
+                        <ExclamationCircle className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
+                      </>
+                    ) : elementoSeleccionado[0]?.traS_NOM_RECIBE ? (
+                      <>
+                        {elementoSeleccionado[0]?.traS_NOM_RECIBE}
+                        <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
+                      </>
+                    ) : (
+                      "Sin Información"
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <label className="fw-semibold small">Jefe que Autoriza</label>
+                  <p className="d-flex align-items-center mb-0">
+                    {elementoSeleccionado[0]?.traS_NOM_AUTORIZA || "Sin Información"}
+                    <Check2Circle className="mx-1 text-success flex-shrink-0 fs-bold" aria-hidden="true" />
+                  </p>
+                </div>
+              </div>
+            </Col>
+
+            {/* Documentos */}
+            <Col lg={6}>
               {loadingAdjuntos ? (
                 <div className="text-center py-5">
                   <Spinner animation="border" role="status">
@@ -694,7 +854,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                   </Spinner>
                   <p className="mt-2">Cargando documentos...</p>
                 </div>
-              ) : listadoTrasladosAdjuntos && listadoTrasladosAdjuntos.length > 0 ? (
+              ) : elementoSeleccionadoAdjuntos && elementoSeleccionadoAdjuntos.length > 0 ? (
                 <div className={`border rounded-3 p-3 ${isDarkMode ? "border-secondary" : ""}`}>
                   <div className="table-responsive">
                     <table className={`table table-sm mb-0 ${isDarkMode ? "table-dark" : "table-hover"}`}>
@@ -707,7 +867,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                         </tr>
                       </thead>
                       <tbody>
-                        {listadoTrasladosAdjuntos.map((adjunto, idx) => (
+                        {elementoSeleccionadoAdjuntos.map((adjunto, idx) => (
                           <tr key={idx}>
                             <td>
                               <FiletypePdf className="me-2 text-danger" size={18} />
@@ -730,54 +890,12 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-5">
+                <div className="text-center">
                   <p className={`pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
                     No hay documentos adjuntos para este traslado
                   </p>
                 </div>
               )}
-            </Col>
-            {/* Origen y Destino */}
-            <Col lg={6}>
-              <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                <h5 className="fw-semibold mb-3 pb-1 border-bottom">Establecimiento</h5>
-                <Row className="g-1">
-                  <Col md={12} className="mb-1 border-bottom p-1">
-                    <div className="mb-3">
-                      <label className="fw-semibold small d-flex align-items-center mb-1">
-                        <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
-                        Origen
-                      </label>
-                    </div>
-                    <div>
-                      <label className="fw-semibold small text-muted">Servicio/Dependencia Origen</label>
-                      <div
-                        className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-
-                      >
-                        <p className="fs-05em text-start"> {elementoSeleccionado[0]?.seR_NOMBRE_ORIGEN + " " + elementoSeleccionado[0]?.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
-                      </div>
-                    </div>
-                  </Col>
-
-                  <Col md={12} className="mb-1 p-1">
-                    <div className="mb-3">
-                      <label className="fw-semibold small d-flex align-items-center mb-1">
-                        <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
-                        Destino
-                      </label>
-                    </div>
-                    <div>
-                      <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
-                      <div
-                        className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                      >
-                        <p className="fs-05em text-start">  {elementoSeleccionado[0]?.seR_NOMBRE_DESTINO + " " + elementoSeleccionado[0]?.deP_NOMBRE_DESTINO || "Sin Información"}</p>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
             </Col>
           </Row>
         </Modal.Body>

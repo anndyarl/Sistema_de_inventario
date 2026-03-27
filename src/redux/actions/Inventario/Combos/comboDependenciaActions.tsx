@@ -7,7 +7,7 @@ import {
 import { Dispatch } from "redux";
 import axiosInstance from "../../../../services/axiosConfig";
 
-export const comboDependenciaActions = (serCorr: string) => async (dispatch: Dispatch) => {
+export const comboDependenciaActions = (serCorr: number) => async (dispatch: Dispatch) => {
 
   dispatch({ type: DEPENDENCIA_REQUEST });
 

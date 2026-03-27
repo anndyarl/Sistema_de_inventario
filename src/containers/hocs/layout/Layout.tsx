@@ -191,7 +191,7 @@ const Layout: React.FC<LayoutProps> = ({
         </div>
 
         {/* Navbar (escritorio) */}
-        <div className={`d-none d-md-flex justify-content-end align-items-center ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
+        <div className={`d-none d-md-flex justify-content-end align-items-center p-2 ${isDarkMode ? "bg-color-dark" : "bg-light"}`}>
           <Navbar />
           <Profile activo={activo} />
         </div>

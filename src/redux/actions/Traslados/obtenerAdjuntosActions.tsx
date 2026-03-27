@@ -5,8 +5,10 @@ import {
   LISTA_TRASLADOS_ADJUNTOS_FAIL,
 } from "./types";
 import axiosInstance from "../../../services/axiosConfig";
+import { ListaAdjuntos } from "../../../components/Traslados/ListadoTraslados";
 
-export const obtenerAdjuntosActions = (numTraslados: number) => async (dispatch: Dispatch): Promise<boolean> => {
+
+export const obtenerAdjuntosActions = (numTraslados: number) => async (dispatch: Dispatch): Promise<ListaAdjuntos[] | null> => {
 
   dispatch({ type: LISTA_TRASLADOS_ADJUNTOS_REQUEST });
 
@@ -19,14 +21,14 @@ export const obtenerAdjuntosActions = (numTraslados: number) => async (dispatch:
           type: LISTA_TRASLADOS_ADJUNTOS_SUCCESS,
           payload: res.data,
         });
-        return true;
+        return res.data;
       } else {
         dispatch({
           type: LISTA_TRASLADOS_ADJUNTOS_FAIL,
           error:
             "Status 200, pero con arreglo de datos vacío",
         });
-        return false;
+        return null;
       }
     } else {
       dispatch({
@@ -34,12 +36,12 @@ export const obtenerAdjuntosActions = (numTraslados: number) => async (dispatch:
         error:
           "No se pudo obtener el listado del inventario. Por favor, intente nuevamente.",
       });
-      return false;
+      return null;
     }
   } catch (err: any) {
     dispatch({
       type: LISTA_TRASLADOS_ADJUNTOS_SUCCESS,
     });
-    return false;
+    return null;
   }
 };

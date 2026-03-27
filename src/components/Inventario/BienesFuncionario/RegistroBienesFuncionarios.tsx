@@ -19,7 +19,6 @@ import { setDependenciaBienesFuncionarioActions, setRutBienesFuncionarioActions,
 import { validate, format } from 'rut.js';
 import { Helmet } from "react-helmet-async";
 import { listadoBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/listadoBienesFuncionariosActions";
-import { maxBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/maxBienesFuncionariosActions";
 import { Search } from "react-bootstrap-icons";
 import SkeletonLoader from "../../Utils/SkeletonLoader";
 import { InventarioCompleto } from "../AnularInventario";
@@ -35,6 +34,7 @@ interface FuncionarioProps {
   autorizacion?: string;
   comprobanteDePago?: string;
   afCodigoGenerico?: string;
+  archivos?: string; //para manejar error global de adjuntos
 }
 
 interface FormFuncionarioProps extends FuncionarioProps {
@@ -43,18 +43,18 @@ interface FormFuncionarioProps extends FuncionarioProps {
   buscarBienesFuncionarios: InventarioCompleto[];
   listadoBienesFuncionarios: ListadoBienesFuncionarios[];
   comboServicioActions: (establ_corr: number) => void;
-  comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+  comboDependenciaActions: (comboServicio: number) => void; // Nueva prop para pasar el servicio seleccionado
   registrarBienFuncionarioActions: (
     rutFuncionario: string,
     comboServicio: number,
     comboDependencia: number,
-    comprobanteDePago: File,
-    autorizacion: File,
+    comprobanteDePago: File | null,
+    autorizacion: File | null,
     afCodigoGenerico: string
   ) => Promise<boolean>;
   listadoBienesFuncionariosActions: (establ_corr: number) => Promise<boolean>;
   maxBienesFuncionariosActions: (establ_corr: number) => Promise<boolean>;
-  buscarBienesDeFuncionariosActions: (establ_corr: number) => Promise<boolean>;
+  buscarBienesDeFuncionariosActions: (establ_corr: number) => Promise<InventarioCompleto[] | null>;
   token: string | null;
   isDarkMode: boolean;
   objeto: Objeto;
@@ -63,12 +63,6 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
   objeto,
   comboServicio,
   comboDependencia,
-  rutFuncionario,
-  servicio,
-  dependencia,
-  comprobanteDePago,
-  autorizacion,
-  afCodigoGenerico,
   isDarkMode,
   buscarBienesFuncionarios,
   listadoBienesFuncionarios,
@@ -76,7 +70,6 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
   comboDependenciaActions,
   registrarBienFuncionarioActions,
   listadoBienesFuncionariosActions,
-  maxBienesFuncionariosActions,
   buscarBienesDeFuncionariosActions
 }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -124,8 +117,6 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
     });
   }, [buscarBienesFuncionarios, terminoBusqueda]);
 
-
-
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
@@ -138,49 +129,51 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
     : 0;
   const paginar = (numeroPagina: number) => setPaginaActual(numeroPagina);
 
-  //Usado para cargar busqueda rapidas
-  useEffect(() => {
-    setPaginaActual(1);
-  }, [terminoBusqueda]);
-
-  //usado para traer informacion listados y combos
   useEffect(() => {
     // carga inicial de combos
     if (comboServicio.length === 0) {
       comboServicioActions(objeto.Roles[0].codigoEstablecimiento);
     }
-    // carga inicial para obtener maxBienes
-    if (!afCodigoGenerico) {
-      maxBienesFuncionariosActions(objeto.Roles[0].codigoEstablecimiento);
-    }
-  }, []);
 
-  //Usado para renderizar en input af_codigo_generico y modal
-  useEffect(() => {
-    if (afCodigoGenerico && !mostrarMensaje) {
-      setFuncionario(prev => ({
-        ...prev,
-        rutFuncionario: "",
-        afCodigoGenerico: afCodigoGenerico
+    autoBienesFuncionario();
+    setPaginaActual(1);
+  }, [buscarBienesFuncionarios, mostrarMensaje, elementoSeleccionado, terminoBusqueda, isDarkMode]);
+
+  const autoBienesFuncionario = async () => {
+    // Si ya se mostró el mensaje o no hay afCodigoGenerico, no hacer nada
+    if (mostrarMensaje) return;
+    const listadoBusqueda = await buscarBienesDeFuncionariosActions(objeto.Roles[0].codigoEstablecimiento);
+
+    if (listadoBusqueda) {
+      const ultimoRegistro = listadoBusqueda[0];
+      const aF_CODIGO_GENERICO = (ultimoRegistro as InventarioCompleto).aF_CODIGO_GENERICO;
+      const seR_CORR = (ultimoRegistro as InventarioCompleto).seR_CORR;
+      const deP_CORR = (ultimoRegistro as InventarioCompleto).deP_CORR;
+
+      comboDependenciaActions(seR_CORR);
+
+      setFuncionario((Prev) => ({
+        ...Prev,
+        afCodigoGenerico: aF_CODIGO_GENERICO,
+        servicio: seR_CORR,
+        dependencia: deP_CORR
       }));
 
-      // Aquí sí podemos mostrar el número correcto
       Swal.fire({
         icon: "info",
         title: "Inventario encontrado",
-        html: `Se ha agregado al formulario el último inventario asociado: <b>Nº ${afCodigoGenerico}</b>. Si desea cambiarlo, utilice la búsqueda.`,
-
+        html: `Se ha agregado al formulario el último inventario registrado <b>Nº ${ultimoRegistro.aF_CODIGO_GENERICO}</b> correspondiente a un bien de funcionario. Si desea cambiarlo, utilice la búsqueda.`,
         background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
         color: `${isDarkMode ? "#ffffff" : "000000"}`,
         confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
         customClass: { popup: "custom-border" },
-        allowOutsideClick: false,
       });
-      setMostrarMensaje(true);
     }
-    // Marcar como mostrado
-
-  }, [comboServicioActions, maxBienesFuncionariosActions, rutFuncionario, servicio, dependencia, comprobanteDePago, autorizacion, afCodigoGenerico]);
+    else {
+      return;
+    }
+    setMostrarMensaje(true);
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -204,7 +197,7 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
       dispatch(setRutBienesFuncionarioActions(format(newValue)));
     }
     if (name === "servicio") {
-      comboDependenciaActions(value);
+      comboDependenciaActions(Number(value));
       dispatch(setServicioBienesFuncionarioActions(parseInt(value)));
     }
     if (name === "dependencia") {
@@ -239,6 +232,7 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
       "image/jpg",
     ];
 
+    // Validaciones de campos obligatorios
     if (!Funcionario.rutFuncionario) tempErrors.rutFuncionario = "Campo obligatorio.";
     else if (!validate(Funcionario.rutFuncionario)) {
       tempErrors.rutFuncionario = "El rut es incorrecto";
@@ -246,14 +240,25 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
     if (!Funcionario.afCodigoGenerico) tempErrors.afCodigoGenerico = "Campo obligatorio.";
     if (!Funcionario.servicio) tempErrors.servicio = "Campo obligatorio.";
     if (!Funcionario.dependencia) tempErrors.dependencia = "Campo obligatorio.";
-    // Validación de archivos: autorizacion (opcional)
+
+    // Validación: Al menos un documento debe estar presente
+    const tieneAutorizacion = Funcionario.autorizacion && selectedFileAutorizacion;
+    const tieneComprobante = Funcionario.comprobanteDePago && selectedFileComprobante;
+
+    if (!tieneAutorizacion && !tieneComprobante) {
+      tempErrors.archivos = "Debe adjuntar al menos un documento (Comprobante de Pago o Autorización).";
+    }
+
+    // Validación de tipo de archivo para autorización (solo si se envió)
     if (selectedFileAutorizacion && !allowelabelypes.includes(selectedFileAutorizacion.type)) {
       tempErrors.autorizacion = "Solo se permiten archivos PDF, DOCX o JPG.";
     }
-    // Validación de archivos: comprobanteDePago (opcional)
+
+    // Validación de tipo de archivo para comprobante (solo si se envió)
     if (selectedFileComprobante && !allowelabelypes.includes(selectedFileComprobante.type)) {
       tempErrors.comprobanteDePago = "Solo se permiten archivos PDF, DOCX o JPG.";
     }
+
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -314,30 +319,8 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
     }
   };
 
-  // const convertirArchivosABase64 = async (archivo: File) => {
-  //   const resultado: { nombre: string, contenido: string };
-
-
-  //     const contenido = await new Promise<string>((resolve, reject) => {
-  //       const reader = new FileReader();
-  //       reader.onload = () => resolve((reader.result as string).split(",")[1]);
-  //       reader.onerror = reject;
-  //       reader.readAsDataURL(archivo);
-  //     });
-
-  //     resultado.push({    
-  //       contenido
-  //     });
-
-  //     // setNombreDocumento(archivo.name);//Guardo el nombre del documento adjunto
-  //     // console.log("archivo.name", archivo.name);
-
-
-  //   return resultado;
-  // };
   //----------------Fin Autorización --------------//
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleFormSubmit = async () => {
     if (validateForm()) {
       const result = await Swal.fire({
         icon: "info",
@@ -355,78 +338,79 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
       });
       if (result.isConfirmed) {
         setLoading(true);
+        console.log(Funcionario.rutFuncionario,
+          Funcionario.servicio,
+          Funcionario.dependencia,
+          selectedFileComprobante,
+          selectedFileAutorizacion,
+          Funcionario.afCodigoGenerico);
+        const resultado = await registrarBienFuncionarioActions(
+          Funcionario.rutFuncionario || "",
+          Funcionario.servicio,
+          Funcionario.dependencia,
+          selectedFileComprobante,
+          selectedFileAutorizacion,
+          Funcionario.afCodigoGenerico || ""
+        );
 
-        if (selectedFileComprobante && selectedFileAutorizacion) {
-          // const anexosBase64 = await convertirArchivosABase64(selectedFileComprobante);
-          const resultado = await registrarBienFuncionarioActions(
-            Funcionario.rutFuncionario || "",
-            Funcionario.servicio,
-            Funcionario.dependencia,
-            selectedFileComprobante,
-            selectedFileAutorizacion,
-            Funcionario.afCodigoGenerico || ""
-          );
-          if (resultado) {
-            Swal.fire({
-              icon: "success",
-              title: "Registro exitoso",
-              text: `Se ha registrado con exito el bien del funcionario asociado al número de inventario ${Funcionario.afCodigoGenerico}`,
-              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-              color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-              customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-              }
-            });
-            listadoBienesFuncionariosActions(objeto.Roles[0].codigoEstablecimiento)
-            dispatch(setRutBienesFuncionarioActions(""));
-            dispatch(setServicioBienesFuncionarioActions(0));
-            dispatch(setDependenciaBienesFuncionarioActions(0));
-            setSelectedFileComprobante(null);
-            setSelectedFileAutorizacion(null);
-            setFuncionario({
-              ...Funcionario,
-              rutFuncionario: "",
-              servicio: 0,
-              dependencia: 0,
-              comprobanteDePago: "",
-              autorizacion: "",
-              afCodigoGenerico: ""
-            });
-            setLoading(false);
-          } else {
-            Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Hubo un problema al enviar el registro.",
-              background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
-              color: `${isDarkMode ? "#ffffff" : "000000"}`,
-              confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
-              customClass: {
-                popup: "custom-border", // Clase personalizada para el borde
-              }
-            });
-            setLoading(false);
-          }
+        if (resultado) {
+          Swal.fire({
+            icon: "success",
+            title: "Registro exitoso",
+            text: `Se ha registrado con exito el bien del funcionario asociado al número de inventario ${Funcionario.afCodigoGenerico}`,
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
+          });
+          listadoBienesFuncionariosActions(objeto.Roles[0].codigoEstablecimiento)
+          dispatch(setRutBienesFuncionarioActions(""));
+          dispatch(setServicioBienesFuncionarioActions(0));
+          dispatch(setDependenciaBienesFuncionarioActions(0));
+          setSelectedFileComprobante(null);
+          setSelectedFileAutorizacion(null);
+          setFuncionario({
+            ...Funcionario,
+            rutFuncionario: "",
+            servicio: 0,
+            dependencia: 0,
+            comprobanteDePago: "",
+            autorizacion: "",
+            afCodigoGenerico: ""
+          });
+          setLoading(false);
         } else {
-          setError({
-            ...error,
-            comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
-            autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Hubo un problema al enviar el registro.",
+            background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+            color: `${isDarkMode ? "#ffffff" : "000000"}`,
+            confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+            customClass: {
+              popup: "custom-border", // Clase personalizada para el borde
+            }
           });
           setLoading(false);
         }
-
+      } else {
+        setError({
+          ...error,
+          comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
+          autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
+        });
+        setLoading(false);
       }
-
     }
   };
 
   const handleBuscarInventario = async (e: React.KeyboardEvent<HTMLInputElement> | React.MouseEvent<HTMLButtonElement>) => {
-    let resultado = false;
+
     e.preventDefault();
     setLoadingBuscarInventario(true);
-    resultado = await buscarBienesDeFuncionariosActions(objeto.Roles[0].codigoEstablecimiento);
+    const resultado = await buscarBienesDeFuncionariosActions(objeto.Roles[0].codigoEstablecimiento);
     if (!resultado) {
       Swal.fire({
         icon: "warning",
@@ -476,18 +460,23 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
         console.log("AF_codigo_generico no existe");
       }
     }
-
   };
-
 
   const handleInventarioSeleccionado = () => {
     if (typeof elementoSeleccionado === "object" && elementoSeleccionado !== null) {
       const af_codigo_generico = (elementoSeleccionado as InventarioCompleto).aF_CODIGO_GENERICO;
+      const seR_CORR = (elementoSeleccionado as InventarioCompleto).seR_CORR;
+      const deP_CORR = (elementoSeleccionado as InventarioCompleto).deP_CORR;
+
+      comboDependenciaActions(seR_CORR);
       // Actualiza el estado según la seleccion
       setFuncionario((Prev) => ({
         ...Prev,
         afCodigoGenerico: af_codigo_generico,
+        servicio: seR_CORR,
+        dependencia: deP_CORR
       }));
+      console.log(Funcionario)
       setMostrarModalInventarios(false);
     }
   };
@@ -500,157 +489,156 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
       <MenuInventario />
       <div className="table-responsive position-relative z-0 hide-scrollbar" >
         <div style={{ maxHeight: "80vh" }}>
-          <form onSubmit={handleFormSubmit}>
-            <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-              <h3 className="form-title fw-semibold border-bottom p-1">
-                Registro Bienes de Funcionarios
-              </h3>
-              <div className={`d-flex flex-column flex-md-row align-items-center 
+
+          <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+            <h3 className="form-title fw-semibold border-bottom p-1">
+              Registro Bienes de Funcionarios
+            </h3>
+            <div className={`d-flex flex-column flex-md-row align-items-center 
                  bg-light border-start border-4 border-warning shadow-sm rounded p-2 gap-2 mb-2`}>
+              <p className="fw-semibold  small text-dark">
+                Para registrar nuevos bienes de funcionarios, primero debe crear su número de inventario
+              </p>
+              <Button
+                onClick={() => navigate("/Inventario/FormInventario")}
+                className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} px-4 fw-semibold`}
+              >
+                Aquí
+              </Button>
+            </div>
 
-                <p className="fw-semibold  small text-dark">
-                  Para registrar nuevos bienes de funcionarios, primero debe crear su número de inventario
-                </p>
-
-                <Button
-                  onClick={() => navigate("/Inventario/FormInventario")}
-                  className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"} px-4 fw-semibold`}
-                >
-                  Aquí
-                </Button>
-              </div>
-
-
-              <Row className="d-flex align-items-center">
-                <Col md={4}>
-                  <div className="mb-1">
-                    <label htmlFor="rutFuncionario" className="fw-semibold">Rut Funcionario</label>
+            <Row className="d-flex">
+              <Col md={4}>
+                <div className="mb-1">
+                  <label htmlFor="rutFuncionario" className="fw-semibold">Rut Funcionario</label>
+                  <input
+                    aria-label="rutFuncionario"  // Asociado al label
+                    type="text"
+                    className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                      } ${error.rutFuncionario ? "is-invalid" : ""} w-100`}
+                    maxLength={12}
+                    size={10}
+                    name="rutFuncionario"
+                    onChange={handleChange}
+                    value={Funcionario.rutFuncionario || ""}
+                    placeholder="12.345.678-9"
+                  />
+                  {error.rutFuncionario && (
+                    <div className="invalid-feedback fw-semibold d-block">
+                      {error.rutFuncionario}
+                    </div>
+                  )}
+                </div>
+                <div className="mb-1">
+                  <label className="fw-semibold">
+                    Nº de inventario
+                  </label>
+                  <div className="d-flex align-items-center">
                     <input
-                      aria-label="rutFuncionario"  // Asociado al label
+                      aria-label="afCodigoGenerico"
                       type="text"
-                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                        } ${error.rutFuncionario ? "is-invalid" : ""} w-100`}
+                      className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
                       maxLength={12}
-                      size={10}
-                      name="rutFuncionario"
+                      name="afCodigoGenerico"
+                      placeholder="Eje: 1000000008"
                       onChange={handleChange}
-                      value={Funcionario.rutFuncionario || ""}
-                      placeholder="12.345.678-9"
+                      value={Funcionario.afCodigoGenerico || ""}
+                      disabled
                     />
-                    {error.rutFuncionario && (
-                      <div className="invalid-feedback fw-semibold d-block">
-                        {error.rutFuncionario}
-                      </div>
-                    )}
-                  </div>
-                  <div className="mb-1">
-                    <label className="fw-semibold">
-                      Nº de inventario
-                    </label>
-                    <div className="d-flex align-items-center">
-                      <input
-                        aria-label="afCodigoGenerico"
-                        type="text"
-                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                        maxLength={12}
-                        name="afCodigoGenerico"
-                        placeholder="Eje: 1000000008"
-                        onChange={handleChange}
-                        value={Funcionario.afCodigoGenerico || ""}
-                        disabled
-                      />
-                      <OverlayTrigger
-                        placement="top"
-                        overlay={<Tooltip id="tooltip-limpiar">Buscar Inventario</Tooltip>}
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-limpiar">Buscar Inventario</Tooltip>}
+                    >
+                      <Button
+                        onClick={handleBuscarInventario}
+                        variant="primary"
+                        className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                       >
-                        <Button
-                          onClick={handleBuscarInventario}
-                          variant="primary"
-                          className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
-                        >
-                          {loadingBuscarInventario ? (
-                            <>
-                              <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
-                              />
-                            </>
-                          ) : (
-                            <Search
-                              className="flex-shrink-0 h-5 w-5"
+                        {loadingBuscarInventario ? (
+                          <>
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
                               aria-hidden="true"
                             />
-                          )}
-                        </Button>
-                      </OverlayTrigger>
+                          </>
+                        ) : (
+                          <Search
+                            className="flex-shrink-0 h-5 w-5"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </Button>
+                    </OverlayTrigger>
+                  </div>
+                  {error.afCodigoGenerico && (
+                    <div className="invalid-feedback fw-semibold d-block">
+                      {error.afCodigoGenerico}
                     </div>
-                    {error.afCodigoGenerico && (
+                  )}
+                </div>
+
+                <div className={`border p-2 ${isDarkMode ? "border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`} >
+                  <h6 className="text-center fw-semibold">Destino</h6>
+                  <div className="mb-1">
+                    <label htmlFor="servicio" className="fw-semibold fw-semibold">Servicio</label>
+                    <select
+                      aria-label="servicio"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
+                      name="servicio"
+                      onChange={handleChange}
+                      value={Funcionario.servicio || 0}
+                    >
+                      <option value="">Seleccione</option>
+                      {comboServicio.map((traeServicio) => (
+                        <option
+                          key={traeServicio.codigo}
+                          value={traeServicio.codigo}
+                        >
+                          {traeServicio.nombrE_ORD}
+                        </option>
+                      ))}
+                    </select>
+                    {error.servicio && (
                       <div className="invalid-feedback fw-semibold d-block">
-                        {error.afCodigoGenerico}
+                        {error.servicio}
                       </div>
                     )}
                   </div>
-
-                  <div className={`border p-2 ${isDarkMode ? "border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`} >
-                    <h6 className="text-center fw-semibold">Destino</h6>
-                    <div className="mb-1">
-                      <label htmlFor="servicio" className="fw-semibold fw-semibold">Servicio</label>
-                      <select
-                        aria-label="servicio"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""} ${error.servicio ? "is-invalid" : ""}`}
-                        name="servicio"
-                        onChange={handleChange}
-                        value={Funcionario.servicio || 0}
-                      >
-                        <option value="">Seleccione</option>
-                        {comboServicio.map((traeServicio) => (
-                          <option
-                            key={traeServicio.codigo}
-                            value={traeServicio.codigo}
-                          >
-                            {traeServicio.nombrE_ORD}
-                          </option>
-                        ))}
-                      </select>
-                      {error.servicio && (
-                        <div className="invalid-feedback fw-semibold d-block">
-                          {error.servicio}
-                        </div>
-                      )}
-                    </div>
-                    <div className="mb-1">
-                      <label htmlFor="dependencia" className="fw-semibold">Dependencia</label>
-                      <select
-                        aria-label="dependencia"
-                        className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
-                          } ${error.dependencia ? "is-invalid" : ""}`}
-                        name="dependencia"
-                        disabled={!Funcionario.servicio}
-                        onChange={handleChange}
-                        value={Funcionario.dependencia || 0}
-                      >
-                        <option value="">Selecciona una opción</option>
-                        {comboDependencia.map((traeDependencia) => (
-                          <option
-                            key={traeDependencia.deP_CORR}
-                            value={traeDependencia.deP_CORR}
-                          >
-                            {traeDependencia.descripcion}
-                          </option>
-                        ))}
-                      </select>
-                      {error.dependencia && (
-                        <div className="invalid-feedback fw-semibold d-block">
-                          {error.dependencia}
-                        </div>
-                      )}
-                    </div>
+                  <div className="mb-1">
+                    <label htmlFor="dependencia" className="fw-semibold">Dependencia</label>
+                    <select
+                      aria-label="dependencia"
+                      className={`form-select ${isDarkMode ? "bg-dark text-light border-secondary" : ""
+                        } ${error.dependencia ? "is-invalid" : ""}`}
+                      name="dependencia"
+                      disabled={!Funcionario.servicio}
+                      onChange={handleChange}
+                      value={Funcionario.dependencia || 0}
+                    >
+                      <option value="">Selecciona una opción</option>
+                      {comboDependencia.map((traeDependencia) => (
+                        <option
+                          key={traeDependencia.deP_CORR}
+                          value={traeDependencia.deP_CORR}
+                        >
+                          {traeDependencia.descripcion}
+                        </option>
+                      ))}
+                    </select>
+                    {error.dependencia && (
+                      <div className="invalid-feedback fw-semibold d-block">
+                        {error.dependencia}
+                      </div>
+                    )}
                   </div>
-                </Col>
-                <Col md={4} className="d-flex align-items-center">
+                </div>
+              </Col>
+
+              <Col md={8}>
+                <div className="d-lg-flex d-sm-none gap-4 p-1">
                   <div className="mb-1 w-100">
                     <label htmlFor="comprobanteDePago" className="fw-semibold ">Comprobante de Pago</label>
                     <div
@@ -686,8 +674,7 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
                       </div>
                     )}
                   </div>
-                </Col>
-                <Col md={4} className="d-flex align-items-center">
+
                   <div className="mb-1 w-100">
                     <label htmlFor="autorizacion" className="fw-semibold">Autorización</label>
                     <div
@@ -723,14 +710,20 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
                       </div>
                     )}
                   </div>
-                </Col>
-              </Row>
-
-              <div className="d-flex justify-content-end p-1">
-                <Button type="submit" className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>Validar</Button>
-              </div>
+                </div>
+                {/* Mensaje de error global para documentos */}
+                {error.archivos && (
+                  <div className="alert alert-danger alert-dismissible fade show mt-2 mb-0 py-2" role="alert">
+                    <i className="bi bi-exclamation-triangle"></i>
+                    {error.archivos}
+                  </div>
+                )}
+              </Col>
+            </Row>
+            <div className="d-flex justify-content-end p-1">
+              <Button type="submit" onClick={handleFormSubmit} className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}`}>Validar</Button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
 
@@ -825,14 +818,6 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
                     <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
                       <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                         <tr>
-                          {/* <th style={{ position: 'sticky', left: 0 }}>
-                              <Form.Check
-                                className="check-danger"
-                                type="checkbox"
-                                // onChange={handleSeleccionaTodos}
-                                checked={filasSeleccionadas.length === elementosActuales.length && elementosActuales.length > 0}
-                              />
-                            </th> */}
                           <th scope="col" className="text-nowrap"></th>
                           <th scope="col" className="text-nowrap">Nº Inventario</th>
                           <th scope="col" className="text-nowrap">Servicio / Dependencia</th>
@@ -902,22 +887,20 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
           )}
         </Modal.Body>
       </Modal>
-      {
-        loading && (
-          <div
-            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
-            style={{
-              backgroundColor: "rgba(0, 0, 0, 0.5)",
-              zIndex: 1050,
-            }}
-          >
-            <div className="text-center">
-              <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
-              <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
-            </div>
+      {loading && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 1050,
+          }}
+        >
+          <div className="text-center">
+            <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+            <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
           </div>
-        )
-      }
+        </div>
+      )}
     </Layout>
   );
 };
@@ -929,14 +912,10 @@ const mapStateToProps = (state: RootState) => ({
   rutFuncionario: state.datosBienesFuncionarioReducers.rutFuncionario,
   servicio: state.datosBienesFuncionarioReducers?.servicio || 0,
   dependencia: state.datosBienesFuncionarioReducers?.dependencia || 0,
-  // afCodigoGenerico: state.datosBienesFuncionarioReducers?.afCodigoGenerico || "",
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
-  afCodigoGenerico: state.maxBienesFuncionariosReducers.afCodigoGenerico,
   buscarBienesFuncionarios: state.buscarBienesFuncionariosReducers.buscarBienesFuncionarios,
-  listadoBienesFuncionarios: state.listadoBienesFuncionariosReducers.listadoBienesFuncionarios,
-  // comprobanteDePago: state.datosBienesFuncionarioReducers?.comprobanteDePago || "",
-  // autorizacion: state.datosBienesFuncionarioReducers?.autorizacion || "",
+  listadoBienesFuncionarios: state.listadoBienesFuncionariosReducers.listadoBienesFuncionarios
 });
 
 export default connect(mapStateToProps, {
@@ -944,6 +923,5 @@ export default connect(mapStateToProps, {
   comboDependenciaActions,
   registrarBienFuncionarioActions,
   listadoBienesFuncionariosActions,
-  maxBienesFuncionariosActions,
   buscarBienesDeFuncionariosActions
 })(RegistroBienesFuncionarios);

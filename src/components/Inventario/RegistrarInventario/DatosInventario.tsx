@@ -41,6 +41,7 @@ import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDFResumen from "./DocumentoPDFResumen";
 import { comboModalidadesActions } from "../../../redux/actions/Inventario/Combos/comboModalidadCompraActions";
 import { registrarModalidadActions } from "../../../redux/actions/Inventario/ModificarInventario/registrarModalidadActions";
+import { useNavigate } from "react-router-dom";
 
 // Define el tipo de los elementos del combo `OrigenPresupuesto`
 export interface ORIGEN {
@@ -74,7 +75,7 @@ export interface InventarioProps {
   otraModalidad: string;
   showInputReducer?: boolean;
   establecimiento?: number;
-  tipoInventario: string;
+  tipoInventario: string; // 1 Inventario general(todos sus campos obligatorios) | 2 Inventario de funcionario(Origen presupuesto y precio son Obligatorios)
 }
 
 /*-----Se definen nuevas props para no tener conflictos------*/
@@ -204,13 +205,14 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
+  const [modalMostrarResumen, setModalMostrarResumen] = useState(true);
   const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
   const [loadingExportar, setLoadingExportar] = useState(false);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
   const [paginaActual, setPaginaActual] = useState(1);
   const elementosPorPagina = Paginacion.nPaginacion;
   const [loadingModalidadCompra, setLoadingModalidadCompra] = useState(false);
+  const navigate = useNavigate();
   const proveedorOptions = comboProveedor.map((item) => ({
     value: item.proV_RUN,
     label: item.proV_NOMBRE,
@@ -269,6 +271,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     setError(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+
   //Validaciones modalidad registra otra
   const validaModalidad = () => {
     let tempErrors: Partial<any> & {} = {};
@@ -1107,16 +1110,13 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           <p className="fw-semibold"><Info width={22} height={22} aria-hidden="true" /> Campos obligatorios *</p>
         </div>
       </form>
+
       <Modal show={modalMostrarResumen} onHide={() => setModalMostrarResumen(false)} size="xl">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
           <Modal.Title className="fw-semibold">Resumen de Registro de Activos Fijos</Modal.Title>
         </Modal.Header>
 
         <div className={` d-flex justify-content-end p-4 border-bottom ${isDarkMode ? "darkModePrincipal" : ""}`}>
-          {/* <Button variant={`${isDarkMode ? "secondary" : "primary"}`} onClick={handleExportPDF}>
-            Exportar
-            <FiletypePdf className={classNames("flex-shrink-0", "h-1 w-1 ms-1")} aria-hidden="true" />
-          </Button> */}
 
           <Button
             variant={`${isDarkMode ? "secondary" : "primary"}`}
@@ -1140,6 +1140,17 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
                 </span>
               </>
             )}
+          </Button>
+
+        </div>
+        <div className={`d-flex flex-column flex-md-row align-items-center 
+                         bg-light border-start border-4 border-warning shadow-sm rounded p-2 gap-2 m-2`}>
+          <p className="fw-semibold small text-dark">
+            Para completar el registro de los bienes de funcionarios debe adjuntar la documentación correspondiente
+          </p>
+          <Button onClick={() => navigate("/Inventario/RegistroBienesFuncionarios")}
+            className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
+            Aquí
           </Button>
         </div>
 
@@ -1352,7 +1363,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             </Pagination>
           </div>
         </Modal.Body>
-      </Modal>
+      </Modal >
 
       {/* Modal PDF Excel Word */}
       < Modal show={modalMostrarExportar} onHide={() => setModalMostrarExportar(false)} dialogClassName="modal-right" size="xl" >
@@ -1395,7 +1406,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
             }}
           </BlobProvider>
         </Modal.Body>
-      </Modal>
+      </Modal >
     </>
   );
 };

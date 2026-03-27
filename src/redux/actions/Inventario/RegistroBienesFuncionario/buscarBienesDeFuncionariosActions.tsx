@@ -5,8 +5,9 @@ import {
   BUSCAR_BIENES_FUNCIONARIOS_FAIL,
 } from "../types";
 import axiosInstance from "../../../../services/axiosConfig";
+import { InventarioCompleto } from "../../../../components/Inventario/AnularInventario";
 
-export const buscarBienesDeFuncionariosActions = (establ_corr: number) => async (dispatch: Dispatch): Promise<boolean> => {
+export const buscarBienesDeFuncionariosActions = (establ_corr: number) => async (dispatch: Dispatch): Promise<InventarioCompleto[] | null> => {
 
   dispatch({ type: BUSCAR_BIENES_FUNCIONARIOS_REQUEST });
 
@@ -18,19 +19,19 @@ export const buscarBienesDeFuncionariosActions = (establ_corr: number) => async 
         type: BUSCAR_BIENES_FUNCIONARIOS_SUCCESS,
         payload: res.data,
       });
-      return true;
+      return res.data;
     } else {
       dispatch({
         type: BUSCAR_BIENES_FUNCIONARIOS_FAIL,
         error:
           "No se pudo obtener el listado de bienes funcionarios. Por favor, intente nuevamente.",
       });
-      return false;
+      return null;
     }
   } catch (err: any) {
     dispatch({
       type: BUSCAR_BIENES_FUNCIONARIOS_FAIL,
     });
-    return false;
+    return null;
   }
 };

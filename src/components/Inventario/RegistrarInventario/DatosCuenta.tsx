@@ -46,7 +46,7 @@ export interface DETALLE {
 }
 
 // Define el tipo de los elementos del combo `ListaEspecie`
-interface ListaEspecie {
+export interface ListaEspecie {
   estabL_CORR: number;
   esP_CODIGO: string;
   nombrE_ESP: string;
@@ -87,6 +87,7 @@ interface DatosCuentaProps extends CuentaProps {
   comboEspecies: ListaEspecie[];
   isDarkMode: boolean;
   objeto: Objeto;
+  tipoInventario: string; // 1 Inventario general(todos sus campos obligatorios) | 2 Inventario de funcionario(Origen presupuesto y precio son Obligatorios)
 }
 //Paso 2 del Formulario
 const DatosCuenta: React.FC<DatosCuentaProps> = ({
@@ -116,7 +117,8 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
   // detalles,
   descripcionEspecie,
   isDarkMode,
-  objeto
+  objeto,
+  tipoInventario
 }) => {
 
   const [Cuenta, setCuenta] = useState({
@@ -433,11 +435,23 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
                   value={Cuenta.cuenta}
                 >
                   <option value="">Selecciona una opción</option>
-                  {comboCuenta.map((traeCuentas) => (
-                    <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
-                      {traeCuentas.descripcion}
-                    </option>
-                  ))}
+                  {tipoInventario !== "2" ? (
+                    <>
+
+                      {comboCuenta.map((traeCuentas) => (
+                        <option key={traeCuentas.codigo} value={traeCuentas.codigo}>
+                          {traeCuentas.descripcion}
+                        </option>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <option key={5321001} value={5321001}>
+                        Bienes Funcionarios
+                      </option>
+
+                    </>
+                  )}
                 </select>
                 {error.cuenta && (
                   <div className="invalid-feedback fw-semibold">{error.cuenta}</div>
@@ -691,6 +705,7 @@ const mapStateToProps = (state: RootState) => ({
   isDarkMode: state.darkModeReducer.isDarkMode,
   objeto: state.validaApiLoginReducers,
   comboEspecies: state.listadoDeEspeciesBienReducers.comboEspecies,
+  tipoInventario: state.obtenerRecepcionReducers.tipoInventario,
 });
 
 export default connect(mapStateToProps, {

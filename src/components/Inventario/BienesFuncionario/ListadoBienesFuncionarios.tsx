@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { Pagination, Form, Row, Col } from "react-bootstrap";
+import { Pagination, Form, Row, Col, Button } from "react-bootstrap";
 import { RootState } from "../../../store.ts";
 import { connect } from "react-redux";
 import Layout from "../../../containers/hocs/layout/Layout.tsx";
@@ -8,10 +8,9 @@ import Swal from "sweetalert2";
 import SkeletonLoader from "../../Utils/SkeletonLoader.tsx";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile.tsx";
-import { Search } from "react-bootstrap-icons";
+import { Download, Search } from "react-bootstrap-icons";
 import { listadoBienesFuncionariosActions } from "../../../redux/actions/Inventario/RegistroBienesFuncionario/listadoBienesFuncionariosActions.tsx";
 import MenuInventario from "../../Menus/MenuInventario.tsx";
-
 
 export interface ListaBajas {
   bajaS_CORR: string;
@@ -41,6 +40,7 @@ export interface ListadoBienesFuncionarios {
   seR_DEP: string;
   comprobantE_PAGO: string;
   autorizacion: string;
+  imageN_AUTORIZACION: string;
   imageN_COMPROBANTE_PAGO: string;
 }
 
@@ -48,10 +48,15 @@ interface DatosBajas {
   listadoBienesFuncionarios: ListadoBienesFuncionarios[];
   listadoBienesFuncionariosActions: (establ_corr: number) => Promise<boolean>;
   isDarkMode: boolean;
-  objeto: Objeto; //Objeto que obtiene los datos del usuario
+  objeto: Objeto;
 }
 
-const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFuncionariosActions, listadoBienesFuncionarios, isDarkMode, objeto }) => {
+const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({
+  listadoBienesFuncionariosActions,
+  listadoBienesFuncionarios,
+  isDarkMode,
+  objeto
+}) => {
   const [loading, setLoading] = useState(false);
   const [paginaActual, setPaginaActual] = useState(1);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -60,7 +65,6 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
   const [busquedaAltas, setBusquedaAltas] = useState("");
   const [terminoBusqueda, setTerminoBusqueda] = useState("");
 
-
   const datosFiltrados = useMemo(() => {
     if (!terminoBusqueda.trim()) {
       return listadoBienesFuncionarios;
@@ -68,32 +72,28 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
 
     const termino = terminoBusqueda.toLowerCase();
     return listadoBienesFuncionarios.filter((item) => {
-      // Función auxiliar para convertir código de usuario a nombre
-
       return (
-        item.aF_CODIGO_GENERICO.toString().includes(termino) ||
-        item.ruT_FUNCIONARIO.toString().includes(termino) ||
-        item.seR_DEP.toLowerCase().includes(termino)
+        item.aF_CODIGO_GENERICO?.toString().toLowerCase().includes(termino) ||
+        item.ruT_FUNCIONARIO?.toString().toLowerCase().includes(termino) ||
+        item.seR_DEP?.toLowerCase().includes(termino) ||
+        item.comprobantE_PAGO?.toLowerCase().includes(termino) ||
+        item.autorizacion?.toLowerCase().includes(termino)
       );
     });
   }, [listadoBienesFuncionarios, terminoBusqueda]);
 
-
   useEffect(() => {
     setPaginaActual(1);
-  }, [busquedaCodigoGenerico, busquedaAltas]);
+  }, [busquedaCodigoGenerico, busquedaAltas, terminoBusqueda]);
 
-
-  //Se lista automaticamente apenas entra al componente
+  // Se lista automáticamente apenas entra al componente
   const listadoBienesFuncionariosAuto = async () => {
-
     if (listadoBienesFuncionarios.length === 0) {
       setLoading(true);
       const resultado = await listadoBienesFuncionariosActions(objeto.Roles[0].codigoEstablecimiento);
       if (resultado) {
         setLoading(false);
-      }
-      else {
+      } else {
         Swal.fire({
           icon: "warning",
           title: "Sin resultados",
@@ -102,38 +102,34 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
           customClass: {
-            popup: "custom-border", // Clase personalizada para el borde
+            popup: "custom-border",
           }
         });
         setLoading(false);
       }
-
     }
   };
 
   useEffect(() => {
     listadoBienesFuncionariosAuto();
-  }, [listadoBienesFuncionariosActions, listadoBienesFuncionarios.length]); // Asegúrate de incluir dependencias relevantes
-
+  }, [listadoBienesFuncionariosActions, listadoBienesFuncionarios.length]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
 
-    // Validación numérica
     if ((name === "af_codigo_generico" || name === "altaS_CORR") && !/^[0-9]*$/.test(value)) {
       return;
     }
 
-    // Convertir a número solo si el campo está en la lista
     const camposNumericos = ["nresolucion"];
     const newValue: string | number = camposNumericos.includes(name)
       ? parseFloat(value) || 0
       : value;
 
     if (name === "altaS_CORR") {
-      setBusquedaAltas(value); // <-- estado de búsqueda
+      setBusquedaAltas(value);
     }
 
     if (name === "af_codigo_generico") {
@@ -144,103 +140,128 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
       ...prevState,
       [name]: newValue,
     }));
-
   };
 
-  // const handleBuscar = async () => {
-  //   let resultado = false;
-  //   setLoading(true);
-  //   if (Buscar.fDesde != "" || Buscar.fHasta != "") {
-  //     if (validate()) {
-  //       resultado = await listadoBienesFuncionariosActions(objeto.Roles[0].codigoEstablecimiento);
-  //     }
-  //   }
-  //   else {
-  //     resultado = await listadoBienesFuncionariosActions( objeto.Roles[0].codigoEstablecimiento);
-  //   }
-  //   if (!resultado) {
-  //     Swal.fire({
-  //       icon: "warning",
-  //       title: "Sin Resultados",
-  //       text: "No se encontraron resultados para la consulta realizada.",
-  //       confirmButtonText: "Ok",
-  //     });
-  //     // listaAltasdesdeBajasActions("");
-  //     setLoading(false); //Finaliza estado de carga
-  //     return;
-  //   } else {
-  //     paginar(1);
-  //     setLoading(false); //Finaliza estado de carga
-  //   }
+  // Función para decodificar base64 y descargar archivo
+  const downloadFile = (base64Content: string, fileName: string, fileType: string = '') => {
+    if (!base64Content) {
+      console.warn("Sin contenido en el adjunto");
+      return;
+    }
 
-  // };
+    try {
+      // Limpia el base64 (quita saltos de línea o espacios)
+      const base64Limpio = base64Content.replace(/\s/g, "").trim();
 
-  // function detectarTipo(base64: string): string {
-  //   if (base64.startsWith("JVBERi0")) return "pdf";
-  //   if (base64.startsWith("/9j/")) return "jpeg";
-  //   if (base64.startsWith("iVBOR")) return "png";
-  //   if (base64.startsWith("R0lGOD")) return "gif";
-  //   return "png"; // fallback
-  // };
+      // Función para detectar tipo de archivo
+      const detectarTipo = (base64: string): string => {
+        if (base64.startsWith("JVBERi0")) return "pdf";
+        if (base64.startsWith("/9j/")) return "jpeg";
+        if (base64.startsWith("iVBOR")) return "png";
+        if (base64.startsWith("R0lGOD")) return "gif";
+        return "png";
+      };
 
-  // const handleDescargarAdjunto = (lista: any) => {
-  //   const contenido = listadoBienesFuncionarios?.[lista]?.imageN_COMPROBANTE_PAGO || lista?.imageN_COMPROBANTE_PAGO;
-  //   const nombreArchivo = lista?.nombre || "documento";
+      // Detecta tipo de archivo
+      const tipo = detectarTipo(base64Limpio);
 
-  //   if (!contenido) {
-  //     console.warn("Sin contenido en el adjunto");
-  //     return;
-  //   }
+      // Determinar el MIME type
+      const mimeTypes: { [key: string]: string } = {
+        pdf: "application/pdf",
+        jpeg: "image/jpeg",
+        jpg: "image/jpeg",
+        png: "image/png",
+        gif: "image/gif",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        doc: "application/msword"
+      };
 
-  //   // Limpia el base64 (quita saltos de línea o espacios)
-  //   const base64Limpio = contenido.replace(/\s/g, "").trim();
+      const mimeType = mimeTypes[tipo] || "application/octet-stream";
 
-  //   // Detecta tipo de archivo
-  //   const tipo = detectarTipo(base64Limpio);
-  //   const mimeType =
-  //     tipo === "pdf"
-  //       ? "application/pdf"
-  //       : tipo === "docx"
-  //         ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  //         : tipo === "doc"
-  //           ? "image/jpeg"
-  //           : tipo === "png"
-  //             ? "image/png"
-  //             : tipo === "gif"
-  //               ? "image/gif"
-  //               : "application/octet-stream";
+      // Si el archivo tiene una extensión específica en el nombre, úsala
+      const extension = fileType || tipo;
+      const finalFileName = fileName.includes('.') ? fileName : `${fileName}.${extension === "jpeg" ? "jpg" : extension}`;
 
-  //   // Convierte base64 → Blob
-  //   const byteCharacters = atob(base64Limpio);
-  //   const byteNumbers = new Array(byteCharacters.length);
-  //   for (let i = 0; i < byteCharacters.length; i++) {
-  //     byteNumbers[i] = byteCharacters.charCodeAt(i);
-  //   }
-  //   const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
+      // Convierte base64 → Blob
+      const byteCharacters = atob(base64Limpio);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
 
-  //   // Crea una URL temporal tipo blob:
-  //   const blobUrl = URL.createObjectURL(blob);
+      // Crea una URL temporal tipo blob
+      const blobUrl = URL.createObjectURL(blob);
 
-  //   // Crea un link invisible para descargar el archivo
-  //   const link = document.createElement("a");
-  //   link.href = blobUrl;
-  //   link.download = `${nombreArchivo}.${tipo === "jpeg" ? "jpg" : tipo}`; // agrega extensión correcta
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
+      // Crea un link invisible para descargar el archivo
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = finalFileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
 
-  //   // Limpia la URL del blob después de un momento
-  //   setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
-  // };
+      // Limpia la URL del blob después de un momento
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+    } catch (error) {
+      console.error("Error al descargar el archivo:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo descargar el archivo.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+      });
+    }
+  };
 
+  const handleDescargarComprobanteDePago = (item: ListadoBienesFuncionarios) => {
+    const contenido = item.imageN_COMPROBANTE_PAGO;
+    const nombreArchivo = item.comprobantE_PAGO || `Comprobante_${item.aF_CODIGO_GENERICO}`;
+
+    if (!contenido) {
+      Swal.fire({
+        icon: "warning",
+        title: "Sin archivo",
+        text: "No hay comprobante de pago adjunto para este registro.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+      });
+      return;
+    }
+
+    downloadFile(contenido, nombreArchivo);
+  };
+
+  const handleDescargarAutorizacion = (item: ListadoBienesFuncionarios) => {
+    const contenido = item.imageN_AUTORIZACION;
+    const nombreArchivo = item.autorizacion || `Autorizacion_${item.aF_CODIGO_GENERICO}`;
+
+    if (!contenido) {
+      Swal.fire({
+        icon: "warning",
+        title: "Sin archivo",
+        text: "No hay autorización adjunta para este registro.",
+        background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
+        color: `${isDarkMode ? "#ffffff" : "000000"}`,
+        confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+      });
+      return;
+    }
+
+    downloadFile(contenido, nombreArchivo);
+  };
 
   // Lógica de Paginación actualizada
   const indiceUltimoElemento = paginaActual * elementosPorPagina;
   const indicePrimerElemento = indiceUltimoElemento - elementosPorPagina;
-  const elementosActuales = useMemo(() => datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
+  const elementosActuales = useMemo(() =>
+    datosFiltrados.slice(indicePrimerElemento, indiceUltimoElemento),
     [datosFiltrados, indicePrimerElemento, indiceUltimoElemento]
   );
-  // const totalPaginas = Math.ceil(datosInventarioCompleto.length / elementosPorPagina);
+
   const totalPaginas = Array.isArray(datosFiltrados)
     ? Math.ceil(datosFiltrados.length / elementosPorPagina)
     : 0;
@@ -249,13 +270,14 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
   return (
     <Layout>
       <Helmet>
-        <title>Listado BienesFuncioario</title>
+        <title>Listado Bienes Funcionario</title>
       </Helmet>
       <MenuInventario />
-      <div className="table-responsive position-relative z-0 hide-scrollbar" >
+      <div className="table-responsive position-relative z-0 hide-scrollbar">
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
             <h3 className="form-title fw-semibold border-bottom p-1">Listado Bienes Funcionarios</h3>
+
             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-2">
               <Col xs={12} lg="auto" className="flex-grow-1">
                 <div className="position-relative">
@@ -277,7 +299,6 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
             </Row>
 
             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
-              {/* Tamaño de página */}
               <Col xs={12} lg="auto">
                 {listadoBienesFuncionarios.length > 10 && (
                   <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
@@ -306,97 +327,131 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({ listadoBienesFunciona
               </small>
             </div>
 
-            {/* Tabla*/}
             {loading ? (
-              <>
-                <SkeletonLoader rowCount={elementosPorPagina} />
-              </>
+              <SkeletonLoader rowCount={elementosPorPagina} />
             ) : (
               <>
                 {listadoBienesFuncionarios.length > 0 ? (
                   <>
                     <div className='table-responsive'>
-                      <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped "}`} >
-                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
+                      <table className={`table ${isDarkMode ? "table-dark" : "table-hover table-striped"}`}>
+                        <thead className={`sticky-top z-0 ${isDarkMode ? "table-dark" : "text-dark table-light"}`}>
                           <tr>
                             <th scope="col" className="text-nowrap text-center">N° Inventario</th>
                             <th scope="col" className="text-nowrap text-center">Rut Funcionario</th>
                             <th scope="col" className="text-nowrap text-center">Servicio/Dependencia</th>
-                            {/* <th scope="col" className="text-center" >
-                              Comprobante Pago
-                            </th>
-                            <th scope="col" className="text-center" >
-                              Autorización
-                            </th> */}
+                            <th scope="col" className="text-nowrap text-center">Comprobante de Pago</th>
+                            <th scope="col" className="text-nowrap text-center">Autorización</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {elementosActuales.map((Lista, index) => {
-                            const indexReal = indicePrimerElemento + index; // Índice real basado en la página
+                          {elementosActuales.map((item, index) => {
+                            const indexReal = indicePrimerElemento + index;
                             return (
                               <tr key={indexReal}>
-                                <td className="text-nowrap">{Lista.aF_CODIGO_GENERICO}</td>
-                                <td className="text-nowrap">{Lista.ruT_FUNCIONARIO}</td>
-                                <td className="text-nowrap">{Lista.seR_DEP}</td>
-                                {/* <td className="text-center">
-                                  <Button
-                                    size="sm"
-                                    variant={isDarkMode ? "outline-light" : "outline-primary"}
-                                    onClick={() => handleDescargarAdjunto(Lista)}
-                                  >
-                                    <Download className="h-4 w-4" aria-hidden="true" />
-                                  </Button>
-                                </td> */}
+                                <td className="text-nowrap text-center">{item.aF_CODIGO_GENERICO}</td>
+                                <td className="text-nowrap text-center">{item.ruT_FUNCIONARIO}</td>
+                                <td className="text-nowrap text-center">{item.seR_DEP}</td>
+                                <td className="text-nowrap text-center">
+                                  <div className="d-flex align-items-center justify-content-center gap-2">
+                                    <span className="text-truncate" style={{ maxWidth: "150px" }}>
+                                      {item.comprobantE_PAGO || "Sin archivo"}
+                                    </span>
+                                    {item.imageN_COMPROBANTE_PAGO && (
+                                      <Button
+                                        size="sm"
+                                        variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                        onClick={() => handleDescargarComprobanteDePago(item)}
+                                        title="Descargar comprobante"
+                                      >
+                                        <Download className="h-4 w-4" aria-hidden="true" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="text-nowrap text-center">
+                                  <div className="d-flex align-items-center justify-content-center gap-2">
+                                    <span className="text-truncate" style={{ maxWidth: "150px" }}>
+                                      {item.autorizacion || "Sin archivo"}
+                                    </span>
+                                    {item.imageN_AUTORIZACION && (
+                                      <Button
+                                        size="sm"
+                                        variant={isDarkMode ? "outline-light" : "outline-primary"}
+                                        onClick={() => handleDescargarAutorizacion(item)}
+                                        title="Descargar autorización"
+                                      >
+                                        <Download className="h-4 w-4" aria-hidden="true" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </td>
                               </tr>
                             );
                           })}
                         </tbody>
                       </table>
                     </div>
-                    {/* Paginador */}
-                    <div className="paginador-container position-relative z-0">
-                      <Pagination className="paginador-scroll">
-                        <Pagination.First
-                          onClick={() => paginar(1)}
-                          disabled={paginaActual === 1}
-                        />
-                        <Pagination.Prev
-                          onClick={() => paginar(paginaActual - 1)}
-                          disabled={paginaActual === 1}
-                        />
 
-                        {Array.from({ length: totalPaginas }, (_, i) => (
-                          <Pagination.Item
-                            key={i + 1}
-                            active={i + 1 === paginaActual}
-                            onClick={() => paginar(i + 1)}
-                          >
-                            {i + 1}
-                          </Pagination.Item>
-                        ))}
-                        <Pagination.Next
-                          onClick={() => paginar(paginaActual + 1)}
-                          disabled={paginaActual === totalPaginas}
-                        />
-                        <Pagination.Last
-                          onClick={() => paginar(totalPaginas)}
-                          disabled={paginaActual === totalPaginas}
-                        />
-                      </Pagination>
-                    </div>
+                    {totalPaginas > 1 && (
+                      <div className="paginador-container position-relative z-0">
+                        <Pagination className="paginador-scroll">
+                          <Pagination.First
+                            onClick={() => paginar(1)}
+                            disabled={paginaActual === 1}
+                          />
+                          <Pagination.Prev
+                            onClick={() => paginar(paginaActual - 1)}
+                            disabled={paginaActual === 1}
+                          />
+                          {Array.from({ length: Math.min(10, totalPaginas) }, (_, i) => {
+                            let pageNum;
+                            if (totalPaginas <= 10) {
+                              pageNum = i + 1;
+                            } else if (paginaActual <= 5) {
+                              pageNum = i + 1;
+                            } else if (paginaActual >= totalPaginas - 4) {
+                              pageNum = totalPaginas - 9 + i;
+                            } else {
+                              pageNum = paginaActual - 5 + i;
+                            }
+
+                            if (pageNum > 0 && pageNum <= totalPaginas) {
+                              return (
+                                <Pagination.Item
+                                  key={pageNum}
+                                  active={pageNum === paginaActual}
+                                  onClick={() => paginar(pageNum)}
+                                >
+                                  {pageNum}
+                                </Pagination.Item>
+                              );
+                            }
+                            return null;
+                          })}
+                          <Pagination.Next
+                            onClick={() => paginar(paginaActual + 1)}
+                            disabled={paginaActual === totalPaginas}
+                          />
+                          <Pagination.Last
+                            onClick={() => paginar(totalPaginas)}
+                            disabled={paginaActual === totalPaginas}
+                          />
+                        </Pagination>
+                      </div>
+                    )}
                   </>
                 ) : (
-                  <p className={`text-center  pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                  <p className={`text-center pt-1 pb-1 mb-1 rounded border-0 fs-09em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
                     No hay resultados para mostrar.
                   </p>
                 )}
               </>
             )}
-          </div >
+          </div>
         </div>
       </div>
-
-    </Layout >
+    </Layout>
   );
 };
 
