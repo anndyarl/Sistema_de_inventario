@@ -7,7 +7,7 @@ import MenuAltas from "../../Menus/MenuAltas";
 import Layout from "../../../containers/hocs/layout/Layout";
 import { Helmet } from "react-helmet-async";
 import { Objeto } from "../../Navegacion/Profile";
-import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, EyeSlash, FiletypePdf, InfoCircle, Paperclip, Pencil, PencilSquare, Search, Textarea, Trash } from "react-bootstrap-icons";
+import { ArrowClockwise, Check2Circle, CheckCircle, Eraser, Eye, EyeSlash, FiletypePdf, InfoCircle, Paperclip, Pencil, PencilSquare, Search, Trash } from "react-bootstrap-icons";
 import Swal from "sweetalert2";
 import Select from "react-select";
 import { pdf } from "@react-pdf/renderer";
@@ -132,7 +132,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
     const [modalVisadores, setModalSolicitarVisadores] = useState(false);
     const [modalVisadoresClasico, setModalSolicitarVisadoresClasico] = useState(false);
     const [modalModificar, setModalModificar] = useState(false);
-    const [modalModificarDetalles, setModalModificarDetalles] = useState(false);
+    // const [modalModificarDetalles, setModalModificarDetalles] = useState(false);
     const [paginaActualModificar, setPaginaActualModificar] = useState(1);
     const [PaginacionModificar, setPaginacionModificar] = useState({ nPaginacionModificar: 10 });
     const elementosPorPaginaModificar = PaginacionModificar.nPaginacionModificar;
@@ -1060,16 +1060,16 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
         paginarModificar(1); //muestra la primera pagina
         setLoadingModificar(false); //para la carga de Skeletor
     };
-    const handleModalModificarDetalles = async (altaS_CORR: number, idocumento: number) => {
-        setModalModificarDetalles(true); //Abre modal modificar
-        setLoadingModificar(true); //Carga skeletor tabla
-        setHabilitarModificar(true); //deshabilita boton modificar
-        setHabilitarVisado(true); //deshabilita boton visado
-        setEstadoRechazado(false); //quita mensaje de rechazo idocumento
-        await listaAltasModificarActions("", "", "", altaS_CORR, idocumento, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
-        paginarModificar(1); //muestra la primera pagina
-        setLoadingModificar(false); //para la carga de Skeletor
-    };
+    // const handleModalModificarDetalles = async (altaS_CORR: number, idocumento: number) => {
+    //     setModalModificarDetalles(true); //Abre modal modificar
+    //     setLoadingModificar(true); //Carga skeletor tabla
+    //     setHabilitarModificar(true); //deshabilita boton modificar
+    //     setHabilitarVisado(true); //deshabilita boton visado
+    //     setEstadoRechazado(false); //quita mensaje de rechazo idocumento
+    //     await listaAltasModificarActions("", "", "", altaS_CORR, idocumento, objeto.Roles[0].codigoEstablecimiento) // Consulta data y en useEffect actualiza la tabla nueva
+    //     paginarModificar(1); //muestra la primera pagina
+    //     setLoadingModificar(false); //para la carga de Skeletor
+    // };
 
     const handleCerrarModalModificar = () => {
         setModalModificar(false);
@@ -1952,15 +1952,19 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             disableSort: true,
             render: (_: any, item: ListaEstadoFirmas) => (
                 <>
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        className="fw-semibold mx-1"
-                        onClick={() => handleModalModificar(item.altaS_CORR, item.idocumento)}
-                    >
+                    {item.estado === 0 || item.estado === 1 && (
+                        <>
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                className="fw-semibold mx-1"
+                                onClick={() => handleModalModificar(item.altaS_CORR, item.idocumento)}
+                            >
 
-                        <PencilSquare className="flex-shrink-0 h-5 w-5" width={20} height={20} aria-hidden="true" />
-                    </Button>
+                                <PencilSquare className="flex-shrink-0 h-5 w-5" width={20} height={20} aria-hidden="true" />
+                            </Button>
+                        </>
+                    )}
                 </>
             )
         }

@@ -72,8 +72,8 @@ interface DatosCuentaProps extends CuentaProps {
   comboBien: BIEN[];
   comboDetalle: DETALLE[];
   listaEspecie: ListaEspecie[];
-  onServicioSeleccionado: (codigoServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
-  servicioSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
+  onServicioSeleccionado: (codigoServicio: number) => void; // Nueva prop para pasar el servicio seleccionado
+  servicioSeleccionado: number | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
   onBienSeleccionado: (codigoBien: string) => void; // Nueva prop para pasar el bien seleccionado
   bienSeleccionado: string | null | undefined; // Estado que se pasa como prop para mantener el valor seleccionado
   onDetalleSeleccionado: (codigoDetalle: number) => void; // Nueva prop para pasar el detalle seleccionado
@@ -184,7 +184,7 @@ const DatosCuenta: React.FC<DatosCuentaProps> = ({
     // Otras condiciones para diferentes campos del formulario
     // Condiciones para los campos específicos
     if (name === "servicio") {
-      onServicioSeleccionado(value);
+      onServicioSeleccionado(newValue as number);
       dispatch(setServicioActions(newValue as number));
       // Restablece dependencia al seleccionar un nuevo servicio
       setCuenta((prev) => ({ ...prev, dependencia: 0 })); // Limpia dependencia localmente     

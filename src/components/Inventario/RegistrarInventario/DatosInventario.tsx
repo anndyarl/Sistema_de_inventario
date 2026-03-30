@@ -205,7 +205,7 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
   const [error, setError] = useState<Partial<InventarioProps> & { general?: string; generalTabla?: string }>({});
   const [isMontoRecepcionEdited, setIsMontoRecepcionEdited] = useState(false); // Validaciones
   // const [loading, setLoading] = useState(false); // Estado para controlar la carga
-  const [modalMostrarResumen, setModalMostrarResumen] = useState(true);
+  const [modalMostrarResumen, setModalMostrarResumen] = useState(false);
   const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
   const [loadingExportar, setLoadingExportar] = useState(false);
   const [Paginacion, setPaginacion] = useState({ nPaginacion: 10 });
@@ -1143,17 +1143,17 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
           </Button>
 
         </div>
-        <div className={`d-flex flex-column flex-md-row align-items-center 
-                         bg-light border-start border-4 border-warning shadow-sm rounded p-2 gap-2 m-2`}>
-          <p className="fw-semibold small text-dark">
-            Para completar el registro de los bienes de funcionarios debe adjuntar la documentación correspondiente
-          </p>
-          <Button onClick={() => navigate("/Inventario/RegistroBienesFuncionarios")}
-            className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
-            Aquí
-          </Button>
-        </div>
-
+        {tipoInventario === "2" && (
+          <div className={`d-flex flex-column flex-md-row align-items-center bg-light border-start border-4 border-warning shadow-sm rounded p-2 gap-2 m-2`}>
+            <p className="fw-semibold small text-dark">
+              Para completar el registro de los bienes de funcionarios debe adjuntar la documentación correspondiente
+            </p>
+            <Button onClick={() => navigate("/Inventario/RegistroBienesFuncionarios")}
+              className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  px-4 py-2`}>
+              Aquí
+            </Button>
+          </div>
+        )}
         <Modal.Body id="pdf-content" className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
           <Row className="mb-4">
             <Col md={4}>

@@ -171,7 +171,7 @@ const Layout: React.FC<LayoutProps> = ({
       {/* Contenedor principal */}
       <div id="page-content-wrapper" className="d-flex flex-column w-100">
         {/* Navbar (móvil) */}
-        <div className={`d-flex justify-content-between align-items-center shadow-sm p-2 ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
+        <div className={`d-flex justify-content-between align-items-center shadow-sm p-2  ${isDarkMode ? "bg-color-dark" : "bg-light"} d-md-none`}>
           <button
             className="navbar-toggler border-0 bg-transparent p-2 position-custom-buttonSidebar"
             aria-label="button-mobile"

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { Plus, List, Printer, CheckCircleFill } from "react-bootstrap-icons";
+import { Printer, CheckCircleFill, PlusCircle } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 import { Signature } from "lucide-react";
@@ -25,7 +25,7 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Registrar Altas',
             description: 'Busque el activo o los activos que desee dar de Alta.',
             href: '/Altas/RegistrarAltas',
-            icon: Plus
+            icon: PlusCircle
         },
         // {
         //     name: 'Anular Altas',
@@ -53,7 +53,18 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
         },
 
     ];
+    const [isMobile, setIsMobile] = useState(false);
 
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 992); // 992px es el breakpoint de lg en Bootstrap
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
     const toggleSidebarMenu = () => setsidebarOpenSubMenu(!sidebarOpenSubMenu);
 
     return (
@@ -61,32 +72,31 @@ const MenuAltas: React.FC<Props> = ({ isDarkMode }) => {
             {/* Mobile Navbar y Desktop*/}
 
             <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
-                <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebarMenu}>
+                {/* <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebarMenu}>
                     <List key="main-toggle-icon" size={30} className={`${isDarkMode ? "text-white" : ""}`} />
-                </button>
-                <div className="container-fluid">
-                    <div className={`w-100 ${sidebarOpenSubMenu ? "d-block" : "d-none"} d-lg-block`}>
-                        <div className="navbar-nav mb-2 mb-lg-0 me-3">
-                            {navigation.map((item, index) => (
-                                <NavLink
-                                    key={index}
-                                    to={item.href}
-                                    onClick={toggleSidebarMenu}
-                                    className={({ isActive }) =>
-                                        classNames(
-                                            'btn py-2 px-3 m-1 text-decoration-none border-0 fw-semibold ',
-                                            isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
-                                            isDarkMode ? 'text-light' : 'text-secondary'
-                                        )
-                                    }
-                                >
-                                    <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                                    {item.name}
-                                </NavLink>
-                            ))}
-                        </div>
-
-                    </div>
+                </button> */}
+                <div className="d-flex justify-content-lg-start container-fluid">
+                    {/* <div className={`w-100 ${sidebarOpenSubMenu ? "d-block" : "d-none"} d-lg-block`}> */}
+                    {/* <div className="navbar-nav mb-2 mb-lg-0 me-3"> */}
+                    {navigation.map((item, index) => (
+                        <NavLink
+                            key={index}
+                            to={item.href}
+                            onClick={toggleSidebarMenu}
+                            className={({ isActive }) =>
+                                classNames(
+                                    'btn text-decoration-none border-0 fw-semibold  ',
+                                    isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
+                                    isDarkMode ? 'text-light' : 'text-secondary'
+                                )
+                            }
+                        >
+                            <item.icon className="me-2 flex-shrink-0 h-5 w-5 " aria-hidden="true" />
+                            {isMobile ? '' : item.name}
+                        </NavLink>
+                    ))}
+                    {/* </div> */}
+                    {/* </div> */}
                 </div>
             </nav>
         </>

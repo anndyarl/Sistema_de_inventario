@@ -45,7 +45,7 @@ interface FormInventarioProps {
   comboServicioActions: (establ_corr: number) => void;
   comboCuenta: CUENTA[];
   comboDependencia: DEPENDENCIA[];
-  comboDependenciaActions: (servicioSeleccionado: string) => void;
+  comboDependenciaActions: (servicioSeleccionado: number) => void;
 
   comboBien: BIEN[];
   comboDetalle: DETALLE[];
@@ -87,7 +87,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
 }) => {
   const [step, setStep] = useState<number>(0);
   // Estado para gestionar el servicio seleccionado
-  const [servicioSeleccionado, setServicioSeleccionado] = useState<string>();
+  const [servicioSeleccionado, setServicioSeleccionado] = useState<number>();
   const [bienSeleccionado, setBienSeleccionado] = useState<string>();
   const [detalleSeleccionado, setDetalleSeleccionado] = useState<number>();
   const [especieSeleccionado, setEspecieSeleccionado] = useState<string>("");
@@ -118,7 +118,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
     comboProveedorActions
   ]);
   // Función para manejar la selección de dependencia en base al servicio seleccionado del componente `DatosCuenta`
-  const handleServicioSeleccionado = (codigoServicio: string) => {
+  const handleServicioSeleccionado = (codigoServicio: number) => {
     setServicioSeleccionado(codigoServicio);
     comboDependenciaActions(codigoServicio);
   };

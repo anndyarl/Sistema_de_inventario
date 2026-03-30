@@ -30,7 +30,7 @@ interface FormInventarioProps {
   comboServicio: SERVICIO[];
   comboServicioActions: (establ_corr: number) => void;
   comboDependencia: DEPENDENCIA[];
-  comboDependenciaActions: (serCorr: string) => void;
+  comboDependenciaActions: (serCorr: number) => void;
   comboBien: BIEN[];
   comboDetalleActions: (bienSeleccionado: string) => void;
   comboSerDepActions: (establ_corr: number) => void;
@@ -72,7 +72,7 @@ const Inventario: React.FC<FormInventarioProps> = ({
       if (comboOrigen.length === 0) comboOrigenPresupuestosActions();
       if (comboModalidad.length === 0) comboModalidadesActions();
       if (comboServicio.length === 0) comboServicioActions(objeto.Roles[0].codigoEstablecimiento);
-      if (comboDependencia.length === 0) comboDependenciaActions("");
+      if (comboDependencia.length === 0) comboDependenciaActions(0);
       if (comboBien.length === 0) comboDetalleActions("0");
       if (comboProveedor.length === 0) comboProveedorActions();
     }

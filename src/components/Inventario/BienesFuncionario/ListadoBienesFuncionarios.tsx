@@ -353,9 +353,9 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({
                                 <td className="text-nowrap text-center">{item.ruT_FUNCIONARIO}</td>
                                 <td className="text-nowrap text-center">{item.seR_DEP}</td>
                                 <td className="text-nowrap text-center">
-                                  <div className="d-flex align-items-center justify-content-center gap-2">
+                                  <div className="d-flex align-items-center justify-content-end gap-2">
                                     <span className="text-truncate" style={{ maxWidth: "150px" }}>
-                                      {item.comprobantE_PAGO || "Sin archivo"}
+                                      {item.comprobantE_PAGO == "0" ? "Sin archivo" : item.comprobantE_PAGO}
                                     </span>
                                     {item.imageN_COMPROBANTE_PAGO && (
                                       <Button
@@ -370,9 +370,9 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({
                                   </div>
                                 </td>
                                 <td className="text-nowrap text-center">
-                                  <div className="d-flex align-items-center justify-content-center gap-2">
+                                  <div className="d-flex align-items-center justify-content-end gap-2">
                                     <span className="text-truncate" style={{ maxWidth: "150px" }}>
-                                      {item.autorizacion || "Sin archivo"}
+                                      {item.autorizacion === "0" ? "Sin archivo" : item.autorizacion}
                                     </span>
                                     {item.imageN_AUTORIZACION && (
                                       <Button

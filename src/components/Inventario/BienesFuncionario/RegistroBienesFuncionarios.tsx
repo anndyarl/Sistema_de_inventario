@@ -53,7 +53,6 @@ interface FormFuncionarioProps extends FuncionarioProps {
     afCodigoGenerico: string
   ) => Promise<boolean>;
   listadoBienesFuncionariosActions: (establ_corr: number) => Promise<boolean>;
-  maxBienesFuncionariosActions: (establ_corr: number) => Promise<boolean>;
   buscarBienesDeFuncionariosActions: (establ_corr: number) => Promise<InventarioCompleto[] | null>;
   token: string | null;
   isDarkMode: boolean;
@@ -395,13 +394,6 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
           });
           setLoading(false);
         }
-      } else {
-        setError({
-          ...error,
-          comprobanteDePago: selectedFileComprobante ? "" : "El comprobante de pago es obligatorio.",
-          autorizacion: selectedFileAutorizacion ? "" : "La autorización es obligatoria.",
-        });
-        setLoading(false);
       }
     }
   };
@@ -476,7 +468,7 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
         servicio: seR_CORR,
         dependencia: deP_CORR
       }));
-      console.log(Funcionario)
+      // console.log(Funcionario)
       setMostrarModalInventarios(false);
     }
   };

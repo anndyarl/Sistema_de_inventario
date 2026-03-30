@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { NavLink } from "react-router-dom";
 import { List, Table, ArrowLeftRight } from "react-bootstrap-icons";
@@ -33,6 +33,18 @@ const MenuTraslados: React.FC<Props> = ({ isDarkMode }) => {
             icon: Table
         },
     ];
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 992); // 992px es el breakpoint de lg en Bootstrap
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -41,32 +53,32 @@ const MenuTraslados: React.FC<Props> = ({ isDarkMode }) => {
             {/* Mobile Navbar y Desktop*/}
 
             <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
-                <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
+                {/* <button className="navbar-toggler m-1 border-0" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
                     <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />
-                </button>
-                <div className="container-fluid">
-                    <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}>
-                        <div className="navbar-nav mb-2 mb-lg-0 me-3">
-                            {navigation.map((item, index) => (
-                                <NavLink
-                                    key={index}
-                                    to={item.href}
-                                    onClick={toggleSidebar}
-                                    className={({ isActive }) =>
-                                        classNames(
-                                            'btn py-2 px-3 m-1 text-decoration-none border-0 fw-semibold ',
-                                            isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
-                                            isDarkMode ? 'text-light' : 'text-secondary'
-                                        )
-                                    }
-                                >
-                                    <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
-                                    {item.name}
-                                </NavLink>
-                            ))}
-                        </div>
+                </button> */}
+                <div className="d-flex justify-content-start container-fluid">
+                    {/* <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}> */}
+                    {/* <div className="navbar-nav mb-2 mb-lg-0 me-3"> */}
+                    {navigation.map((item, index) => (
+                        <NavLink
+                            key={index}
+                            to={item.href}
+                            onClick={toggleSidebar}
+                            className={({ isActive }) =>
+                                classNames(
+                                    'btn text-decoration-none border-0 fw-semibold  ',
+                                    isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
+                                    isDarkMode ? 'text-light' : 'text-secondary'
+                                )
+                            }
+                        >
+                            <item.icon className="me-3 flex-shrink-0 h-5 w-5" aria-hidden="true" />
+                            {isMobile ? '' : item.name}
+                        </NavLink>
+                    ))}
+                    {/* </div> */}
 
-                    </div>
+                    {/* </div> */}
                 </div>
             </nav>
         </>

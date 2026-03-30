@@ -103,7 +103,7 @@ interface DatosAltas {
     comboSerDepActions: (establ_corr: number) => void;//En buscador   
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboServicioActions: (establ_corr: number) => void;
-    comboDependenciaActions: (comboServicio: string) => void; // Nueva prop para pasar el servicio seleccionado
+    comboDependenciaActions: (comboServicio: number) => void; // Nueva prop para pasar el servicio seleccionado
     listaFolioServicioDependencia: ListaFolioServicioDependencia[];
     comboSerDep: SERVICIO[]; //verificar
     comboDependenciaDestino: DEPENDENCIA[]; //verificar
@@ -257,7 +257,7 @@ const FolioPorServicioDependencia: React.FC<DatosAltas> = ({ obtenerfirmasAltasA
             comboDependenciaDestinoActions(value);
         }
         if (name === "servicio") {
-            comboDependenciaActions(value);
+            comboDependenciaActions(Number(value));
         }
     };
 

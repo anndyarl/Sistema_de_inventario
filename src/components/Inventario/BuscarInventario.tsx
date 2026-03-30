@@ -89,7 +89,7 @@ interface ListaInventarioProps {
   comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
   comboServicioActions: (establ_corr: number) => void;
-  comboDependenciaActions: (serCorr: string) => void;
+  comboDependenciaActions: (serCorr: number) => void;
   comboEspeciesBienActions: (EST: number, IDBIEN: number) => Promise<boolean>; //Carga Combo Especie
   comboEspecies: ListaEspecie[],
   isDarkMode: boolean;
@@ -206,7 +206,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
     }));
 
     if (name === "seR_CORR") {
-      comboDependenciaActions(value);
+      comboDependenciaActions(newValue as number);
     }
   };
 
