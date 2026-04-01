@@ -867,11 +867,13 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
                     <div className={`border p-2 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
-                        <h3 className="form-title fw-semibold border-bottom p-1">Registrar Traspasos</h3>
+                        <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+                            Registrar Traspasos
+                        </h4>
                         {/* Fila 1 */}
                         {/* <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}> */}
                         <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
-                            <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
+                            <h5 className={` ${isDarkMode ? "text-light" : "text-dark"}`}>Parámetro de Búsqueda</h5>
                             {isExpanded.fila1 ? (
                                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
                             ) : (

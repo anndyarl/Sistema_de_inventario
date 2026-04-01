@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { NavLink } from "react-router-dom";
-import { PencilSquare, Search, SlashCircle, X, PersonPlus, CardList, PlusCircle } from "react-bootstrap-icons";
+import { PencilSquare, Search, SlashCircle, PersonPlus, CardList, PlusCircle } from "react-bootstrap-icons";
 import { RootState } from "../../store";
 import { connect } from "react-redux";
 const classNames = (...classes: (string | boolean | undefined)[]): string => {
@@ -33,16 +33,16 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
             icon: PencilSquare
         },
         {
-            name: 'Anular Inventario',
-            description: 'Búsquelo previamente por fecha de inicio y término.',
-            href: '/Inventario/AnularInventario',
-            icon: SlashCircle
-        },
-        {
             name: 'Buscar Inventario',
             description: 'Filtre por distintos criterios para encontrar de manera fácil sus bienes',
             href: '/Inventario/BuscarInventario',
             icon: Search
+        },
+        {
+            name: 'Anular Inventario',
+            description: 'Búsquelo previamente por fecha de inicio y término.',
+            href: '/Inventario/AnularInventario',
+            icon: SlashCircle
         },
         {
             name: 'Bienes de Funcionarios',
@@ -56,6 +56,7 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
             href: '/Inventario/ListadoBienesFuncionarios',
             icon: CardList
         },
+
         // {
         //     name: 'Carga Masiva',
         //     description: 'Adjunte el documento correspondiente para la carga masiva del inventario.',
@@ -79,14 +80,15 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
 
     const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
+
     return (
         <>
             {/* Mobile Navbar y Desktop*/}
-            <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0">
+            <nav className="navbar navbar-expand-lg navbar-light justify-content-end border shadow-sm rounded-3 border-0 p-0">
                 {/* <button className="navbar-toggler m-1 border-top" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
                     {sidebarOpen ? <X size={30} className={`${isDarkMode ? "text-white" : ""}`} /> : <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />}
                 </button> */}
-                <div className="d-flex justify-content-lg-start container-fluid">
+                <div className="d-flex justify-content-start justify-content-lg-start  container-fluid p-0">
                     {/* <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}> */}
                     {/* <div className="navbar-nav mb-2 mb-lg-0 "> */}
                     {navigation.map((item, index) => (
@@ -96,14 +98,15 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
                             onClick={toggleSidebar}
                             className={({ isActive }) =>
                                 classNames(
-                                    'btn text-decoration-none border-0 fw-semibold  ',
-                                    isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
-                                    isDarkMode ? 'text-light' : 'text-secondary'
+                                    'btn text-decoration-none border-0 fw-semibold',
+                                    isActive
+                                        ? 'border-bottom rounded-0 border-2 border-primary text-primary'
+                                        : (isDarkMode ? 'text-light' : 'text-secondary')
                                 )
                             }
                         >
-                            <item.icon className="me-2 flex-shrink-0 h-5 w-5 " aria-hidden="true" />
-                            {isMobile ? '' : item.name}
+                            <item.icon className="flex-shrink-0 h-5 w-5" fontSize={20} aria-hidden="true" />
+                            {isMobile ? <p className="fs-06rem">{item.name.split(' ')[0]}</p> : <span className="ms-2">{item.name}</span>}
                         </NavLink>
                     ))}
                     {/* </div> */}

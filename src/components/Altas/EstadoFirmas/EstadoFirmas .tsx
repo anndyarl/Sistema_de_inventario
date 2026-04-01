@@ -1979,8 +1979,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
                     <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                        <h3 className="form-title fw-semibold border-bottom p-1">Estado Firmas</h3>
-                        <Row className="border rounded p-2 m-2">
+                        <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+                            Estado Firmas
+                        </h4>
+                        <Row className="border rounded p-1 m-2">
                             <Col lg={2} md={4}>
                                 <div className="mb-2">
                                     <div className="mb-2">
@@ -4135,7 +4137,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                             </table>
                         </div>
                     ) : (
-                        <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+                        <p className={`text-center m-2 p-2 rounded fs-07rem  fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
                             Aplique un filtro para visualizar los detalles de cada especie aquí.
                         </p>
 

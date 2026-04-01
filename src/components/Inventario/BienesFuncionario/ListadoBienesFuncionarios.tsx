@@ -276,8 +276,9 @@ const ListadoBienesFuncionarios: React.FC<DatosBajas> = ({
       <div className="table-responsive position-relative z-0 hide-scrollbar">
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">Listado Bienes Funcionarios</h3>
-
+            <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+              Listado Bienes Funcionarios
+            </h4>
             <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-2">
               <Col xs={12} lg="auto" className="flex-grow-1">
                 <div className="position-relative">

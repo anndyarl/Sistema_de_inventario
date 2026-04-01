@@ -375,8 +375,10 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
         <div style={{ maxHeight: "80vh" }}>
           <form>
             <div className={`border border-botom p-2 rounded  ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-              <h3 className="form-title fw-semibold border-bottom p-1">Registrar Altas</h3>
-              <Row className="border rounded p-2 m-2">
+              <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+                Registrar Altas
+              </h4>
+              <Row className="border rounded p-1 m-2">
                 <Col md={3} sm={12}>
                   <div className="mb-2 ">
                     <div className="flex-grow-1 mb-2">
@@ -797,7 +799,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
               </table>
             </div>
           ) : (
-            <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+            <p className={`text-center m-2 p-2 rounded fs-07rem  fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
               No Hay Registros.
             </p>
           )}

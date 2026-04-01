@@ -32,6 +32,31 @@ body::-webkit-scrollbar {
   }
  
 
+/* .fs-09em {
+    font-size: 1rem;
+    text-align: center;
+} */
+.fs-08rem  {
+    font-size: 0.8rem;
+    text-align: center;
+  }
+.fs-07rem  {
+    font-size: 0.7rem;
+    text-align: center;
+  }
+.fs-06rem {
+    font-size: 0.6rem;
+    text-align: center;
+  } 
+.fs-05rem {
+    font-size: 0.5rem;
+    text-align: center;
+  } 
+.fs-04rem {
+    font-size: 0.4rem;
+    text-align: center;
+  } 
+
  /*Posicionamiento de imagenes decorativas*/
 .position-values-1{
   position:absolute;

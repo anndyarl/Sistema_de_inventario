@@ -483,9 +483,9 @@ const RegistroBienesFuncionarios: React.FC<FormFuncionarioProps> = ({
         <div style={{ maxHeight: "80vh" }}>
 
           <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-            <h3 className="form-title fw-semibold border-bottom p-1">
+            <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
               Registro Bienes de Funcionarios
-            </h3>
+            </h4>
             <div className={`d-flex flex-column flex-md-row align-items-center 
                  bg-light border-start border-4 border-warning shadow-sm rounded p-2 gap-2 mb-2`}>
               <p className="fw-semibold  small text-dark">

@@ -71,7 +71,7 @@ const Versionamiento: React.FC<Props> = ({ listaVersionamientoActions, isDarkMod
             {/* Tabla*/}
             <div className='table-responsive'>
                 <div style={{ maxHeight: "50vh" }}>
-                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped fs-05em text-start"}`} >
+                    <table className={`table  ${isDarkMode ? "table-dark" : "table-hover table-striped fs-07rem  text-start"}`} >
                         <thead className={`sticky-top ${isDarkMode ? "table-dark" : "text-dark table-light "}`}>
                             <tr>
                                 <th scope="col" className="text-nowrap text-center">Versión</th>

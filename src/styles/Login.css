@@ -1,4 +1,4 @@
-/* Estilos Generales */
+Estilos Generales
 body#LoginForm {
     background-repeat: no-repeat;
     background-position: center;
@@ -95,15 +95,6 @@ body#LoginForm {
     text-decoration: none;
 }
 
-.fs-09em {
-    font-size: 1rem;
-    text-align: center;
-}
-
-.fs-05em {
-    font-size: 0.7rem;
-    text-align: center;
-}
 .w-39 {
     width: 39% !important;
 }

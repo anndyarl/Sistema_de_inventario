@@ -749,7 +749,7 @@ const LevantamientoFisico: React.FC<TrasladosProps> = ({
                             ) : (
                                 <div className={`border p-1 rounded ${isDarkMode ? "darkModePrincipal border-secondary" : ""}`}>
                                     <p className="fw-semibold border-bottom fs-4">{dependencia ? dependencia.descripcion : "—"}</p>
-                                    <p className="mb-4 fs-05em text-start">(Dependencia del levantamiento) </p>
+                                    <p className="mb-4 fs-07rem  text-start">(Dependencia del levantamiento) </p>
                                     <Row className="p-1 row justify-content-center ">
                                         <Col xs={12} lg="auto">
                                             {elementosActuales1.length > 10 && (

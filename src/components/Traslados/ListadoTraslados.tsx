@@ -453,8 +453,10 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
       <div className="table-responsive position-relative z-0 hide-scrollbar" >
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traslados</h3>
-            <Row className="border rounded p-2 m-2">
+            <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+              Listado de Traslados
+            </h4>
+            <Row className="border rounded p-1 m-2">
               <Col md={3} sm={12}>
                 <div className="mb-2 ">
                   <div className="flex-grow-1 mb-2">
@@ -771,7 +773,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                         <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
                         Servicio/Dependencia Origen</label>
                       <div className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}>
-                        <p className="fs-05em text-start"> {elementoSeleccionado[0]?.seR_NOMBRE_ORIGEN + " " + elementoSeleccionado[0]?.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
+                        <p className="fs-07rem  text-start"> {elementoSeleccionado[0]?.seR_NOMBRE_ORIGEN + " " + elementoSeleccionado[0]?.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
                       </div>
                     </div>
                   </Col>
@@ -784,7 +786,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                       <div
                         className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                       >
-                        <p className="fs-05em text-start">  {elementoSeleccionado[0]?.seR_NOMBRE_DESTINO + " " + elementoSeleccionado[0]?.deP_NOMBRE_DESTINO || "Sin Información"}</p>
+                        <p className="fs-07rem  text-start">  {elementoSeleccionado[0]?.seR_NOMBRE_DESTINO + " " + elementoSeleccionado[0]?.deP_NOMBRE_DESTINO || "Sin Información"}</p>
                       </div>
                     </div>
                   </Col>

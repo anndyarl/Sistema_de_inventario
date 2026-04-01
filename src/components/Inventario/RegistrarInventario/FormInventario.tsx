@@ -262,6 +262,7 @@ const FormInventario: React.FC<FormInventarioProps> = ({
 
             />
           )}
+
         </div>
       </div>
 

@@ -710,9 +710,9 @@ const DatosInventario: React.FC<DatosInventarioProps> = ({
     <>
       <form onSubmit={handleSubmit}>
         <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-          <h3 className="form-title fw-semibold border-bottom p-1">
+          <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
             Registrar Inventario
-          </h3>
+          </h4>
           {objeto.Roles[0].codigoEstablecimiento === 1 && (
             <div className="mb-4">
               <label

@@ -198,7 +198,7 @@ const Layout: React.FC<LayoutProps> = ({
 
         {/* Contenido principal */}
         <div className="flex-grow-1">
-          <Container fluid>
+          <Container fluid className="p-1">
             {children}
           </Container>
         </div>

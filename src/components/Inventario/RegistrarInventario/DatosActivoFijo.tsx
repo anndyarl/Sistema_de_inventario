@@ -826,9 +826,9 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
   return (
     <>
       <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-        <h3 className="form-title fw-semibold border-bottom">
-          Detalles activo
-        </h3>
+        <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+          Detalles del Activo
+        </h4>
         <Row className="g-2">
           <Col lg={2} sm={2}  >
             {/*Indicadores */}
@@ -940,7 +940,7 @@ const DatosActivoFijo: React.FC<DatosActivoFijoProps> = ({
         {/* Tabla */}
         {datos.length === 0 ? (
           <div className="d-flex justify-content-center">
-            <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+            <p className={`text-center m-2 px-5 pt-1 pb-1 rounded border-0 fs-07rem  fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
               Haz clic en (Agregar +) para listar aquí los detalles de cada activo.
             </p>
           </div>

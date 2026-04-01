@@ -198,8 +198,10 @@ const ConsultaInventarioEspecies: React.FC<DatosBajas> = ({ listaConsultaInventa
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
                     <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                        <h3 className="form-title fw-semibold border-bottom p-1">Consulta Inventario para Especie</h3>
-                        <Row className="border rounded p-2 m-2">
+                        <h5 className="text-lg-start text-center fw-semibold border-bottom p-1 ">
+                            Consulta Inventario para Especies
+                        </h5>
+                        <Row className="border rounded p-1 m-2">
                             <Col lg={2} md={4}>
                                 <div className="mb-1">
                                     <label htmlFor="af_codigo_generico" className="fw-semibold">Nº Inventario</label>

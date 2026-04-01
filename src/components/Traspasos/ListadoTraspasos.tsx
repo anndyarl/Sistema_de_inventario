@@ -680,14 +680,16 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       <div className="table-responsive position-relative z-0 hide-scrollbar" >
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
-            <div className="d-flex justify-content-between">
-              <h3 className="form-title fw-semibold border-bottom p-1">Listado de Traspasos</h3>
-              <div className="d-flex align-items-center text-warning">
-                <p className="fw-bold bg-success text-white px-2 small rounded-2 ">Actualizar Enviados y Recibidos</p>
+            <div className="d-lg-flex d-flex-none justify-content-between">
+              <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+                Listado de Traspasos
+              </h4>
+              <div className="d-flex align-items-center justify-content-end text-warning">
+                <p className="fw-bold bg-success text-white px-2 fs-08rem rounded-2">Actualizar Enviados y Recibidos</p>
                 <button
                   type="button"
                   onClick={handleActualizar}
-                  className="btn btn-success d-flex align-items-center justify-content-center m-1 p-2 rounded-circle"
+                  className="btn btn-success d-flex align-items-center justify-content-center m-1 p-1 rounded-circle"
                   title="Actualizar"
                   aria-label="Actualizar información"
                 >
@@ -1445,7 +1447,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">   {fila.establecimientO_ORIGEN || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">   {fila.establecimientO_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
@@ -1454,7 +1456,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
 
                           >
-                            <p className="fs-05em text-start"> {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start"> {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
@@ -1468,7 +1470,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
@@ -1476,7 +1478,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
@@ -1735,7 +1737,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
@@ -1743,7 +1745,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
@@ -1756,7 +1758,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">  {fila.establecimientO_ORIGEN || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">  {fila.establecimientO_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                         <div>
@@ -1764,7 +1766,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           <div
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
-                            <p className="fs-05em text-start">  {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
+                            <p className="fs-07rem  text-start">  {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>

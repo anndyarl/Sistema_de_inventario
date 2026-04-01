@@ -556,8 +556,10 @@ const BienesExcluidos: React.FC<DatosBajas> = ({ obtenerListaExcluidosActions, q
         <div style={{ maxHeight: "80vh" }}>
           <form>
             <div className="border-bottom shadow-sm p-2 rounded">
-              <h3 className="form-title fw-semibold border-bottom p-1">Bodega de Excluidos</h3>
-              <Row className="border rounded p-2 m-2">
+              <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+                Bodega de Excluidos
+              </h4>
+              <Row className="border rounded p-1 m-2">
                 <Col lg={3} md={4}>
                   <div className="mb-2">
                     <div className="mb-1">

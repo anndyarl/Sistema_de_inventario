@@ -364,8 +364,10 @@ const Proveedores: React.FC<GeneralProps> = ({ obtenerMaxServicioActions, listad
             <MenuMantenedores />
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
-                    <div className="border-bottom shadow-sm p-4 rounded">
-                        <h3 className="form-title fw-semibold border-bottom p-1">Listado de Proveedores</h3>
+                    <div className="border-bottom shadow-sm p-2 rounded">
+                        <h4 className="text-lg-start text-center fw-semibold border-bottom p-1 ">
+                            Listado de Proveedores
+                        </h4>
                         <Row>
                             <Col xs={12} lg="auto" className="flex-grow-1 mb-lg-3 mb-1">
 

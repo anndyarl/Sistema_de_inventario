@@ -1069,13 +1069,13 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
         <div style={{ maxHeight: "80vh" }}>
           <form onSubmit={handleSubmit}>
             <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-              <h3 className="form-title fw-semibold border-bottom p-1">
+              <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
                 Modificar Inventario
-              </h3>
+              </h4>
               <div className={`d-flex justify-content-between`}>
-                <h5 className="fw-semibold">PARÁMETROS DE BÚSQUEDA</h5>
+                <h5 className={` ${isDarkMode ? "text-light" : "text-dark"}`}>Parámetro de Búsqueda</h5>
               </div>
-              <Row className="p-1">
+              <Row className="p-3">
                 <Col md={3}>
                   {/* N° Inventario */}
                   <div className="mb-1">
@@ -1107,6 +1107,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                           variant="primary"
                           className={`btn ${isDarkMode ? "btn-secondary" : "btn-primary"}  ms-1`}
                         >
+
                           {loadingBuscarInventario ? (
                             <>
                               <Spinner
@@ -1118,6 +1119,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                               />
                             </>
                           ) : (
+
                             <Search
                               className={classNames("flex-shrink-0", "h-5 w-5")}
                               aria-hidden="true"
@@ -1199,7 +1201,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
                 </Col> */}
               </Row>
               <div className={`border-bottom mt-4 mb-2`}>
-                <h5 className="fw-semibold">RESULTADO DE LA BUSQUEDA</h5>
+                <h5 className={` ${isDarkMode ? "text-light" : "text-dark"}`}>Resultado de la Búsqueda</h5>
               </div>
               <Row>
                 <Col md={3}>
@@ -2075,7 +2077,7 @@ const ModificarInventario: React.FC<InventarioCompletoProps> = ({
               </table>
             </div>
           ) : (
-            <p className={`text-center m-2 p-2 rounded fs-05em fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
+            <p className={`text-center m-2 p-2 rounded fs-07rem  fw-semibold ${isDarkMode ? 'bg-dark text-light border border-secondary' : 'bg-light text-muted border'}`}>
               Aplique un filtro para visualizar los detalles de cada especie aquí.
             </p>
 

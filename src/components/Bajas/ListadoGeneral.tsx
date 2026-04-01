@@ -541,8 +541,10 @@ const ListadoGeneral: React.FC<DatosBajas> = ({ listaAltasdesdeBajasActions, reg
       <div className="table-responsive position-relative z-0 hide-scrollbar" >
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">Listado General</h3>
-            <Row className="border rounded p-2 m-2">
+            <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
+              Listado General
+            </h4>
+            <Row className="border rounded p-1 m-2">
               <Col lg={2} md={5}>
                 <div className="mb-2">
                   <label htmlFor="altaS_CORR" className="form-label fw-semibold small">Nº Alta</label>

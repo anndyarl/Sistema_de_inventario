@@ -305,10 +305,11 @@ const BienesRematados: React.FC<DatosBajas> = ({
       <div className="table-responsive position-relative z-0 hide-scrollbar">
         <div style={{ maxHeight: "80vh" }}>
           <div className="border-bottom shadow-sm p-2 rounded">
-            <h3 className="form-title fw-semibold border-bottom p-1">Bienes Rematados</h3>
-
+            <h4 className="text-lg-start text-center fw-semibold border-bottom p-1 ">
+              Bienes Rematados
+            </h4>
             {/* Filtros */}
-            <Row className="border rounded p-2 m-2">
+            <Row className="border rounded p-1 m-2">
               <Col lg={3} md={4}>
                 <div className="mb-2">
                   <div className="mb-1">

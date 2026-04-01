@@ -534,12 +534,11 @@ const AnularInventario: React.FC<ListaInventarioProps> = ({ listaInventarioAnula
             <MenuInventario />
             <div className="table-responsive position-relative z-0 hide-scrollbar" >
                 <div style={{ maxHeight: "80vh" }}>
-
-                    <div className={`border border-botom p-4 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
-                        <h3 className="form-title fw-semibold border-bottom p-1">
+                    <div className={`border border-botom p-2 rounded ${isDarkMode ? "darkModePrincipal text-light border-secondary" : ""}`}>
+                        <h4 className="text-lg-start text-center fw-semibold border-bottom p-1">
                             Anular Inventario
-                        </h3>
-                        <Row className="border rounded p-2 m-2">
+                        </h4>
+                        <Row className="border rounded p-1 m-2">
                             <Col lg={3} md={4}>
                                 <div className="mb-2">
                                     <div className="flex-grow-1 mb-2">
