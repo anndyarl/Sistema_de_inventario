@@ -125,7 +125,7 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         filasSeleccionadas.includes(index.toString())
     );
     const location = useLocation();
-    const afaltaS_CORR = location.state?.prop_altaS_CORR ?? 0;
+    const afaltaS_CORR = location.state?.prop_altaS_CORR ?? 0; // aqui recibo el numero del alta desde vista RegistrarAltas
     const [loadingEnvio, setLoadingEnvio] = useState(false);
     // type SeguimientoFirmasState = {
     //     altas: number;
@@ -273,7 +273,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
 
     }, [listaAltasRegistradasActions, token, listaAltasRegistradas.length, isDarkMode, Unidad, listaEstadoFirmas.length, anexos.length]);
 
-
     const validate = () => {
         let tempErrors: Partial<any> & {} = {};
 
@@ -298,7 +297,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
         setError(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
-
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -808,8 +806,6 @@ const FirmarAltas: React.FC<DatosBajas> = ({ listaAltasRegistradasActions, lista
             return;
         }
         resultado = await listaAltasRegistradasActions(Inventario.fDesde, Inventario.fHasta, Inventario.af_codigo_generico, Inventario.altaS_CORR, 0, objeto.Roles[0].codigoEstablecimiento);
-
-
 
         if (!resultado) {
             Swal.fire({

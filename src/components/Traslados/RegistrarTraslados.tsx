@@ -12,7 +12,7 @@ import { Helmet } from "react-helmet-async";
 import MenuTraslados from "../Menus/MenuTraslados";
 import Select from "react-select";
 import SkeletonLoader from "../Utils/SkeletonLoader";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { BlobProvider } from "@react-pdf/renderer";
 import DocumentoPDFResumenTraslados from "./DocumentoPDFResumenTraslados";
 import Draggable from "react-draggable";
@@ -150,6 +150,8 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   });
   const elementosPorPagina2 = Paginacion2.nPaginacion2;
 
+  const location = useLocation();
+  const propDistribucion = location.state?.prop_distribucion ?? [];
 
   const [Buscar, setBuscar] = useState({
     aF_CODIGO_GENERICO: "",
@@ -215,6 +217,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       if (comboSerDep.length === 0) comboSerDepActions(objeto.Roles[0].codigoEstablecimiento);
       if (comboEspecies.length === 0) comboEspeciesBienActions(objeto.Roles[0].codigoEstablecimiento, 0);
     }
+
+    // se recibe los bienes de bodega de excluidos para agregarlos directamente a trasladar.
+    if (propDistribucion.length > 0) {
+      handleAgregarDesdeBodegaExcluidos();
+    }
+
   }, [comboTrasladoServicioActions,
     comboTrasladoEspecieActions,
     comboSerDep,
@@ -350,9 +358,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       comboDependenciaDestinoActions(value);
     }
 
-    if (name === "deP_CORR_ORIGEN") {
-      console.log(value)
-    }
+    // if (name === "deP_CORR_ORIGEN") {
+    //   console.log(value)
+    // }
 
   };
 
@@ -494,6 +502,35 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
     );
   };
 
+  const handleAgregarDesdeBodegaExcluidos = async () => {
+    isExpanded.fila1 = false;
+    setActivosFijos([]);
+    Swal.fire({
+      icon: "success",
+      title: "Artículos Agregados",
+      html: `Articulos agregados con exito!`,
+      confirmButtonText: "Cerrar",
+      background: `${isDarkMode ? "#1e1e1e" : "#ffffff"}`,
+      color: `${isDarkMode ? "#ffffff" : "#000000"}`,
+      confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
+      width: '600px',
+      customClass: {
+        popup: "custom-border",
+      }
+    });
+    const activosSeleccionados: any[] = propDistribucion.map((item: any): any => {
+      return {
+        aF_CLAVE: item.aF_CLAVE,
+        aF_CODIGO_GENERICO: item.aF_CODIGO_GENERICO,
+        deT_OBS: item.observaciones,
+        esP_NOMBRE: item.especie
+      };
+    });
+
+    setActivosFijos((prev) => [...prev, ...activosSeleccionados]);
+    paginar1(1);
+  }
+
   const handleAgregarSeleccionados = async () => {
     const selectedIndices = filasSeleccionadas.map(Number);
     const activosSeleccionados = selectedIndices.map((index) => {
@@ -506,19 +543,20 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         deP_CORR_ORIGEN: listaTrasladoSeleccion[index].deP_CORR_ORIGEN,
         deP_CORR_DESTINO: listaTrasladoSeleccion[index].deP_CORR_DESTINO,
         serviciO_DEPENDENCIA: listaTrasladoSeleccion[index].serviciO_DEPENDENCIA,
+        serviciO_DEPENDENCIA_DESTINO: listaTrasladoSeleccion[index].serviciO_DEPENDENCIA_DESTINO || "",
         deT_SERIE: listaTrasladoSeleccion[index].deT_SERIE,
         deT_MODELO: listaTrasladoSeleccion[index].deT_MODELO,
         deT_MARCA: listaTrasladoSeleccion[index].deT_MARCA,
         deT_OBS: listaTrasladoSeleccion[index].deT_OBS,
         traS_MEMO_REF: listaTrasladoSeleccion[index].traS_MEMO_REF,
         traS_FECHA_MEMO: listaTrasladoSeleccion[index].traS_FECHA_MEMO,
+        traS_FECHA: listaTrasladoSeleccion[index].traS_FECHA || "",
         traS_OBS: listaTrasladoSeleccion[index].traS_OBS,
-        traS_NOM_ENTREGA: listaTrasladoSeleccion[index].traS_NOM_ENTREGA,
-        traS_NOM_RECIBE: listaTrasladoSeleccion[index].traS_NOM_RECIBE,
-        traS_NOM_AUTORIZA: listaTrasladoSeleccion[index].traS_NOM_AUTORIZA,
-        traS_FECHA: listaTrasladoSeleccion[index].traS_FECHA
-
+        traS_NOM_ENTREGA: listaTrasladoSeleccion[index].traS_NOM_ENTREGA || "",
+        traS_NOM_RECIBE: listaTrasladoSeleccion[index].traS_NOM_RECIBE || "",
+        traS_NOM_AUTORIZA: listaTrasladoSeleccion[index].traS_NOM_AUTORIZA || "",
       };
+
     });
 
     const result = await Swal.fire({
@@ -535,7 +573,6 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
         popup: "custom-border", // Clase personalizada para el borde
       }
     });
-    console.log(activosSeleccionados);
     // Verificar duplicados antes de mostrar la confirmación
     const duplicados = activosSeleccionados.filter(activo =>
       activosFijos.some(existente => existente.aF_CLAVE === activo.aF_CLAVE)
@@ -824,6 +861,11 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
   const totalPaginas2 = Array.isArray(listaSalidaTraslados)
     ? Math.ceil(listaSalidaTraslados.length / elementosPorPagina2) : 0;
   const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
+
+  // Obtener todos los dep_corr únicos
+  const depCorrLista = elementosActuales2.map(item => item.deP_CORR_ORIGEN);
+  const todosIguales = depCorrLista.every(val => val === depCorrLista[0]);
+
   return (
     <Layout>
       <Helmet>
@@ -841,6 +883,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
             {/* <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}> */}
             <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
               <h5 className={` ${isDarkMode ? "text-light" : "text-dark"}`}>Parámetro de Búsqueda</h5>
+              <span className="text-secondary opacity-75 small">
+                {isExpanded.fila1 ? "Ocultar filtros" : "Mostrar filtros"}
+              </span>
               {isExpanded.fila1 ? (
                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
               ) : (
@@ -1249,7 +1294,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
               {/* Mensaje */}
 
               {activosFijos.length > 0 ? (
-                <div className={`py-2 rounded fw-semibold fs-09em
+                <div className={`text-center py-2 rounded fw-semibold fs-09em
                                   ${isDarkMode
                     ? "bg-success text-light border border-secondary"
                     : "bg-primary bg-opacity-10 text-primary border-none"
@@ -1258,7 +1303,7 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   Se {activosFijos.length > 1 ? "han" : "ha"} agregado <strong>{activosFijos.length}</strong>  {activosFijos.length > 1 ? "bienes" : "bien"} a trasladar.
                 </div>
               ) : (
-                <div className="py-2 rounded fw-semibold text-muted fs-09em bg-secondary bg-opacity-10 border-none">
+                <div className="text-center py-2 rounded fw-semibold text-muted fs-09em bg-secondary bg-opacity-10 border-none">
                   Aún no se han agregado bienes a trasladar
                 </div>
               )}
@@ -1738,9 +1783,12 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
       {
         listaSalidaTraslados.length > 0 && (
           <>
-            <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+            <Modal show={mostrarModalResumen}
+              onHide={() => setMostrarModalResumen(false)}
+              dialogClassName="p-lg-5"
+              fullscreen>
               {/* Mensaje */}
-              <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
+              <div className="text-center py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
               >
                 Se {listaSalidaTraslados.length > 1 ? "han" : "ha"} trasladado <strong>{listaSalidaTraslados.length}</strong>  {listaSalidaTraslados.length > 1 ? "bienes" : "bien"} correctamente.
               </div>
@@ -1793,15 +1841,18 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                   </Col>
                 </Row>
                 <Row className="mb-4">
-                  <Col md={4}>
-                    <p className="fw-semibold">Origen</p>
-                    <p>{listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}</p>
-                  </Col>
+                  {todosIguales === true && (
+                    <Col md={4}>
+                      <p className="fw-semibold">Origen</p>
+                      <p>{listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}</p>
+                    </Col>
+                  )}
                   <Col md={4}>
                     <p className="fw-semibold">Destino</p>
                     <p> {listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}
                     </p>
                   </Col>
+
                 </Row>
                 <Col className="row align-items-center justify-content-center gap-2 px-2">
 
@@ -1834,6 +1885,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                         <th className="text-center">Marca</th>
                         <th className="text-center">Modelo</th>
                         <th className="text-center">Serie</th>
+                        {todosIguales === false && (
+                          <th className="text-center">Origen</th>
+                        )}
                         <th className="text-center">Observación</th>
                         {/* <th className="text-center">Estado</th> */}
                       </tr>
@@ -1848,6 +1902,9 @@ const RegistrarTraslados: React.FC<TrasladosProps> = ({
                             <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
                             <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
                             <td className="text-center">{item.deT_OBS || 'N/A'}</td>
+                            {todosIguales === false && (
+                              <td className="text-center">{item.deP_CORR_ORIGEN || 'N/A'}</td>
+                            )}
                             {/* <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td> */}
                             {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}
                           </tr>

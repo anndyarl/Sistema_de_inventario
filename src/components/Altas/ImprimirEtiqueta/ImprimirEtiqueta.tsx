@@ -985,13 +985,15 @@ const ImprimirEtiqueta: React.FC<DatosBajas> = ({ obtenerEtiquetasAltasActions, 
 
             {/*Modal listado ReImprimir */}
             <Modal show={mostrarModalLista} onHide={() => setMostrarModalLista(false)}
-                dialogClassName="draggable-modal"
-                fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}>
-                <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} style={{ paddingRight: "3%" }} closeButton>
-                    <Modal.Title className="fw-semibold">Reimprimir Etiquetas</Modal.Title>
+                dialogClassName="p-lg-2"
+                fullscreen>
+                <Modal.Header className={` ${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
+                    <h4 className="text-lg-start text-center fw-semibold m-0">
+                        Reimprimir Etiqueta
+                    </h4>
                 </Modal.Header>
-                <Modal.Body className={`me-5 p-4 hide-scrollbar ${isDarkMode ? "darkModePrincipal" : ""}`}>
-                    <Row className="border rounded p-2 m-2">
+                <Modal.Body className={` hide-scrollbar ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                    <Row className="border rounded">
                         <Col lg={3} md={4}>
                             <div className="mb-2">
                                 <div className="flex-grow-1 mb-2">

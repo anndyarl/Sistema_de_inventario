@@ -16,12 +16,14 @@ import { listadoTraspasosRecibidosActions } from "../../redux/actions/Traspasos/
 import { limpiarDataActions } from "../../redux/actions/Configuracion/preferenciasActions.tsx";
 import { listadoTraspasosEnviadosActions } from "../../redux/actions/Traspasos/listadoTraspasosEnviadosActions.tsx";
 import { obtenerAdjuntosActions } from "../../redux/actions/Traspasos/obtenerAdjuntosActions.tsx";
+
 interface FechasProps {
   fDesde: string;
   fHasta: string;
 }
 export interface listadoTraspasos {
   aF_CODIGO_GENERICO: string;
+  aF_CODIGO_GENERICO_D: string;
   n_TRASPASO: number;
   aF_CLAVE: number;
   paS_FECHA: string;
@@ -49,8 +51,9 @@ export interface listadoTraspasos {
   deP_CORR: number;
   traS_CO_REAL: number;
   paS_DET_CORR: number;
-  paS_ESTADO_RECIBE: string;
-  paS_CORR: number;
+  paS_ESTADO_RECIBE: number;
+  fechA_RECIBE: string;
+  observacioN_RECHAZO: string;
 }
 
 interface ListaAdjuntos {
@@ -61,8 +64,8 @@ interface GeneralProps {
   listadoTraspasos: listadoTraspasos[];
   listadoTraspasosRecibidos: listadoTraspasos[];
   listadoTraspasosAdjuntos: ListaAdjuntos[];
-  listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
-  listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
+  listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
+  listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
   registrarMantenedorDependenciasActions: (formModal: Record<string, any>) => Promise<boolean>;
   recibeTraspasoActions: (RecibeTraspaso: Record<string, any>) => Promise<boolean>;
   limpiarDataActions: () => Promise<boolean>;
@@ -114,13 +117,15 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
   const elementosActuales1 = useMemo(() => listadoTraspasosRecibidos.slice(indicePrimerElemento1, indiceUltimoElemento1),
     [listadoTraspasosRecibidos, indicePrimerElemento1, indiceUltimoElemento1]
   );
-
+  const [observacion, setObservacion] = useState({ OBSERVACION_RECHAZO: "" });
+  const [mostrarModalRechazar, setMostrarModalRechazar] = useState<number | null>(null);
   const totalPaginas1 = Array.isArray(listadoTraspasosRecibidos)
     ? Math.ceil(listadoTraspasosRecibidos.length / elementosPorPagina1)
     : 0;
   const paginar1 = (numeroPagina: number) => setPaginaActual1(numeroPagina);
   const [contadorEnviados, setContadorEnviados] = useState(0);
   const [contadorRecibidos, setContadorRecibidos] = useState(0);
+  const [enviandoLocal, setEnviandoLocal] = useState(false);
 
   //------------------------------ Fin ------------------------------------//
 
@@ -201,7 +206,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     fHasta: "",
     tras_corr: 0,
     af_codigo_generico: "",
-    paS_ESTADO_RECIBE: ""
+    paS_ESTADO_RECIBE: 0
   });
 
   const [ListaRecibidos, setListaRecibidos] = useState({
@@ -209,7 +214,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     fHasta: "",
     tras_corr: 0,
     af_codigo_generico: "",
-    paS_ESTADO_RECIBE: ""
+    paS_ESTADO_RECIBE: 0
   });
 
   //Se actualiza el contador que indica el total de traspasos enviados y recibidos
@@ -226,13 +231,13 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     listaAutoEnviados();
     listaAutoRecibidos();
 
-  }, [token]); // Asegúrate de incluir dependencias relevantes
+  }, [token]);
 
   const listaAutoEnviados = async () => {
     //Carga Lista enviados
     if (listadoTraspasos.length == 0) {
       setLoadingEnviados(true);
-      const resultado = await listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+      const resultado = await listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, 0);
 
       if (!resultado) {
         setLoadingEnviados(false);
@@ -248,7 +253,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     //Carga Lista recibidos
     if (listadoTraspasosRecibidos.length == 0) {
       setLoadingRecibidos(true);
-      const resultado = await listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+      const resultado = await listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, 0);
       if (!resultado) {
         setLoadingRecibidos(false);
       }
@@ -305,7 +310,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       ...prevState,
       [name]: newValue,
     }));
-
   };
 
   const handleChangeRecibidos = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
@@ -329,6 +333,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setPaginacion1((prevState) => ({
       ...prevState,
       [name]: newValue,
+    }));
+
+    setObservacion((prevState) => ({
+      ...prevState,
+      [name]: value,
     }));
 
   };
@@ -404,11 +413,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     limpiarDataActions();
     setListaEnviados((prevState) => ({
       ...prevState,
-      paS_ESTADO_RECIBE: "",
+      paS_ESTADO_RECIBE: 0,
     }));
     setListaRecibidos((prevState) => ({
       ...prevState,
-      paS_ESTADO_RECIBE: "",
+      paS_ESTADO_RECIBE: 0,
     }));
     listadoTraspasosEnviadosActions("", "", ListaEnviados.af_codigo_generico, ListaEnviados.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
     listadoTraspasosRecibidosActions("", "", ListaRecibidos.af_codigo_generico, ListaRecibidos.tras_corr, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaRecibidos.paS_ESTADO_RECIBE);
@@ -422,8 +431,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     // Validar si el usuario actual es el creador según su establecimiento
     const esCreadorActual = objeto.Roles[0].codigoEstablecimiento === lista.coD_ESTABL_ORIGEN;
     setEsCreador(esCreadorActual);
-    const estadoEnviado = parseInt(lista.paS_ESTADO_RECIBE);
-    setEstadoEnviado(estadoEnviado);
+    setEstadoEnviado(parseInt(lista.paS_ESTADO_RECIBE));
 
     const numTraspaso = parseInt(lista.n_TRASPASO);
 
@@ -440,9 +448,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setMostrarModalRecibidos(index);
     // Actualiza lista eliminando el elemento seleccionado
     setElementoSeleccionado1((prev) => prev.filter((_, i) => i !== index));
-    const estadoRecibido = parseInt(lista.paS_ESTADO_RECIBE);
-    setEstadoRecibido(estadoRecibido);
-
+    setEstadoRecibido(parseInt(lista.paS_ESTADO_RECIBE));
     const numTraspaso = parseInt(lista.n_TRASPASO);
 
     // Verificar si los adjuntos ya están cargados para este traspaso
@@ -466,14 +472,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     setElementoSeleccionado1((prevSeleccionadas) =>
       prevSeleccionadas.filter((fila) => fila !== index.toString())
     );
-    setMostrarModalRecibidos(null); //Cierra modal del indice seleccionado       
+    setMostrarModalRecibidos(null); //Cierra modal del indice seleccionado 
   };
 
-  const handleSubmitSI = async (aF_CLAVE: number) => {
+  const handleSubmitSI = async (lista: listadoTraspasos) => {
     const result = await Swal.fire({
       icon: "info",
       title: "Confirmar recepción",
-      text: "Está indicando que el bien ha sido enviado y recibido correctamente en su establecimiento.",
+      text: "Está indicando que el bien ha sido recibido correctamente en su establecimiento.",
       showCancelButton: true,
       confirmButtonText: "Marcar como recibido",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
@@ -492,18 +498,24 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       }
 
       const RecibeTraspaso = {
-        aF_CLAVE,
-        pas_estado_recibe: "1",
-        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre) + " " + PrimeraMayuscula(objeto.Apellido1)
+        n_TRASPASO: lista.n_TRASPASO,
+        aF_CLAVE: lista.aF_CLAVE,
+        deP_CORR_ORIGEN: lista.deP_CORR_ORIGEN,
+        deP_CORR: lista.deP_CORR,
+        paS_ESTADO_RECIBE: 1,
+        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre).trim() + " " + PrimeraMayuscula(objeto.Apellido1).trim(),
+        fechA_RECIBE: lista.fechA_RECIBE,
+        COD_ESTABL_DESTINO: objeto.Roles[0].codigoEstablecimiento
       };
 
       const resultado = await recibeTraspasoActions(RecibeTraspaso);
+
       if (resultado) {
 
         Swal.fire({
           icon: "success",
-          title: "Recepción confirmada",
-          text: "La recepción del activo en su establecimiento ha sido registrada correctamente.",
+          title: "Recepción Confirmada",
+          text: "El activo ha sido marcado como recibido.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -511,7 +523,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             popup: "custom-border", // Clase personalizada para el borde
           }
         });
-
         if (mostrarModalEnviados) {
           setMostrarModalEnviados(null);
           listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
@@ -525,7 +536,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: "Hubo un problema al editar la especie.",
+          text: "Hubo un problema registrando la recepción. Por favor, intente nuevamente.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -542,11 +553,12 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     }
   };
 
-  const handleSubmitNO = async (aF_CLAVE: number) => {
+  const handleSubmitNO = async (lista: listadoTraspasos) => {
+
     const result = await Swal.fire({
       icon: "error",
       title: "Rechazar recepción",
-      // text: "El bien rechazado ",
+      text: "Está indicando que el bien no ha sido recibido correctamente en su establecimiento.",
       showCancelButton: true,
       confirmButtonText: "Marcar como rechazado",
       background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
@@ -563,16 +575,22 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
         setLoadingRecibidos(false);
       }
 
+
       const RecibeTraspaso = {
-        aF_CLAVE,
-        pas_estado_recibe: "2",
-        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre) + "" + PrimeraMayuscula(objeto.Apellido1)
+        n_TRASPASO: lista.n_TRASPASO,
+        aF_CLAVE: lista.aF_CLAVE,
+        paS_ESTADO_RECIBE: 2,
+        paS_NOM_RECIBE: PrimeraMayuscula(objeto.Nombre).trim() + " " + PrimeraMayuscula(objeto.Apellido1).trim(),
+        fechA_RECIBE: lista.fechA_RECIBE,
+        COD_ESTABL_DESTINO: objeto.Roles[0].codigoEstablecimiento,
+        OBSERVACION_RECHAZO: observacion.OBSERVACION_RECHAZO
       };
 
       const resultado = await recibeTraspasoActions(RecibeTraspaso);
       if (resultado) {
         Swal.fire({
           icon: "warning",
+          title: "Recepción Rechazada",
           text: "El activo ha sido marcado como rechazado.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
@@ -581,7 +599,6 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             popup: "custom-border", // Clase personalizada para el borde
           }
         });
-
         if (mostrarModalEnviados) {
           setMostrarModalEnviados(null);
           listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, ListaEnviados.paS_ESTADO_RECIBE);
@@ -595,7 +612,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
         Swal.fire({
           icon: "error",
           title: ":'(",
-          text: "Hubo un problema al editar la especie.",
+          text: "Hubo un problema al registrar la recepción.",
           background: `${isDarkMode ? "#1e1e1e" : "ffffff"}`,
           color: `${isDarkMode ? "#ffffff" : "000000"}`,
           confirmButtonColor: `${isDarkMode ? "#6c757d" : "#0d6efd"}`,
@@ -609,6 +626,24 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
       } else {
         setLoadingRecibidos(false);
       }
+    }
+  };
+
+
+  const handleConfirmarRecepcionLocal = async (fila: any, accion: string) => {
+    if (enviandoLocal) return;
+    setEnviandoLocal(true);
+    try {
+      if (accion === 'recibir') {
+        await handleSubmitSI(fila);
+      } else {
+        await setMostrarModalRechazar(fila.aF_CLAVE); // Asumiendo que el primer elemento de la fila es el identificador único
+      }
+      // handleCerrarModalRecibidos(fila);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setEnviandoLocal(false);
     }
   };
 
@@ -669,6 +704,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
     // Limpia la URL del blob después de un momento
     setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
   };
+
+
 
   return (
     <Layout>
@@ -863,7 +900,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                     </div>
                   </Col>
                 </Row>
-                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
                   {/* Tamaño de página */}
                   <Col xs={12} lg="auto">
                     {listadoTraspasos.length > 10 && (
@@ -925,9 +962,9 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         />
                         </td> */}
                                     <td className="text-nowrap small">
-                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary w-100 small"> Sin Validación</span>
-                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success w-100 small">Recibido</span>
-                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger w-100 small">Rechazado</span> : <span>-</span>}
+                                      {Lista.paS_ESTADO_RECIBE === 0 ? <span className="badge bg-primary w-100 small"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === 1 ? <span className="badge bg-success w-100 small">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === 2 ? <span className="badge bg-danger w-100 small">Rechazado</span> : <span>-</span>}
                                     </td>
 
                                     <td className="text-nowrap small">{Lista.aF_CODIGO_GENERICO}</td>
@@ -935,11 +972,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                     <td className="text-nowrap small">{Lista.paS_FECHA}</td>
                                     <td className="text-nowrap small">{Lista.esP_NOMBRE}</td>
                                     <td className="text-nowrap small">{
-                                      Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
-                                        Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                      Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
+                                        Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
                                           Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
                                             Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                              Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                              Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
                                                 Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
                                                   Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
                                                     Lista.usuariO_CREA === 61870 ? 'Elena Navarro' :
@@ -949,7 +986,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                                             Lista.usuariO_CREA === 67404 ? 'Ademir Pindea' :
                                                               Lista.usuariO_CREA === 21479 ? 'Nelsn Quiroz' :
                                                                 Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                                                  Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+                                                                  Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
 
 
                                     }</td>
@@ -1173,20 +1210,20 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                     </div>
                   </Col>
                 </Row>
-                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between">
+                <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-between mb-1">
                   {/* Tamaño de página */}
                   <Col xs={12} lg="auto">
                     {listadoTraspasosRecibidos.length > 10 && (
                       <div className="d-flex align-items-center justify-content-center justify-content-lg-start">
-                        <label htmlFor="nPaginacion" className="form-label fw-semibold mb-0 me-2">
+                        <label htmlFor="nPaginacion1" className="form-label fw-semibold mb-0 me-2">
                           Tamaño de página:
                         </label>
                         <select
                           aria-label="Seleccionar tamaño de página"
                           className={`form-select form-select-sm w-auto ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                          name="nPaginacion"
+                          name="nPaginacion1"
                           onChange={handleChangeRecibidos}
-                          value={Paginacion.nPaginacion}
+                          value={Paginacion1.nPaginacion1}
                         >
                           {[10, 15, 20, 25, 50, 100].map((val) => (
                             <option key={val} value={val}>{val}</option>
@@ -1228,20 +1265,20 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                 return (
                                   <tr key={indexReal}>
                                     <td className="text-nowrap small">
-                                      {Lista.paS_ESTADO_RECIBE === "0" ? <span className="badge bg-primary w-100 small"> Sin Validación</span>
-                                        : Lista.paS_ESTADO_RECIBE === "1" ? <span className="badge bg-success w-100 small">Recibido</span>
-                                          : Lista.paS_ESTADO_RECIBE === "2" ? <span className="badge bg-danger w-100 small">Rechazado</span> : <span>-</span>}
+                                      {Lista.paS_ESTADO_RECIBE === 0 ? <span className="badge bg-primary w-100 small"> Sin Validación</span>
+                                        : Lista.paS_ESTADO_RECIBE === 1 ? <span className="badge bg-success w-100 small">Recibido</span>
+                                          : Lista.paS_ESTADO_RECIBE === 2 ? <span className="badge bg-danger w-100 small">Rechazado</span> : <span>-</span>}
                                     </td>
                                     <td className="text-nowrap small">{Lista.aF_CODIGO_GENERICO}</td>
                                     <td className="text-nowrap small">{Lista.n_TRASPASO}</td>
                                     <td className="text-nowrap small">{Lista.paS_FECHA}</td>
                                     <td className="text-nowrap small" >{Lista.esP_NOMBRE}</td>
                                     <td className="text-nowrap small">{
-                                      Lista.usuariO_CREA === '62511' ? 'Andy Riquelme' :
-                                        Lista.usuariO_CREA === '18124' ? 'Rodrigo Toledo' :
+                                      Lista.usuariO_CREA === 62511 ? 'Andy Riquelme' :
+                                        Lista.usuariO_CREA === 18124 ? 'Rodrigo Toledo' :
                                           Lista.usuariO_CREA === 'JCASTILLO' || Lista.usuariO_CREA === 'jcastillo' || Lista.usuariO_CREA === 1770 ? 'Jaime Castillo' :
                                             Lista.usuariO_CREA === 'DROJASP' || Lista.usuariO_CREA === 'drojasp' || Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                              Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === '18667' ? 'Felipe Almonte' :
+                                              Lista.usuariO_CREA === '1234567' || Lista.usuariO_CREA === 18667 ? 'Felipe Almonte' :
                                                 Lista.usuariO_CREA === 'JVARGAS' || Lista.usuariO_CREA === 'jvargas' || Lista.usuariO_CREA === 6405 ? 'Jonathan Vargas' :
                                                   Lista.usuariO_CREA === 'GFARIAS' || Lista.usuariO_CREA === 'gfarias' || Lista.usuariO_CREA === 888 ? 'Gabriela Farias' :
                                                     Lista.usuariO_CREA === 61870 ? 'Elena Navarro' :
@@ -1251,7 +1288,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                                                             Lista.usuariO_CREA === 67404 ? 'Ademir Pindea' :
                                                               Lista.usuariO_CREA === 21479 ? 'Nelsn Quiroz' :
                                                                 Lista.usuariO_CREA === 66098 ? 'Daniel Rojas' :
-                                                                  Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === '66099' ? 'Katherine Reyes' : Lista.usuariO_CREA
+                                                                  Lista.usuariO_CREA === 'KREYESD' || Lista.usuariO_CREA === 'kreyesd' || Lista.usuariO_CREA === 66099 ? 'Katherine Reyes' : Lista.usuariO_CREA
 
 
                                     }</td>
@@ -1333,7 +1370,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             {/* Estado */}
             {estadoEnviado === 0 ? (
               <>
-                <div className="py-2 rounded fw-semibold fs-09em bg-warning bg-opacity-10 text-warning border-none">
+                <div className="text-center py-2 rounded fw-semibold fs-09em bg-warning bg-opacity-10 text-warning border-none">
                   <Clock className="me-2 flex-shrink-0" aria-hidden="true" />
                   Esperando Validación
                 </div>
@@ -1341,17 +1378,18 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             ) : (
               estadoEnviado === 1 ? (
                 <>
-                  <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none">
+                  <div className="text-center py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none">
                     <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
                     Marcado como recibido</div>
                 </>
               ) : (
                 <>
-                  <div className="py-2 rounded fw-semibold fs-09em bg-danger bg-opacity-10 text-danger border-none">
+                  <div className="text-center py-2 rounded fw-semibold fs-09em bg-danger bg-opacity-10 text-danger border-none">
                     <XCircle className="me-2 flex-shrink-0" aria-hidden="true" />
                     Marcado como rechazado</div>
                 </>
               ))}
+
             <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
               <Modal.Title className="fw-semibold">Traspaso Enviado</Modal.Title>
             </Modal.Header>
@@ -1361,7 +1399,7 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
                 {/* Información General del Traspaso */}
                 <Col lg={6}>
-                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <div className={`p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                     <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
                     <Row className="g-1">
                       <Col md={6}>
@@ -1435,11 +1473,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 
                 {/* Origen y Destino */}
                 <Col lg={6}>
-                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <div className={`p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                     <h5 className="fw-semibold mb-3 pb-1 border-bottom">Establecimiento</h5>
                     <Row className="g-1">
-                      <Col md={12} className="mb-1 border-bottom p-1">
-                        <div className="mb-3">
+                      <Col md={12} className="p-3 border border-warning rounded-3 border-opacity-50 ">
+                        <div className="mb-2">
                           <label className="fw-semibold small d-flex align-items-center mb-1">
                             <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
                             Origen
@@ -1461,8 +1499,8 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                         </div>
                       </Col>
 
-                      <Col md={12} className="mb-1 p-1">
-                        <div className="mb-3">
+                      <Col md={12} className="p-3 border border-success rounded-3 border-opacity-50 ">
+                        <div className="mb-2">
                           <label className="fw-semibold small d-flex align-items-center mb-1">
                             <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
                             Destino
@@ -1525,7 +1563,10 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             <Check2Circle className="mx-1 text-success flex-shrink-0" aria-hidden="true" />
                           </>
                         ) : (
-                          "Sin Información"
+                          <>
+                            Esperando Validación
+                            <Clock className="mx-1 text-warning flex-shrink-0" size={14} aria-hidden="true" />
+                          </>
                         )}
                       </p>
                     </div>
@@ -1598,6 +1639,20 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                     </>
                   )}
                 </Col>
+                {/* Motivo Rechazo */}
+                {estadoEnviado === 2 && (
+                  <Col lg={12}>
+                    <div className={`border-danger bg-danger opacity-75 rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                      <label className="fw-semibold mb-2 text-white">Motivo Rechazo</label>
+                      <div
+                        className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
+                      >
+                        {fila.observacioN_RECHAZO || "Sin observaciones"}
+                      </div>
+                    </div>
+                  </Col>
+                )}
               </Row>
             </Modal.Body>
           </Modal>
@@ -1612,17 +1667,35 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             show={mostrarModalRecibidos === index}
             onHide={() => handleCerrarModalRecibidos(index)}
             size="xl"
+            // animation={false}
             centered
+
           >
-            {/* Validación */}
+
+            {/* Estado */}
             {estadoRecibido === 0 ? (
               <>
-                <p className="py-2 mb-1 rounded fw-semibold fs-09em bg-info bg-opacity-10 text-muted border-none">¿Ha recibido el bien en su establecimiento?</p >
+                {/* Validación */}
+                <p className="text-center py-2 mb-1 rounded fw-semibold fs-09em bg-info bg-opacity-10 text-muted border-none">
+                  ¿Ha recibido el bien en su establecimiento?
+                </p>
                 <div className="d-flex gap-2 w-50 justify-content-center mx-auto">
-                  <Button variant="success" className="w-25" size="sm" onClick={() => handleSubmitSI(fila.aF_CLAVE)}>
+                  <Button
+                    variant="success"
+                    className="w-25"
+                    size="sm"
+                    disabled={enviandoLocal}
+                    onClick={() => handleConfirmarRecepcionLocal(fila, 'recibir')}
+                  >
                     Sí, recibido
                   </Button>
-                  <Button variant="danger" className="w-25" size="sm" onClick={() => handleSubmitNO(fila.aF_CLAVE)}>
+                  <Button
+                    variant="danger"
+                    className="w-25"
+                    size="sm"
+                    disabled={enviandoLocal}
+                    onClick={() => handleConfirmarRecepcionLocal(fila, 'rechazar')}
+                  >
                     No, rechazar
                   </Button>
                 </div>
@@ -1630,17 +1703,19 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
             ) : (
               estadoRecibido === 1 ? (
                 <>
-                  <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none">
+                  <div className="text-center py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none">
                     <Check2Circle className="me-2 flex-shrink-0" aria-hidden="true" />
                     Marcado como recibido</div>
                 </>
               ) : (
                 <>
-                  <div className="py-2 rounded fw-semibold fs-09em bg-danger bg-opacity-10 text-danger border-none">
+                  <div className="text-center py-2 rounded fw-semibold fs-09em bg-danger bg-opacity-10 text-danger border-none">
                     <XCircle className="me-2 flex-shrink-0" aria-hidden="true" />
                     Marcado como rechazado</div>
                 </>
               ))}
+
+
             <Modal.Header closeButton className={isDarkMode ? "darkModePrincipal" : ""}>
               <Modal.Title className="fw-semibold">Traspaso Recibido</Modal.Title>
             </Modal.Header>
@@ -1650,11 +1725,11 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
               <Row className="g-1">
                 {/* Información General del Traspaso */}
                 <Col lg={6}>
-                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <div className={`p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
                     <h5 className="fw-semibold mb-3 pb-1 border-bottom">Información del Traspaso</h5>
                     <Row className="g-1">
                       <Col md={6}>
-                        <label className="fw-semibold small text-muted">Nº Inventario</label>
+                        <label className="fw-semibold small text-muted mb-1 ">Nº Inventario</label>
                         <div
                           className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                         >
@@ -1703,6 +1778,14 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           {fila.esP_CODIGO || "Sin Información"}
                         </div>
                       </Col>
+                      <Col md={6}>
+                        <label className="fw-semibold small text-muted">Estado</label>
+                        <div
+                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        >
+                          {fila.paS_ESTADO_AF || "No definida"}
+                        </div>
+                      </Col>
                       <Col md={12}>
                         <label className="fw-semibold small text-muted">Especie</label>
                         <div
@@ -1711,47 +1794,19 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                           {fila.esP_NOMBRE || "Sin Información"}
                         </div>
                       </Col>
-                      <Col md={12}>
-                        <label className="fw-semibold small text-muted">Estado</label>
-                        <div
-                          className={`rounded border px-3 py-1 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                        >
-                          {fila.paS_ESTADO_AF || "No definida"}
-                        </div>
-                      </Col>
+
                     </Row>
                   </div>
                 </Col>
 
                 {/* Origen y Destino */}
                 <Col lg={6}>
-                  <div className={`border rounded-3 p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
-                    <h5 className="fw-semibold mb-3 pb-1 border-bottom">Establecimiento</h5>
+                  <div className={`p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                    <h5 className="fw-semibold mb-3 pb-1 border-bottom ">Establecimiento</h5>
                     <Row className="g-1">
-                      <Col md={12} className="mb-1 border-bottom p-1">
-                        <div className="mb-3">
-                          <label className="fw-semibold small d-flex align-items-center mb-1">
-                            <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
-                            Destino
-                          </label>
-                          <div
-                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                          >
-                            <p className="fs-07rem  text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
-                          <div
-                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
-                          >
-                            <p className="fs-07rem  text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
-                          </div>
-                        </div>
-                      </Col>
-                      <Col md={12} className="mb-1 p-1">
-                        <div className="mb-3">
-                          <label className="fw-semibold small d-flex align-items-center mb-1">
+                      <Col md={12} className="p-2 border border-warning rounded-3 border-opacity-50 ">
+                        <div className="mb-2">
+                          <label className="fw-semibold  d-flex align-items-center mb-1">
                             <GeoFill className="me-2 text-warning" width={15} height={15} aria-hidden="true" />
                             Origen
                           </label>
@@ -1767,6 +1822,27 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                             className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
                           >
                             <p className="fs-07rem  text-start">  {fila.seR_NOMBRE_ORIGEN + " " + fila.deP_NOMBRE_ORIGEN || "Sin Información"}</p>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={12} className="p-2 border rounded-3 border-success border-opacity-50 ">
+                        <div className="mb-2">
+                          <label className="fw-semibold  d-flex align-items-center mb-1">
+                            <GeoFill className="me-2 text-success" width={15} height={15} aria-hidden="true" />
+                            Destino
+                          </label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            <p className="fs-07rem  text-start">  {fila.establecimientO_DESTINO || "Sin Información"}</p>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="fw-semibold small text-muted">Servicio/Dependencia Destino</label>
+                          <div
+                            className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                          >
+                            <p className="fs-07rem  text-start">  {fila.seR_NOMBRE_DESTINO + " " + fila.deP_NOMBRE_DESTINO || "Sin Información"}</p>
                           </div>
                         </div>
                       </Col>
@@ -1877,7 +1953,73 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
                     </>
                   )}
                 </Col>
+                {/* Motivo Rechazo */}
+                {estadoRecibido === 2 && (
+                  <Col lg={12}>
+                    <div className={`border-danger bg-danger opacity-75 rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                      <label className="fw-semibold mb-2 text-white">Motivo Rechazo</label>
+                      <div
+                        className={`rounded border px-3 py-2 ${isDarkMode ? "bg-dark border-secondary text-light" : "bg-light border-muted text-dark"}`}
+                        style={{ whiteSpace: "pre-wrap", minHeight: "80px" }}
+                      >
+                        {fila.observacioN_RECHAZO || "Sin observaciones"}
+                      </div>
+                    </div>
+                  </Col>
+                )}
               </Row>
+            </Modal.Body>
+          </Modal>
+        ))
+      }
+
+      {/* Detalle rechazo observación */}
+      {
+        elementosActuales1.map((fila, index) => (
+          <Modal
+            key={index}
+            show={mostrarModalRechazar === fila.aF_CLAVE}
+            onHide={() => setMostrarModalRechazar(fila.aF_CLAVE)}
+            size="lg"
+            // animation={false}
+            centered
+          >
+
+            <Modal.Body className={isDarkMode ? "darkModePrincipal" : ""}>
+              <Row className="g-1">
+                <div className={`p-1 h-100 ${isDarkMode ? "border-secondary" : ""}`}>
+                  <h5 className="fw-semibold mb-3 pb-1 border-bottom">Motivo del Rechazo</h5>
+
+                  <Col lg={12}>
+                    <div className={`border rounded-3 p-2 ${isDarkMode ? "border-secondary" : ""}`}>
+                      <label className="fw-semibold mb-2">Observaciones *</label>
+                      <textarea
+                        className={`form-control ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                        rows={4}
+                        placeholder="Describa el motivo del rechazo..."
+                        value={observacion.OBSERVACION_RECHAZO}
+                        onChange={(e) => setObservacion({ OBSERVACION_RECHAZO: e.target.value })}
+                      />
+                    </div>
+                  </Col>
+                </div>
+              </Row>
+
+              <div className="d-flex justify-content-end gap-2 mt-3">
+                <Button variant="secondary" onClick={() => setMostrarModalRechazar(null)}>
+                  Cancelar
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    handleSubmitNO(fila);
+                    setMostrarModalRechazar(null);
+                  }}
+                  disabled={!observacion.OBSERVACION_RECHAZO.trim()}
+                >
+                  Confirmar Rechazo
+                </Button>
+              </div>
             </Modal.Body>
           </Modal>
         ))
@@ -1888,12 +2030,12 @@ const ListadoTraspasos: React.FC<GeneralProps> = ({ listadoTraspasosEnviadosActi
 };
 
 const mapStateToProps = (state: RootState) => ({
-  listadoTraspasos: state.listadoTraspasosReducers.listadoTraspasos,
-  listadoTraspasosRecibidos: state.listadoTraspasosRecibidosReducers.listadoTraspasosRecibidos,
-  listadoTraspasosAdjuntos: state.listadoTraspasosAdjuntosReducers.listadoTraspasosAdjuntos,
-  token: state.loginReducer.token,
-  isDarkMode: state.darkModeReducer.isDarkMode,
-  comboServicio: state.comboServicioReducer.comboServicio,
+  listadoTraspasos: state.listadoTraspasosReducers.listadoTraspasos || [],
+  listadoTraspasosRecibidos: state.listadoTraspasosRecibidosReducers.listadoTraspasosRecibidos || [],
+  listadoTraspasosAdjuntos: state.listadoTraspasosAdjuntosReducers.listadoTraspasosAdjuntos || [],
+  token: state.loginReducer.token || null,
+  isDarkMode: state.darkModeReducer.isDarkMode || false,
+  comboServicio: state.comboServicioReducer.comboServicio || [],
   objeto: state.validaApiLoginReducers,
 });
 

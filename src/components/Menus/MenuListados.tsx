@@ -67,9 +67,9 @@ const MenuListado: React.FC<Props> = ({ isDarkMode }) => {
                                     onClick={toggleSidebar}
                                     className={({ isActive }) =>
                                         classNames(
-                                            'btn py-2 px-3 m-1 text-decoration-none border-0 fw-semibold ',
-                                            isActive ? 'border-bottom  rounded-0 border-2 border-secondary' : '',
-                                            isDarkMode ? 'text-light' : 'text-secondary'
+                                            'btn text-decoration-none border-0 fw-semibold',
+                                            isActive ? `border-bottom rounded-0 border-2 border-primary text-primary fw-semibold` : 'text-secondary',
+                                            isDarkMode ? ' rounded-0 border-2 border-light text-light fw-semibold' : ''
                                         )
                                     }
                                 >

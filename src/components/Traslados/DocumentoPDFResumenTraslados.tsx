@@ -202,6 +202,8 @@ const styles = StyleSheet.create({
     colPrecio: { width: "10%" },
     colServicio: { width: "10%" },
     colCuenta: { width: "10%" },
+    colObs: { width: "15%" },
+    colDependencia: { width: "15%" },
 
     /* ===== FOOTER ===== */
     footer: {
@@ -254,7 +256,14 @@ const formatearFecha = (fecha: string) => {
     return `${dia}/${mes}/${anio}`;
 };
 
+
+
 const DocumentoPDFResumenTraslados = ({ listaSalidaTraslados }: { listaSalidaTraslados: PropsTraslados[] }) => {
+
+    // Obtener todos los dep_corr únicos
+    const depCorrLista = listaSalidaTraslados.map(item => item.deP_CORR_ORIGEN);
+    const todosIguales = depCorrLista.every(val => val === depCorrLista[0]);
+
     return (
         <Document>
             <Page style={styles.page} wrap>
@@ -309,12 +318,14 @@ const DocumentoPDFResumenTraslados = ({ listaSalidaTraslados }: { listaSalidaTra
 
                     {/* Dependencias: Desde / Hasta */}
                     <View style={styles.dependenciasSection}>
-                        <View style={styles.dependenciaBox}>
-                            <Text style={styles.dependenciaLabel}>Origen</Text>
-                            <Text style={styles.dependenciaValor}>
-                                {listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}
-                            </Text>
-                        </View>
+                        {todosIguales === true && (
+                            <View style={styles.dependenciaBox}>
+                                <Text style={styles.dependenciaLabel}>Origen</Text>
+                                <Text style={styles.dependenciaValor}>
+                                    {listaSalidaTraslados[0]?.serviciO_DEPENDENCIA}
+                                </Text>
+                            </View>
+                        )}
                         <View style={styles.dependenciaBox}>
                             <Text style={styles.dependenciaLabel}>Destino</Text>
                             <Text style={styles.dependenciaValor}>
@@ -326,7 +337,7 @@ const DocumentoPDFResumenTraslados = ({ listaSalidaTraslados }: { listaSalidaTra
                     {/* Observacion */}
                     <View style={styles.observacionSection}>
                         <Text style={styles.observacionLabel}>
-                            Observacion:{" "}
+                            Observacion del traslado:{" "}
                             <Text style={styles.observacionValor}>
                                 {listaSalidaTraslados[0].traS_OBS}
                             </Text>
@@ -343,7 +354,10 @@ const DocumentoPDFResumenTraslados = ({ listaSalidaTraslados }: { listaSalidaTra
                         <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
                         <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
                         <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
-                        <Text style={[styles.tableCell, styles.colSerie]}>Obs</Text>
+                        {todosIguales === false && (
+                            <Text style={[styles.tableCell, styles.colDependencia]}>Dependencia Origen</Text>
+                        )}
+                        <Text style={[styles.tableCell, styles.colObs]}>Obs</Text>
                         {/* <Text style={[styles.tableCell, styles.colSerie]}>Estado</Text> */}
                     </View>
                     {/* Fila de datos */}
@@ -354,7 +368,10 @@ const DocumentoPDFResumenTraslados = ({ listaSalidaTraslados }: { listaSalidaTra
                             <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
                             <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>
                             <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.deT_SERIE, 10)}</Text>
-                            <Text style={[styles.tableCell, styles.colSerie]}>{lista.deT_OBS}</Text>
+                            {todosIguales === false && (
+                                <Text style={[styles.tableCell, styles.colDependencia]}>{lista.serviciO_DEPENDENCIA}</Text>
+                            )}
+                            <Text style={[styles.tableCell, styles.colObs]}>{lista.deT_OBS}</Text>
                             {/* <Text style={[styles.tableCell, styles.colSerie]}>{lista.traS_ESTADO}</Text> */}
                         </View>
                     ))}

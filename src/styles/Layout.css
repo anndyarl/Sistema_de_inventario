@@ -348,3 +348,8 @@ padding: 2px;
   background: rgb(0 0 0 / 72%) !important;
   z-index: 1060 !important;
 }
+
+.modal-backdrop-dark {
+  background-color: rgba(0, 0, 0, 0.8) !important; /* Más oscuro */
+  z-index: 1 !important; /* Asegura que esté por debajo del modal */
+}

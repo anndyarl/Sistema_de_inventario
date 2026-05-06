@@ -2270,14 +2270,15 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
             <Modal show={modalModificar} onHide={(handleCerrarModalModificar)}
                 backdrop="static"
                 keyboard={false}
-                fullscreen style={{ top: "3%", width: '100%', maxWidth: "98%", left: "1%", borderRadius: "10px", maxHeight: "95vh" }}
+                dialogClassName="p-lg-2"
+                fullscreen
             >
-                <Modal.Header className={`bg-secondary`} style={{ paddingRight: "3%" }} closeButton>
+                <Modal.Header className={`bg-secondary`} closeButton>
                     <Modal.Title className="fw-semibold text-white">
                         <Pencil className={"flex-shrink-0 h-5 w-5 mx-2 mb-1 "} aria-hidden="true" />Modificar
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body className={`me-5 p-4 ${isDarkMode ? "darkModePrincipal" : ""}`}>
+                <Modal.Body className={`${isDarkMode ? "darkModePrincipal" : ""}`}>
                     {estadoRechazado && (
                         <p className={` text-start  p-2 m-2 rounded border-0 fs-09em fw-semibold bg-warning-subtle text-muted border`} >
                             El documento número <b>{InventarioModificar[0]?.idocumento ?? "-"}</b> ha sido rechazado.
@@ -2288,66 +2289,8 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                         <SkeletonLoader rowCount={elementosPorPaginaModificar} />
                     ) : (
                         <>
-                            <Row className="g-2 align-items-center flex-column flex-lg-row justify-content-lg-end">
-                                <Col xs={12} lg="auto">
-                                    {listaAltasModificar.length > 10 && (
-                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-end">
-                                            <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
-                                                Tamaño de página:
-                                            </label>
-                                            <select
-                                                aria-label="Seleccionar tamaño de página"
-                                                className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
-                                                name="nPaginacionModificar"
-                                                onChange={handleChange}
-                                                value={PaginacionModificar.nPaginacionModificar}
-                                            >
-                                                {[10, 15, 20, 25, 50, 100].map((val) => (
-                                                    <option key={val} value={val}>
-                                                        {val}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    )}
-                                </Col>
-                                <Col xs={12} lg="auto">
-                                    <div className="d-flex justify-content-center justify-content-lg-end">
-                                        {filasSeleccionadas.length > 0 ? (
-                                            <Button
-                                                variant="danger"
-                                                onClick={handleAnular}
-                                                className="p-2 d-flex align-items-center justify-content-center"
-                                                disabled={loading}
-                                            >
-                                                {loading ? (
-                                                    <>
-                                                        Quitar
-                                                        <Spinner
-                                                            as="span"
-                                                            animation="border"
-                                                            size="sm"
-                                                            role="status"
-                                                            aria-hidden="true"
-                                                            className="mx-2"
-                                                        />
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        Quitar
-                                                        <span className="badge bg-light text-dark ms-1">
-                                                            {filasSeleccionadas.length}
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </Button>
-                                        ) : (
-                                            <strong className="alert alert-dark border p-2 mb-0 text-center">
-                                                No hay filas seleccionadas
-                                            </strong>
-                                        )}
-                                    </div>
-                                </Col>
+                            <Row className="g-2 align-items-center flex-column flex-lg-row">
+
                                 <Col xs={12} lg="auto">
                                     <div className="d-flex justify-content-center justify-content-lg-end gap-2">
                                         {listaAltasModificar[0]?.idocumento !== 441154 ? (
@@ -2404,10 +2347,10 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
                                 </Col>
 
                             </Row>
-                            <Row className="g-3 mb-2 mt-2">
+                            <Row className="g-lg-3 g-1 mb-2 mt-2">
                                 {/* Tarjeta de Nº Documento */}
                                 <Col md={3}>
-                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} position-relative`}>
+                                    <div className={`border rounded p-lg-3 p-2 ${isDarkMode ? "bg-secondary" : "bg-light"} position-relative`}>
                                         <small className="text-muted d-block mb-1">Nº Documento</small>
                                         <h5 className="mb-0 fw-bold d-flex align-items-center">
                                             {listaAltasModificar[0]?.idocumento ?? "-"}
@@ -2417,7 +2360,7 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
                                 {/* Tarjeta de Nº Alta */}
                                 <Col md={3}>
-                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                    <div className={`border rounded p-lg-3 p-2  ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
                                         <small className="d-block mb-1">Nº Alta</small>
                                         <h5 className="mb-0 fw-bold">{listaAltasModificar[0]?.altaS_CORR ?? "-"}</h5>
                                     </div>
@@ -2425,24 +2368,84 @@ const EstadoFirmas: React.FC<DatosBajas> = ({ listaEstadoActions, obtieneVisadoC
 
                                 {/* Tarjeta de Fecha Alta */}
                                 <Col md={2}>
-                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                    <div className={`border rounded p-lg-3 p-2 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
                                         <small className="d-block mb-1">Fecha Alta</small>
                                         <h5 className="mb-0 fw-bold">{listaAltasModificar[0]?.fechA_ALTA ?? "-"}</h5>
                                     </div>
                                 </Col>
                                 {/* Tarjeta de Monto Total */}
                                 <Col md={2}>
-                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                    <div className={`border rounded p-lg-3 p-2 {isDarkMode ? "bg-secondary" : "bg-light"} `}>
                                         <small className="d-block mb-1">Total</small>
                                         <h5 className="mb-0 fw-bold">$ {(totalSum ?? 0).toLocaleString("es-ES", { minimumFractionDigits: 0 })}</h5>
                                     </div>
                                 </Col>
                                 {/* Tarjeta de Cantidad */}
                                 <Col md={2}>
-                                    <div className={`border rounded p-3 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
+                                    <div className={`border rounded p-lg-3 p-1 ${isDarkMode ? "bg-secondary" : "bg-light"} `}>
                                         <small className="d-block mb-1">Cantidad</small>
                                         <h5 className="mb-0 fw-bold">{listaAltasModificar.length}</h5>
                                     </div>
+                                </Col>
+                            </Row>
+                            <Row className="d-flex justify-content-lg-between justify-content-center align-items-center">
+                                <Col xs={12} lg="auto">
+                                    {listaAltasModificar.length > 10 && (
+                                        <div className="d-flex align-items-center justify-content-center justify-content-lg-end">
+                                            <label htmlFor="nPaginacionModificar" className="form-label fw-semibold mb-0 me-2">
+                                                Tamaño de página:
+                                            </label>
+                                            <select
+                                                aria-label="Seleccionar tamaño de página"
+                                                className={`form-select form-select-sm w-auto rounded-1 ${isDarkMode ? "bg-dark text-light border-secondary" : ""}`}
+                                                name="nPaginacionModificar"
+                                                onChange={handleChange}
+                                                value={PaginacionModificar.nPaginacionModificar}
+                                            >
+                                                {[10, 15, 20, 25, 50, 100].map((val) => (
+                                                    <option key={val} value={val}>
+                                                        {val}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                </Col>
+                                <Col xs={12} lg="auto" className="m-2">
+
+                                    {filasSeleccionadas.length > 0 ? (
+                                        <Button
+                                            variant="danger"
+                                            onClick={handleAnular}
+                                            className="d-flex align-items-center justify-content-center m-0 w-100 p-2"
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    Quitar
+                                                    <Spinner
+                                                        as="span"
+                                                        animation="border"
+                                                        size="sm"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                    />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Quitar
+                                                    <span className="badge bg-light text-dark ms-1">
+                                                        {filasSeleccionadas.length}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </Button>
+                                    ) : (
+                                        <strong className="d-flex justify-content-center alert alert-dark border p-2 m-0">
+                                            No hay filas seleccionadas
+                                        </strong>
+                                    )}
+
                                 </Col>
                             </Row>
                             <div className="table-responsive">

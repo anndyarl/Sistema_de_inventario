@@ -122,8 +122,8 @@ const styles = StyleSheet.create({
     dependenciasSection: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 8,
-        gap: 8,
+        marginBottom: 2,
+        gap: 2,
     },
     dependenciaBox: {
         width: "48%",
@@ -202,6 +202,9 @@ const styles = StyleSheet.create({
     colPrecio: { width: "10%" },
     colServicio: { width: "10%" },
     colCuenta: { width: "10%" },
+    colDependencia: { width: "15%", fontSize: 5 },
+    colObs: { width: "15%", fontSize: 5 },
+    colEstado: { width: "10%", fontSize: 5 },
 
     /* ===== FOOTER ===== */
     footer: {
@@ -255,7 +258,13 @@ const formatearFecha = (fecha: string) => {
     return `${dia}/${mes}/${anio}`;
 };
 
+
+
 const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTraspasos: PropsTraspasos[] }) => {
+    // Obtener todos los dep_corr únicos
+    const depCorrLista = listaSalidaTraspasos.map(item => item.deP_CORR_ORIGEN);
+    const todosIguales = depCorrLista.every(val => val === depCorrLista[0]);
+
     return (
         <Document>
             <Page style={styles.page} wrap>
@@ -311,15 +320,17 @@ const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTras
 
                     {/* Dependencias: Desde / Hasta */}
                     <View style={styles.dependenciasSection}>
-                        <View style={styles.dependenciaBox}>
-                            <Text style={styles.dependenciaLabel}>Origen</Text>
-                            <Text style={styles.dependenciaValor}>
-                                {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA}
-                                ({listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 1 ? "SSMSO" :
-                                    listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 2 ? "CASR" :
-                                        listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 3 ? "HSJM" : "-"})
-                            </Text>
-                        </View>
+                        {todosIguales === true && (
+                            <View style={styles.dependenciaBox}>
+                                <Text style={styles.dependenciaLabel}>Origen</Text>
+                                <Text style={styles.dependenciaValor}>
+                                    {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA}
+                                    ({listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 1 ? "SSMSO" :
+                                        listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 2 ? "CASR" :
+                                            listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 3 ? "HSJM" : "-"})
+                                </Text>
+                            </View>
+                        )}
                         <View style={styles.dependenciaBox}>
                             <Text style={styles.dependenciaLabel}>Destino</Text>
                             <Text style={styles.dependenciaValor}>
@@ -351,8 +362,11 @@ const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTras
                         <Text style={[styles.tableCell, styles.colMarca]}>Marca</Text>
                         <Text style={[styles.tableCell, styles.colModelo]}>Modelo</Text>
                         <Text style={[styles.tableCell, styles.colSerie]}>Serie</Text>
-                        <Text style={[styles.tableCell, styles.colSerie]}>Obs</Text>
-                        <Text style={[styles.tableCell, styles.colSerie]}>Estado</Text>
+                        {todosIguales === false && (
+                            <Text style={[styles.tableCell, styles.colDependencia]}>Origen</Text>
+                        )}
+                        <Text style={[styles.tableCell, styles.colObs]}>Obs</Text>
+                        <Text style={[styles.tableCell, styles.colEstado]}>Estado</Text>
                     </View>
                     {/* Fila de datos */}
                     {listaSalidaTraspasos.map((lista, idx) => (
@@ -362,8 +376,11 @@ const DocumentoPDFResumenTraspaso = ({ listaSalidaTraspasos }: { listaSalidaTras
                             <Text style={[styles.tableCell, styles.colMarca]}>{lista.deT_MARCA}</Text>
                             <Text style={[styles.tableCell, styles.colModelo]}>{lista.deT_MODELO}</Text>
                             <Text style={[styles.tableCell, styles.colSerie]}>{insertNewLinesDigits(lista.deT_SERIE, 10)}</Text>
-                            <Text style={[styles.tableCell, styles.colSerie]}>{lista.deT_OBS}</Text>
-                            <Text style={[styles.tableCell, styles.colSerie]}>{lista.paS_ESTADO_AF}</Text>
+                            {todosIguales === false && (
+                                <Text style={[styles.tableCell, styles.colDependencia]}>{lista.serviciO_DEPENDENCIA}</Text>
+                            )}
+                            <Text style={[styles.tableCell, styles.colObs]}>{lista.deT_OBS}</Text>
+                            <Text style={[styles.tableCell, styles.colEstado]}>{lista.paS_ESTADO_AF}</Text>
                         </View>
                     ))}
                 </View>

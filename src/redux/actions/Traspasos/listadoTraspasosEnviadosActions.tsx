@@ -6,7 +6,7 @@ import {
 } from "./types";
 import axiosInstance from "../../../services/axiosConfig";
 
-export const listadoTraspasosEnviadosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => async (dispatch: Dispatch): Promise<boolean> => {
+export const listadoTraspasosEnviadosActions = (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => async (dispatch: Dispatch): Promise<boolean> => {
 
   dispatch({ type: LISTA_TRASPASOS_REQUEST });
 

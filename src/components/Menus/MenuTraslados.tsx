@@ -67,9 +67,8 @@ const MenuTraslados: React.FC<Props> = ({ isDarkMode }) => {
                             className={({ isActive }) =>
                                 classNames(
                                     'btn text-decoration-none border-0 fw-semibold',
-                                    isActive
-                                        ? 'border-bottom rounded-0 border-2 border-primary text-primary'
-                                        : (isDarkMode ? 'text-light' : 'text-secondary')
+                                    isActive ? `border-bottom rounded-0 border-2 border-primary text-primary fw-semibold` : 'text-secondary',
+                                    isDarkMode ? ' rounded-0 border-2 border-light text-light fw-semibold' : ''
                                 )
                             }
                         >

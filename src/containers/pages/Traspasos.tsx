@@ -14,6 +14,7 @@ interface NavItem {
   title: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   descripcion: string;
+  disabled: boolean;
 }
 const pageVariants = {
   // initial: { opacity: 0, scale: 0.98 },
@@ -35,8 +36,8 @@ interface Props {
 
 const navigation: NavItem[] = [
 
-  { descripcion: 'Registre el traspasos de sus bienes.', name: 'registrarTraspasos', title: 'Registrar Traspasos', href: '/Traspasos/RegistrarTraspasos/', icon: Send },
-  { descripcion: 'Lista de traspasos registrados.', name: 'listarTraspasos', title: 'Listado de traspasos', href: '/Traspasos/ListadoTraspasos', icon: Table },
+  { descripcion: 'Envíe sus bienes a otros establecimientos.', name: 'registrarTraspasos', title: 'Registrar Traspasos', href: '/Traspasos/RegistrarTraspasos/', icon: Send, disabled: false },
+  { descripcion: 'Confirme la recepción de los bienes en su establecimiento.', name: 'listarTraspasos', title: 'Listado de Traspasos', href: '/Traspasos/ListadoTraspasos', icon: Table, disabled: false },
 ];
 
 const Traspasos: React.FC<Props> = ({ isDarkMode }) => {
@@ -45,25 +46,33 @@ const Traspasos: React.FC<Props> = ({ isDarkMode }) => {
       <Helmet>
         <title>Traspasos</title>
       </Helmet>
+
       <AnimatePresence mode="wait">
         <motion.div key={location.pathname} initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
           <div className="container mt-2">
             <Row className="g-2">
               {navigation.map((item) => (
-                <Col key={item.name} lg={4} md={6} sm={12}>
+
+                < Col key={item.name} lg={4} md={6} sm={12} >
+
                   <NavLink
-                    to={item.href}
+                    to={item.disabled ? "#" : item.href}
                     className={`text-white btn-sm mt-auto text-decoration-none `}
                   >
-                    <div className={`text-center  ${isDarkMode ? "bg-color-dark" : "bg-color"} p-4 border-0 shadow-lg rounded h-100 d-flex flex-column card-hover`}>
+
+                    <div className={`text-center  ${item.disabled ? "opacity-50 pointer-events-none cursor-not-allowed" : ""} ${isDarkMode ? "bg-color-dark" : "bg-color"} p-4 border-0 shadow-lg rounded h-100 d-flex flex-column card-hover`}>
                       <div className="mb-3">
                         <item.icon className="me-3 mt-5 fs-2 flex-shrink-0" aria-hidden="true" />
                       </div>
+
                       <Card.Title className="fw-bold">{item.title}</Card.Title>
+
                       <Card.Text className="fw-light flex-grow-1 mb-2">
                         {item.descripcion}
                       </Card.Text>
+                      {item.disabled && <span className="badge bg-warning text-white fw-bold">En Mantención</span>}
                     </div>
+
                   </NavLink>
                 </Col>
               ))}
@@ -71,7 +80,7 @@ const Traspasos: React.FC<Props> = ({ isDarkMode }) => {
           </div>
         </motion.div>
       </AnimatePresence>
-    </Layout>
+    </Layout >
   );
 };
 

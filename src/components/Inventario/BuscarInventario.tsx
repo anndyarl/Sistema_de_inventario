@@ -85,7 +85,7 @@ interface ListaInventarioProps {
   listaInventarioBuscar: InventarioCompleto[];
   listaInventarioBuscarActions: (af_codigo_generico: string, FechaInicio: string, FechaTermino: string, seR_CORR: number, deP_CORR: number,
     esP_CODIGO: string, nrecepcion: string, marca: string, modelo: string,
-    serie: string, order_compra: string, altaS_CORR: number, estabL_CORR: number) => Promise<boolean>,
+    serie: string, order_compra: string, altaS_CORR: number, estabL_CORR: number, isCrowne: boolean) => Promise<boolean>,
   comboServicio: SERVICIO[];
   comboDependencia: DEPENDENCIA[];
   comboServicioActions: (establ_corr: number) => void;
@@ -167,7 +167,7 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
   const listaAltasAuto = async () => {
     if (listaInventarioBuscar.length === 0) {
       setLoading(true);
-      const resultado = await listaInventarioBuscarActions("", "", "", 0, 0, "", "", "", "", "", "", 0, objeto.Roles[0].codigoEstablecimiento);
+      const resultado = await listaInventarioBuscarActions("", "", "", 0, 0, "", "", "", "", "", "", 0, objeto.Roles[0].codigoEstablecimiento, false);
       if (resultado) {
         setLoading(false);
       }
@@ -235,7 +235,8 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
       Inventario.serie,
       Inventario.aF_OCO_NUMERO_REF,
       Inventario.altaS_CORR,
-      objeto.Roles[0].codigoEstablecimiento
+      objeto.Roles[0].codigoEstablecimiento,
+      false
     );
 
     if (!resultado) {
@@ -281,7 +282,8 @@ const BuscarInventario: React.FC<ListaInventarioProps> = ({ listaInventarioBusca
       Inventario.serie,
       Inventario.aF_OCO_NUMERO_REF,
       Inventario.altaS_CORR,
-      0
+      objeto.Roles[0].codigoEstablecimiento,
+      true
     );
 
     if (!resultado) {

@@ -492,7 +492,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                         onChange={handleChange}
                         value={Paginacion.nPaginacion}
                       >
-                        {[10, 15, 20, 25, 50, 100, 200].map((val) => (
+                        {[10, 15, 20, 25, 50, 100, 200, 300, 400, 500, 600].map((val) => (
                           <option key={val} value={val}>{val}</option>
                         ))}
                       </select>
@@ -638,7 +638,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
                                   onChange={handleChange}
                                   value={Paginacion.nPaginacion}
                                 >
-                                  {[10, 15, 20, 25, 50, 100, 200].map((val) => (
+                                  {[10, 15, 20, 25, 50, 100, 200, 300, 400, 500, 600].map((val) => (
                                     <option key={val} value={val}>{val}</option>
                                   ))}
                                 </select>
@@ -738,6 +738,7 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
             </div >
           </form >
         </div>
+
       </div>
       <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="lg">
         <Modal.Header className={`${isDarkMode ? "darkModePrincipal" : ""}`} closeButton>
@@ -839,7 +840,22 @@ const RegistrarAltas: React.FC<DatosAltas> = ({ listaAltasActions, registrarAlta
 
         </Modal.Body>
       </Modal>
-
+      {
+        loadingRegistro && (
+          <div
+            className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+            style={{
+              backgroundColor: "rgba(0, 0, 0, 0.5)",
+              // zIndex: 1050,
+            }}
+          >
+            <div className="text-center">
+              <div className="spinner-border text-light mb-3" role="status" style={{ width: "3rem", height: "3rem" }} />
+              <p className="text-white fw-semibold mb-0">Enviando, un momento...</p>
+            </div>
+          </div>
+        )
+      }
     </Layout >
 
   );

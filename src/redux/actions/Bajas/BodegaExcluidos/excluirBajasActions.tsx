@@ -4,8 +4,9 @@ import {
   REGISTRAR_EXCLUIDOS_SUCCESS,
   REGISTRAR_EXCLUIDOS_FAIL,
 } from "./../types";
-import { RematesConAdjuntos } from "../../../../components/Bajas/BodegaExcluidos";
+
 import axiosInstance from "../../../../services/axiosConfig";
+import { RematesConAdjuntos } from "../../../../components/Bajas/BodegaExcluidos";
 
 // Acción para obtener la recepción por número
 export const excluirBajasActions = (listaExcluir: RematesConAdjuntos) => async (dispatch: Dispatch): Promise<boolean> => {
@@ -33,10 +34,11 @@ export const excluirBajasActions = (listaExcluir: RematesConAdjuntos) => async (
       });
       return false;
     }
-  } catch (err: any) {
+  } catch (err) {
+    console.error("Error en la solicitud:", err);
     dispatch({
       type: REGISTRAR_EXCLUIDOS_FAIL,
-      error: "Error en la solicitud:", err,
+      error: "Error en la solicitud. Por favor, intente nuevamente.",
     });
     return false;
   }

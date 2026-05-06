@@ -116,8 +116,8 @@ interface PropsGeneral {
     comboDependenciaOrigenActions: (comboServicioOrigen: string) => void; // Nueva prop para pasar el servicio seleccionado
     comboDependenciaDestinoActions: (comboServicioDestino: string) => void; // Nueva prop para pasar el servicio seleccionado 
     obtenerInventarioTraspasoActions: (aF_CODIGO_GENERICO: string, altaS_CORR: number, esP_CODIGO: string, deP_CORR: number, deT_MARCA: string, deT_MODELO: string, deT_SERIE: string, estabL_CORR: number) => Promise<boolean>
-    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
-    listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: string) => Promise<boolean>;
+    listadoTraspasosEnviadosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
+    listadoTraspasosRecibidosActions: (fDesde: string, fHasta: string, af_codigo_generico: string, tras_corr: number, establ_corr: number, usuario_crea: number, pas_estado_recibe: number) => Promise<boolean>;
     listaTraspasoSeleccion: PropsTraspasos[];
     comboEspecies: ListaEspecie[];
     comboSerDepActions: (establ_corr: number) => void;//En buscador  
@@ -158,7 +158,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
     const [error, setError] = useState<Partial<PropsTraspasos> & {}>({});
     const [mostrarModal, setMostrarModal] = useState(false);
     const [mostrarModalTraslado, setMostrarModalTraslado] = useState(false);
-    const [mostrarModalResumen, setMostrarModalResumen] = useState(false);
+    const [mostrarModalResumen, setMostrarModalResumen] = useState(true);
     const [modalMostrarExportar, setModalMostrarExportar] = useState(false);
     const [loadingExportar, setLoadingExportar] = useState(false);
     const [paginaActual, setPaginaActual] = useState(1);
@@ -716,8 +716,8 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                 const resultado = await registroTraspasoMultipleActions(TraspasoConAdjuntos);
                 if (resultado) {
                     mostrarAlerta();
-                    listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
-                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, "");
+                    listadoTraspasosRecibidosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, 0);
+                    listadoTraspasosEnviadosActions("", "", "", 0, objeto.Roles[0].codigoEstablecimiento, objeto.IdCredencial, 0);
                     handleLimpiar();
                     handleLimpiarFormulario();
                     setFilasSeleccionadas([]);
@@ -858,6 +858,11 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
         ? Math.ceil(listaSalidaTraspasos.length / elementosPorPagina2) : 0;
     const paginar2 = (numeroPagina2: number) => setPaginaActual2(numeroPagina2);
 
+
+    // Obtener todos los dep_corr únicos
+    const depCorrLista = elementosActuales2.map(item => item.deP_CORR_ORIGEN);
+    const todosIguales = depCorrLista.every(val => val === depCorrLista[0]);
+
     return (
         <Layout>
             <Helmet>
@@ -874,6 +879,9 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                         {/* <div className={`mb-3 border p-1 rounded-4 ${tieneErroresBusqueda ? "border-danger" : ""}`}> */}
                         <div className={`d-flex justify-content-between align-items-center m-1 p-3 hover-effect rounded-4 ${isDarkMode ? "bg-transparent " : ""}`} onClick={() => toggleRow("fila1")}>
                             <h5 className={` ${isDarkMode ? "text-light" : "text-dark"}`}>Parámetro de Búsqueda</h5>
+                            <span className="text-secondary opacity-75 small">
+                                {isExpanded.fila1 ? "Ocultar filtros" : "Mostrar filtros"}
+                            </span>
                             {isExpanded.fila1 ? (
                                 <CaretUpFill className="flex-shrink-0 h-5 w-5" aria-hidden="true" />
                             ) : (
@@ -1286,7 +1294,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                         >
                             {/* Mensaje */}
                             {activosFijos.length > 0 ? (
-                                <div className={`py-2 rounded fw-semibold fs-09em
+                                <div className={`text-center py-2 rounded fw-semibold fs-09em
                                   ${isDarkMode
                                         ? "bg-success text-light border border-secondary"
                                         : "bg-primary bg-opacity-10 text-primary border-none"
@@ -1296,7 +1304,7 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
 
                                 </div>
                             ) : (
-                                <div className="py-2 rounded fw-semibold text-muted fs-09em bg-secondary bg-opacity-10 border-none">
+                                <div className="text-center py-2 rounded fw-semibold text-muted fs-09em bg-secondary bg-opacity-10 border-none">
                                     Aún no se han agregado bienes a traspasar
                                 </div>
                             )}
@@ -1798,9 +1806,12 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
             {/* Modal Resumen Traspasos */}
             {listaSalidaTraspasos.length > 0 && (
                 <>
-                    <Modal show={mostrarModalResumen} onHide={() => setMostrarModalResumen(false)} size="xl">
+                    <Modal show={mostrarModalResumen}
+                        onHide={() => setMostrarModalResumen(false)}
+                        dialogClassName="p-lg-5"
+                        fullscreen>
                         {/* Mensaje */}
-                        <div className="py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
+                        <div className="text-center py-2 rounded fw-semibold fs-09em bg-success bg-opacity-10 text-success border-none"
                         >
                             Se {listaSalidaTraspasos.length > 1 ? "han" : "ha"} traspasado <strong>{listaSalidaTraspasos.length}</strong>  {listaSalidaTraspasos.length > 1 ? "bienes" : "bien"} correctamente.
                         </div>
@@ -1853,14 +1864,17 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                 </Col>
                             </Row>
                             <Row className="mb-4">
-                                <Col md={4}>
-                                    <p className="fw-semibold">Origen</p>
-                                    <p>        {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA}
-                                        ({listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 1 ? "SSMSO" :
-                                            listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 2 ? "CASR" :
-                                                listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 3 ? "HSJM" : "-"})</p>
-
-                                </Col>
+                                {todosIguales === true && (
+                                    <Col md={4}>
+                                        <p className="fw-semibold">Origen</p>
+                                        <p>
+                                            {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA}
+                                            ({listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 1 ? "SSMSO" :
+                                                listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 2 ? "CASR" :
+                                                    listaSalidaTraspasos[0].estabL_CORR_ORIGEN === 3 ? "HSJM" : "-"})
+                                        </p>
+                                    </Col>
+                                )}
                                 <Col md={4}>
                                     <p className="fw-semibold">Destino</p>
                                     <p> {listaSalidaTraspasos[0]?.serviciO_DEPENDENCIA_DESTINO}
@@ -1901,6 +1915,9 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                             <th className="text-center">Marca</th>
                                             <th className="text-center">Modelo</th>
                                             <th className="text-center">Serie</th>
+                                            {todosIguales === false && (
+                                                <th className="text-center">Origen</th>
+                                            )}
                                             <th className="text-center">Observación</th>
                                             <th className="text-center">Estado</th>
                                         </tr>
@@ -1914,6 +1931,9 @@ const RegistrarTraspasos: React.FC<PropsGeneral> = ({
                                                     <td className="text-center">{item.deT_MARCA || 'N/A'}</td>
                                                     <td className="text-center">{item.deT_MODELO || 'N/A'}</td>
                                                     <td className="text-center">{item.deT_SERIE || 'N/A'}</td>
+                                                    {todosIguales === false && (
+                                                        <td className="text-center">{item.serviciO_DEPENDENCIA || 'N/A'}</td>
+                                                    )}
                                                     <td className="text-center">{item.deT_OBS || 'N/A'}</td>
                                                     <td className="text-center">{item.paS_ESTADO_AF || 'N/A'}</td>
                                                     {/* <td>{item.n_TRASPASO || 'N/A'}</td> */}

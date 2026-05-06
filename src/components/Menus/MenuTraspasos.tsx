@@ -13,6 +13,7 @@ interface NavItem {
     description: string;
     href: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    disabled: boolean;
 }
 interface Props {
     isDarkMode: boolean;
@@ -24,13 +25,15 @@ const MenuTraspasos: React.FC<Props> = ({ isDarkMode }) => {
             name: 'Registrar Traspasos',
             description: 'Registre el traspasos de sus bienes.',
             href: '/Traspasos/RegistrarTraspasos',
-            icon: Send
+            icon: Send,
+            disabled: false
         },
         {
             name: 'Listado de Traspasos',
             description: 'Lista de traspasos registrados.',
             href: '/Traspasos/ListadoTraspasos',
-            icon: Table
+            icon: Table,
+            disabled: false
         },
     ];
 
@@ -63,19 +66,27 @@ const MenuTraspasos: React.FC<Props> = ({ isDarkMode }) => {
                     {navigation.map((item, index) => (
                         <NavLink
                             key={index}
-                            to={item.href}
-                            onClick={toggleSidebar}
+                            to={item.disabled ? "#" : item.href}
+                            onClick={(e) => {
+                                if (item.disabled) {
+                                    e.preventDefault();
+                                    return;
+                                }
+                                toggleSidebar();
+                            }}
                             className={({ isActive }) =>
                                 classNames(
                                     'btn text-decoration-none border-0 fw-semibold',
-                                    isActive
-                                        ? 'border-bottom rounded-0 border-2 border-primary text-primary'
-                                        : (isDarkMode ? 'text-light' : 'text-secondary')
+                                    isActive ? 'border-bottom rounded-0 border-2 border-primary text-primary fw-semibold' : 'text-secondary',
+                                    isDarkMode ? 'rounded-0 border-2 border-light text-light fw-semibold' : '',
+                                    item.disabled ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''
                                 )
                             }
                         >
                             <item.icon className="flex-shrink-0 h-5 w-5" fontSize={20} aria-hidden="true" />
-                            {isMobile ? <p className="fs-06rem ">{item.name}</p> : <span className="ms-2">{item.name}</span>}
+                            {isMobile
+                                ? <p className="fs-06rem">{item.name}</p>
+                                : <span className="ms-2">{item.name}</span>}
                         </NavLink>
                     ))}
                     {/* </div>

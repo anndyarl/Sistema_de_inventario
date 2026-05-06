@@ -824,7 +824,7 @@ const ListadoTraslados: React.FC<GeneralProps> = ({ listadoTrasladosActions, obt
                   <p className="d-flex align-items-center mb-0">
                     {elementoSeleccionado[0]?.traS_NOM_RECIBE === "X" ? (
                       <>
-                        Esperando Validación
+                        Sin recepción
                         <ExclamationCircle className="mx-1 text-warning flex-shrink-0" aria-hidden="true" />
                       </>
                     ) : elementoSeleccionado[0]?.traS_NOM_RECIBE ? (

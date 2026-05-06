@@ -88,7 +88,7 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
                 {/* <button className="navbar-toggler m-1 border-top" type="button" aria-label="Toggle navigation" onClick={toggleSidebar}>
                     {sidebarOpen ? <X size={30} className={`${isDarkMode ? "text-white" : ""}`} /> : <List size={30} className={`${isDarkMode ? "text-white" : ""}`} />}
                 </button> */}
-                <div className="d-flex justify-content-start justify-content-lg-start  container-fluid p-0">
+                <div className="d-flex justify-content-center justify-content-lg-start container-fluid p-0">
                     {/* <div className={`w-100 ${sidebarOpen ? "d-block" : "d-none"} d-lg-block`}> */}
                     {/* <div className="navbar-nav mb-2 mb-lg-0 "> */}
                     {navigation.map((item, index) => (
@@ -99,9 +99,8 @@ const MenuInventario: React.FC<Props> = ({ isDarkMode }) => {
                             className={({ isActive }) =>
                                 classNames(
                                     'btn text-decoration-none border-0 fw-semibold',
-                                    isActive
-                                        ? 'border-bottom rounded-0 border-2 border-primary text-primary'
-                                        : (isDarkMode ? 'text-light' : 'text-secondary')
+                                    isActive ? `border-bottom rounded-0 border-2 border-primary text-primary fw-semibold` : 'text-secondary',
+                                    isDarkMode ? ' rounded-0 border-2 border-light text-light fw-semibold' : ''
                                 )
                             }
                         >

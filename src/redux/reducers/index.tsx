@@ -114,6 +114,7 @@ import listaSalidaTrasladosReducers from "./Traslados/datosTrasladoRegistradoRed
 import preferenciasReducers from "./Configuracion/preferenciasReducers";
 import listaAltasModificarReducers from "./Altas/AnularAltas/listaAltasModificarReducers";
 import listadoTrasladosAdjuntosReducers from "./Traslados/listadoTrasladosAdjuntosReducers";
+import comboFuncionarioBEReducer from "./Bajas/comboFuncionarioBEReducer";
 
 //--------------------- Combinación de Reducers ---------------------//
 const appReducer = combineReducers({
@@ -180,6 +181,7 @@ const appReducer = combineReducers({
   datosBajasRegistradaReducers,
   obtenerListaRematesReducers,
   obtenerListaExcluidosReducers,
+  comboFuncionarioBEReducer,
 
   // Bienes de Funcionarios
   datosBienesFuncionarioReducers,
